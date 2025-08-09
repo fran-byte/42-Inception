@@ -1446,9 +1446,6 @@ Se recomienda probar este procedimiento de recuperación regularmente.
 
 ---
 
-Claro, aquí tienes un resumen muy completo y técnico del capítulo 11 de Docker Networking, respetando la terminología original en inglés y el orden del texto:
-
----
 
 ## 11: Docker Networking
 
@@ -1573,5 +1570,48 @@ docker network create -d overlay overnet
 ```
 
 ---
+
+Claro, aquí tienes un resumen técnico exhaustivo y detallado en español del contenido del capítulo 12 sobre Docker overlay networking, siguiendo el orden y respetando la terminología técnica:
+
+---
+
+### Comunicación entre contenedores en redes overlay de Docker
+
+Se presenta un ejemplo técnico detallado para explicar cómo dos contenedores en diferentes nodos se comunican en una red overlay. Supongamos un contenedor "C1" en el nodo1 y otro "C2" en el nodo2, y que C1 desea hacer ping a C2.
+
+* C1 genera el paquete ICMP con destino a la IP de C2 (ejemplo: 10.0.0.4).
+* Como C1 no tiene la dirección MAC de C2 en su tabla ARP (MAC address table), envía un broadcast para descubrirla.
+* La interfaz VTEP (Virtual Tunnel Endpoint) está conectada a un switch virtual local (Br0) que responde con su propia MAC mediante una respuesta proxy ARP. Esto permite que la VTEP aprenda cómo enviar paquetes hacia C2, actualizando su tabla MAC para futuros envíos.
+* La información de los contenedores nuevos y sus IPs se propaga entre nodos mediante el protocolo gossip interno de Docker Swarm, permitiendo que Br0 sepa dónde está C2.
+* El paquete ping es entonces encapsulado por la VTEP. La encapsulación consiste en agregar un encabezado VXLAN (Virtual Extensible LAN), que contiene un VXLAN Network Identifier (VNID) para mapear la trama Ethernet original al segmento de red virtual adecuado.
+* La trama encapsulada se envuelve en un paquete UDP con destino a la IP de la VTEP remota (nodo2) y al puerto UDP 4789, el puerto estándar para VXLAN. Esta encapsulación permite transportar el tráfico a través de la red física subyacente (underlay) sin que esta tenga conocimiento de VXLAN.
+* Al llegar al nodo2, el kernel reconoce el paquete dirigido al puerto UDP 4789, lo pasa a la VTEP local, que desencapsula la trama, extrae el VNID y la envía al switch virtual Br0 asociado a la VLAN correspondiente.
+* Finalmente, el paquete llega a C2, completando la comunicación.
+
+Este proceso revela cómo Docker utiliza la tecnología VXLAN para construir redes overlay con alta complejidad técnica pero simplificadas para el usuario final mediante comandos Docker. Se advierte que, aunque este conocimiento técnico es valioso para colaborar con equipos de redes, no es necesario dominar todos los detalles para operar Docker en producción.
+
+Además, Docker soporta en redes overlay enrutamiento Layer 3 (Capa 3). Por ejemplo, se pueden crear redes overlay con múltiples subredes (ejemplo: `docker network create --subnet=10.1.1.0/24 --subnet=11.1.1.0/24 -d overlay prod-net`), lo que genera switches virtuales separados (Br0, Br1) dentro del sandbox y Docker se encarga del enrutamiento automático entre ellos.
+
+---
+
+### Comandos principales para Docker overlay networking
+
+* **docker network create**: Crea una nueva red para contenedores. El flag `-d` especifica el driver (controlador) a usar, siendo el más común `overlay`. Se pueden usar drivers de terceros.
+
+  * Por defecto, el plano de control (control plane) está cifrado (encrypted).
+  * Se puede cifrar también el plano de datos (data plane) con el flag `-o encrypted`, aunque esto puede afectar el rendimiento.
+
+* **docker network ls**: Lista todas las redes visibles para un host Docker.
+
+  * En modo Swarm, solo se muestran redes overlay si el host tiene contenedores conectados a esas redes, para minimizar el tráfico del protocolo gossip.
+
+* **docker network inspect**: Muestra información detallada sobre una red específica, incluyendo:
+
+  * Ámbito (scope), driver usado, configuraciones IPv4 e IPv6, subredes, direcciones IP de contenedores conectados, ID de red VXLAN (VNID) y estado de cifrado.
+
+* **docker network rm**: Elimina una red específica.
+
+---
+
 
 
