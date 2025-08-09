@@ -722,7 +722,7 @@ Para resolverlo, Docker, Inc. inició un proceso para descomponer el daemon en h
 </div>
 <br><br><br>
 
-![img17](img/img-019.png)
+![img17](img/img-017.png)
 
 <div align="center">
   
