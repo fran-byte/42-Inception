@@ -866,6 +866,133 @@ Sitio web: [https://labs.play-with-docker.com/](https://labs.play-with-docker.co
 ---
 
 
+Claro, aquí tienes un resumen exhaustivo y detallado en español del contenido del capítulo sobre la arquitectura y evolución del motor Docker, manteniendo toda la terminología técnica clave en inglés con su referencia:
+
+---
+
+# Part 2
+
+### Arquitectura antigua de Docker y eliminación de LXC
+
+En los primeros tiempos, Docker dependía de LXC (Linux Containers) para gestionar los contenedores. Esta dependencia fue problemática por dos razones principales:
+
+* **LXC es específico de Linux**, lo que limitaba la capacidad de Docker para ser multiplataforma.
+* Confiar en una herramienta externa para una función tan crítica representaba un riesgo para la estabilidad y evolución del proyecto.
+
+Para superar esto, Docker, Inc. desarrolló **libcontainer**, una herramienta propia diseñada para ser independiente de la plataforma y permitir a Docker acceder directamente a los componentes fundamentales del kernel del sistema operativo anfitrión. Desde Docker versión 0.9, libcontainer reemplazó a LXC como driver de ejecución predeterminado.
+
+---
+
+### Eliminación del daemon monolítico de Docker
+
+Con el tiempo, el daemon monolítico de Docker se volvió un problema porque:
+
+1. Dificultaba la innovación.
+2. Se volvió más lento.
+3. No respondía bien a las necesidades del ecosistema.
+
+Para resolverlo, Docker, Inc. inició un proceso para descomponer el daemon en herramientas especializadas y modulares siguiendo la filosofía Unix de crear pequeños programas que puedan combinarse para formar sistemas más complejos. El resultado fue que todo el código relacionado con la ejecución y el runtime de contenedores fue extraído y refactorizado en componentes más pequeños.
+
+---
+
+### Influencia del Open Container Initiative (OCI)
+
+Paralelamente, el **Open Container Initiative (OCI)** definía estándares para contenerización, principalmente dos especificaciones publicadas en julio de 2017:
+
+* **Image Spec** (especificación de imagen)
+* **Container Runtime Spec** (especificación del runtime de contenedores)
+
+Estas especificaciones buscan estabilidad y estandarización, y Docker ha adoptado completamente estas normas desde 2016. Esto llevó a que el daemon Docker ya no contenga código de runtime de contenedores, el cual ahora se implementa en una capa OCI independiente.
+
+Por defecto, Docker utiliza **runc** como runtime de contenedores OCI-compliant, mientras que **containerd** se encarga de presentar las imágenes Docker a runc como bundles compatibles con OCI.
+
+---
+
+### runc: El runtime de bajo nivel
+
+**runc** es la implementación de referencia del runtime OCI. Originado como un CLI ligero que actúa como un wrapper para libcontainer, su único propósito es crear contenedores. Es rápido y minimalista, pero carece de funcionalidades avanzadas que ofrece el motor Docker completo. Puede ser usado directamente para crear contenedores OCI, pero no tiene la riqueza funcional del ecosistema Docker.
+
+---
+
+### containerd: El supervisor de ciclo de vida
+
+**containerd** es una herramienta modular diseñada para gestionar operaciones del ciclo de vida de contenedores como iniciar, detener, pausar o eliminar. Funciona como un daemon en Linux y Windows y, desde Docker 1.11, se usa en la arquitectura Docker.
+
+Inicialmente simple, containerd ha incorporado funcionalidades adicionales (gestión de imágenes, volúmenes, redes) para facilitar su integración en proyectos externos como Kubernetes. Estas funcionalidades son modulares y opcionales.
+
+containerd fue desarrollado por Docker, Inc. y donado a la Cloud Native Computing Foundation (CNCF), alcanzando el estado de proyecto graduado y listo para producción.
+
+---
+
+### Ejemplo de creación de un contenedor
+
+El comando típico para iniciar un contenedor es:
+
+```bash
+docker run --name ctr1 -it alpine:latest sh
+```
+
+Este comando es transformado por el cliente Docker en una llamada API que envía al daemon Docker a través del socket local (`/var/run/docker.sock` en Linux o `\pipe\docker_engine` en Windows).
+
+El daemon, sin código de creación de contenedores, delega esta tarea a containerd mediante una API CRUD basada en gRPC. containerd no crea el contenedor directamente, sino que convierte la imagen Docker en un bundle OCI y solicita a runc que cree el contenedor.
+
+runc interactúa con el kernel del sistema operativo para ensamblar los elementos necesarios (namespaces, cgroups) y ejecuta el proceso contenedor. Luego, runc termina su ejecución.
+
+---
+
+### Beneficio principal: contenedores "daemonless"
+
+Al separar la lógica del runtime del daemon, el contenedor puede seguir funcionando independientemente del estado del daemon Docker, lo que permite actualizaciones y mantenimiento del daemon sin afectar contenedores en ejecución.
+
+Antes, reiniciar o detener el daemon terminaba todos los contenedores en el host, lo cual era problemático en producción. Ahora, este problema está resuelto.
+
+---
+
+### ¿Qué es el shim?
+
+El **shim** es un componente esencial para la arquitectura daemonless. containerd crea un proceso runc para cada contenedor, pero cuando runc finaliza tras crear el contenedor, el proceso shim asume el rol de padre del contenedor.
+
+El shim mantiene abiertos los flujos STDIN y STDOUT para que la interacción con el contenedor no se interrumpa durante reinicios del daemon, y también comunica el estado de salida del contenedor al daemon.
+
+---
+
+### Implementación en Linux
+
+En Linux, los componentes descritos existen como binarios independientes:
+
+* `/usr/bin/dockerd`: daemon Docker
+* `/usr/bin/containerd`: gestor de ciclo de vida de contenedores
+* `/usr/bin/containerd-shim-runc-v2`: shim para runc
+* `/usr/bin/runc`: runtime OCI de bajo nivel
+
+Se pueden observar estos procesos en ejecución con comandos como `ps` cuando hay contenedores activos.
+
+---
+
+### ¿Qué funciones quedan en el daemon?
+
+Con la modularización, el daemon mantiene funciones como:
+
+* Gestión de imágenes (en proceso de ser transferida a containerd)
+* Implementación de la API Docker
+* Autenticación y seguridad
+* Gestión de redes y volúmenes
+
+El daemon continúa evolucionando para convertirse en un componente más especializado y ligero.
+
+---
+
+### Resumen final del capítulo
+
+El **Docker Engine** es un software modular que facilita la construcción, distribución y ejecución de contenedores, implementando los estándares OCI y compuesta por múltiples componentes especializados:
+
+* **Docker daemon:** implementa la API Docker y actualmente maneja funciones como redes, volúmenes e imágenes (aunque esta última está migrando a containerd).
+* **containerd:** supervisor de alto nivel que gestiona el ciclo de vida de contenedores e imágenes, modular y utilizado en proyectos como Kubernetes.
+* **runc:** runtime de bajo nivel que se comunica con el kernel para crear contenedores OCI-compliant, basado en libcontainer.
+
+Esta arquitectura modular, la separación clara de responsabilidades y la adopción de estándares abiertos han permitido a Docker evolucionar hacia un ecosistema más estable, extensible y escalable.
+
+---
 
 
 
