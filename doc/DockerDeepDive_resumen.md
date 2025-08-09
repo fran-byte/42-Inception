@@ -1,6 +1,6 @@
 # Docker Deep Dive
 
-
+[!img1](img-000.jpg)
 
 # 1: Contenedores desde 30,000 pies de altura
 
