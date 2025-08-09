@@ -99,16 +99,7 @@ Kubernetes es un sistema open-source desarrollado por Google que se ha convertid
 
 ---
 
-Este resumen completo y detallado recoge todo el contenido importante del capítulo, manteniendo la terminología técnica precisa y el orden del original, para que puedas entender el contexto y funcionamiento fundamental de los contenedores y Docker. ¿Quieres que continúe con los siguientes capítulos de la misma forma?
 
-
----
-
-
-
-Claro, aquí tienes un resumen exhaustivo y traducido al español del capítulo 2 “Docker” siguiendo el formato y criterios que me diste:
-
----
 
 ### 2: Docker
 
@@ -866,9 +857,6 @@ Sitio web: [https://labs.play-with-docker.com/](https://labs.play-with-docker.co
 ---
 
 
-Claro, aquí tienes un resumen exhaustivo y detallado en español del contenido del capítulo sobre la arquitectura y evolución del motor Docker, manteniendo toda la terminología técnica clave en inglés con su referencia:
-
----
 
 # Part 2
 
@@ -1571,9 +1559,6 @@ docker network create -d overlay overnet
 
 ---
 
-Claro, aquí tienes un resumen técnico exhaustivo y detallado en español del contenido del capítulo 12 sobre Docker overlay networking, siguiendo el orden y respetando la terminología técnica:
-
----
 
 ### Comunicación entre contenedores en redes overlay de Docker
 
@@ -1807,7 +1792,7 @@ Ejemplo: Se crea un volumen "myvol", luego se elimina con `docker volume prune` 
 
 ---
 
-## Resumen detallado del capítulo sobre Seguridad en Docker
+##  Seguridad en Docker
 
 ### Escaneo de vulnerabilidades en imágenes (Image Vulnerability Scanning)
 
