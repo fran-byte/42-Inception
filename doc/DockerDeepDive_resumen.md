@@ -709,6 +709,9 @@ Con el tiempo, el daemon monolítico de Docker se volvió un problema porque:
 2. Se volvió más lento.
 3. No respondía bien a las necesidades del ecosistema.
 
+   
+![img13](img/img-013.png)
+
 Para resolverlo, Docker, Inc. inició un proceso para descomponer el daemon en herramientas especializadas y modulares siguiendo la filosofía Unix de crear pequeños programas que puedan combinarse para formar sistemas más complejos. El resultado fue que todo el código relacionado con la ejecución y el runtime de contenedores fue extraído y refactorizado en componentes más pequeños.
 
 ---
