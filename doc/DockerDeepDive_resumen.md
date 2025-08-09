@@ -286,4 +286,248 @@ La OCI está organizada bajo el auspicio de la **Linux Foundation**.
 
 ---
 
+Perfecto. Aquí tienes el contenido solicitado, primero la **traducción completa** y luego el **resumen estructurado** siguiendo el orden del capítulo.
+
+---
+
+
+### 3: Instalando Docker
+
+Existen muchas formas y lugares para instalar Docker: en Windows, Mac y Linux.
+Puedes instalarlo en la nube, en servidores locales (on premises) o en tu portátil. También hay instalaciones manuales, mediante scripts o con asistentes gráficos…
+
+Pero no dejes que eso te intimide. Todas son realmente fáciles, y una simple búsqueda de “how to install docker on `<inserta tu opción aquí>`” revelará instrucciones actualizadas y fáciles de seguir.
+Por ello, no gastaremos demasiado espacio aquí. Cubriremos lo siguiente:
+
+* **Docker Desktop**
+  – Windows
+  – MacOS
+* **Multipass**
+* Instalaciones de servidor en:
+  – Linux
+* **Play with Docker**
+
+---
+
+### **Docker Desktop**
+
+Docker Desktop es una aplicación de escritorio de Docker, Inc. que facilita enormemente el trabajo con contenedores. Incluye el motor de Docker (Docker engine), una interfaz gráfica pulida y un sistema de extensiones con un marketplace.
+Estas extensiones añaden funciones muy útiles, como el escaneo de imágenes en busca de vulnerabilidades o la gestión sencilla de imágenes y espacio en disco.
+
+Docker Desktop es gratuito para fines educativos, pero deberás pagar si lo usas para trabajo y tu empresa tiene más de 250 empleados o más de 10 millones USD de ingresos anuales.
+
+Funciona en versiones de 64 bits de Windows 10, Windows 11, MacOS y Linux.
+
+Una vez instalado, tendrás un entorno Docker completamente funcional ideal para desarrollo, pruebas y aprendizaje. Incluye **Docker Compose** y hasta permite habilitar un clúster Kubernetes de un solo nodo para fines de estudio.
+
+En Windows, Docker Desktop puede ejecutar contenedores nativos de Windows y contenedores Linux.
+En Mac y Linux, solo puede ejecutar contenedores Linux.
+
+A continuación, veremos el proceso de instalación en Windows y MacOS.
+
+---
+
+#### **Requisitos previos para Windows**
+
+Docker Desktop en Windows requiere:
+
+* Versión de 64 bits de Windows 10/11
+* Soporte de virtualización por hardware habilitado en la BIOS del sistema
+* **WSL 2** (Windows Subsystem for Linux, versión 2)
+
+⚠️ Ten mucho cuidado al cambiar configuraciones en la BIOS.
+
+---
+
+#### **Instalando Docker Desktop en Windows 10 y 11**
+
+Busca en internet o pide a tu asistente de IA cómo “install Docker Desktop on Windows”. Esto te llevará a la página de descarga correspondiente, donde podrás obtener el instalador y seguir las instrucciones.
+Es posible que debas instalar y habilitar el backend WSL 2.
+
+Una vez completada la instalación, puede que tengas que iniciar manualmente Docker Desktop desde el menú Inicio de Windows. Puede tardar un minuto en arrancar; podrás seguir el progreso gracias al icono animado de la ballena en la barra de tareas.
+
+Cuando esté en ejecución, abre una terminal y ejecuta:
+
+```bash
+$ docker version
+```
+
+**Salida de ejemplo:**
+
+```
+Client:
+Cloud integration: v1.0.31
+Version: 20.10.23
+API version: 1.41
+Go version: go1.18.10
+Git commit: 7155243
+Built: Thu Jan 19 01:20:44 2023
+OS/Arch: linux/amd64
+Context: default
+Experimental: true
+
+Server:
+Engine:
+Version: 20.10.23
+<Snip>
+OS/Arch: linux/amd64
+Experimental: true
+```
+
+Observa que el **Server** muestra `OS/Arch: linux/amd64`. Esto se debe a que la instalación por defecto trabaja con contenedores Linux.
+
+Puedes cambiar a contenedores Windows haciendo clic derecho en el icono de la ballena en el área de notificaciones y seleccionando **Switch to Windows containers…**.
+Los contenedores Linux seguirán ejecutándose en segundo plano, pero no podrás gestionarlos hasta que vuelvas al modo Linux.
+
+Al ejecutar nuevamente `docker version`, en la sección **Server** verás `OS/Arch: windows/amd64`.
+
+Ahora podrás ejecutar y gestionar contenedores que corran aplicaciones Windows.
+¡Listo! Docker está funcionando en tu máquina Windows.
+
+---
+
+### **Instalando Docker Desktop en Mac**
+
+Docker Desktop para Mac es equivalente al de Windows: un producto empaquetado con interfaz gráfica que instala Docker en un único motor, ideal para desarrollo local. También permite activar un clúster Kubernetes de un solo nodo.
+
+En Mac, Docker Desktop instala todos los componentes de Docker en una **máquina virtual ligera de Linux (VM)** que expone la API de forma transparente al entorno local.
+Esto significa que puedes usar los comandos Docker habituales en tu terminal sin notar que todo corre dentro de una VM Linux.
+Por esta razón, en Mac solo se pueden usar contenedores Linux, lo cual está bien ya que la mayoría del trabajo con contenedores ocurre en Linux.
+
+La forma más sencilla de instalarlo es buscar “install Docker Desktop on MacOS” y seguir el instalador.
+
+Tras instalar, quizá tengas que iniciarlo desde **Launchpad**. Al arrancar, verás el icono animado de la ballena en la barra superior.
+Abre una terminal y ejecuta:
+
+```bash
+$ docker version
+```
+
+**Salida de ejemplo:**
+
+```
+Client:
+Cloud integration: v1.0.31
+Version: 23.0.5
+API version: 1.42
+<Snip>
+OS/Arch: darwin/arm64
+Context: desktop-linux
+
+Server: Docker Desktop 4.19.0 (106363)
+Engine:
+Version: dev
+API version: 1.43 (minimum version 1.12)
+<Snip>
+OS/Arch: linux/arm64
+Experimental: false
+...
+```
+
+El cliente (`Client`) es una aplicación nativa para MacOS (Darwin kernel), mientras que el servidor (`Server`) corre dentro de la VM Linux.
+
+Ya puedes usar Docker en Mac.
+
+---
+
+### **Instalando Docker con Multipass**
+
+Multipass es una herramienta gratuita para crear VMs Linux tipo “cloud” en Linux, Mac o Windows. Es ideal para pruebas rápidas de Docker.
+
+Instálalo desde: [https://multipass.run/install](https://multipass.run/install)
+
+Comandos básicos:
+
+```bash
+$ multipass launch
+$ multipass ls
+$ multipass shell
+```
+
+Para crear una VM llamada `node1` con Docker preinstalado:
+
+```bash
+$ multipass launch docker --name node1
+```
+
+Lista las VMs:
+
+```bash
+$ multipass ls
+```
+
+Conéctate a la VM:
+
+```bash
+$ multipass shell node1
+```
+
+Para eliminarla:
+
+```bash
+$ multipass delete node1
+$ multipass purge
+```
+
+---
+
+### **Instalando Docker en Linux**
+
+Hay múltiples formas de hacerlo; la recomendada es consultar la documentación más reciente.
+Ejemplo en Ubuntu 22.04 LTS:
+
+1. Eliminar paquetes existentes:
+
+```bash
+$ sudo apt-get remove docker docker-engine docker.io containerd runc
+```
+
+2. Actualizar e instalar dependencias:
+
+```bash
+$ sudo apt-get update
+$ sudo apt-get install ca-certificates curl gnupg
+```
+
+3. Añadir clave GPG de Docker:
+
+```bash
+$ sudo install -m 0755 -d /etc/apt/keyrings
+$ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+$ sudo chmod a+r /etc/apt/keyrings/docker.gpg
+```
+
+4. Configurar el repositorio:
+
+```bash
+$ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+| sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+```
+
+5. Instalar desde el repo oficial:
+
+```bash
+$ sudo apt-get update
+$ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+Verifica:
+
+```bash
+$ sudo docker --version
+$ sudo docker info
+```
+
+---
+
+### **Play with Docker**
+
+**Play with Docker (PWD)** es un entorno Docker en línea y gratuito con duración de 4 horas, que permite crear varios nodos y hasta formar un **swarm**.
+Entra en: [https://labs.play-with-docker.com/](https://labs.play-with-docker.com/)
+
+---
+
+
+
 
