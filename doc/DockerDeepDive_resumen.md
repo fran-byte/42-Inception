@@ -717,18 +717,18 @@ Para resolverlo, Docker, Inc. inició un proceso para descomponer el daemon en h
 
 ![img15](img/img-015.png)
 
-<p style="text-align: center;">
+<div align="center">
   *Vieja arquitectura de Docker*
-</p>
+</div>
 
 
 ![img17](img/img-017.png)
 
-<p style="text-align: center;">
+<div align="center">
   
 *Muestra una vista general (high-level view) de la arquitectura actual del motor Docker (Docker engine) con descripciones breves*
 
-</p>
+</div>
 
 ---
 
