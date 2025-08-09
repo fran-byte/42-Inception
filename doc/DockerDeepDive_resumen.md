@@ -831,6 +831,10 @@ El daemon continúa evolucionando para convertirse en un componente más especia
 
 Una imagen en Docker funciona como un archivo manifest que contiene una lista de capas (layers) y metadatos. La aplicación y sus dependencias residen dentro de estas capas, que son totalmente independientes y no tienen conciencia de formar parte de un conjunto mayor. Cada imagen se identifica mediante un ID criptográfico (crypto ID) que es un hash del archivo manifest, mientras que cada capa tiene un crypto ID basado en el hash del contenido de dicha capa.
 
+![img15](img/img-021.png)
+
+<br><br>
+
 Esto implica que cualquier cambio en la imagen o en cualquiera de sus capas provoca una modificación en sus respectivos hashes. Por tanto, las imágenes y capas son inmutables (immutable), lo que facilita detectar cualquier alteración.
 
 ### Complicaciones con compresión y hashes
