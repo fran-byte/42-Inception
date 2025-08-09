@@ -1446,5 +1446,132 @@ Se recomienda probar este procedimiento de recuperación regularmente.
 
 ---
 
+Claro, aquí tienes un resumen muy completo y técnico del capítulo 11 de Docker Networking, respetando la terminología original en inglés y el orden del texto:
+
+---
+
+## 11: Docker Networking
+
+### Niveles de Verbosidad en Logs del Daemon (demonio)
+
+Docker permite configurar distintos niveles de detalle para los logs del daemon, que van desde el más detallado (debug) hasta el menos detallado (fatal):
+
+* **debug**: la opción más verbosa, para depuración.
+* **info**: nivel por defecto, segundo más verboso.
+* **warn**: tercer nivel de verbosidad.
+* **error**: cuarto nivel.
+* **fatal**: menos verboso, solo errores críticos.
+
+Para habilitar el nivel debug y activar la depuración en Docker, se modifica el archivo `daemon.json` así:
+
+```json
+{
+  "debug": true,
+  "log-level": "debug"
+}
+```
+
+Si el archivo no existe, se debe crear, y luego reiniciar Docker para que los cambios tengan efecto.
+
+### Logs de Contenedores
+
+Los logs de contenedores independientes se pueden consultar con `docker logs` y los logs de servicios Swarm con `docker service logs`. Sin embargo, la funcionalidad depende del driver de logging configurado, ya que Docker soporta múltiples drivers, y no todos son compatibles con estos comandos.
+
+Los drivers más comunes son:
+
+* **json-file** (por defecto)
+* **journald** (solo en Linux con systemd)
+* **syslog**
+* **splunk**
+* **gelf**
+
+`json-file` y `journald` son los más fáciles de configurar y compatibles con los comandos de logs de Docker.
+
+Se puede configurar el driver de logs globalmente en `daemon.json`:
+
+```json
+{
+  "log-driver": "syslog"
+}
+```
+
+O bien, configurar por contenedor o servicio con las opciones `--log-driver` y `--log-opts`, que anulan la configuración global.
+
+Los logs funcionan bajo el modelo en que la aplicación corre como PID 1 dentro del contenedor, enviando logs a **STDOUT** y errores a **STDERR**, que el driver de logs redirige al destino configurado.
+
+Ejemplo de uso del comando `docker logs` con un contenedor llamado `vantage-db` configurado con `json-file`:
+
+```bash
+$ docker logs vantage-db
+```
+
+Esto mostrará el output generado por la aplicación corriendo en el contenedor.
+
+### Descubrimiento de Servicios (Service Discovery)
+
+Además de la red básica, libnetwork (la biblioteca de Docker para networking) proporciona servicios de red como el descubrimiento de servicios, que permite a contenedores y servicios Swarm encontrarse por nombre, siempre que estén en la misma red.
+
+Este descubrimiento se basa en el DNS embebido de Docker y el resolvedor DNS dentro de cada contenedor:
+
+1. El contenedor hace una consulta DNS local para resolver el nombre del contenedor destino.
+2. Si no está en caché, la consulta se reenvía al servidor DNS de Docker.
+3. El DNS de Docker mantiene un mapeo nombre-IP para contenedores que usan `--name` o `--net-alias`.
+4. El DNS devuelve la IP al resolvedor local.
+5. El contenedor inicia comunicación con la IP resuelta.
+
+Esto funciona solo si los contenedores están en la misma red; contenedores en redes diferentes no se pueden resolver mutuamente.
+
+Se puede configurar DNS personalizado en contenedores y servicios con las opciones `--dns` (para servidores DNS externos) y `--dns-search` (para dominios de búsqueda), que modifican el `/etc/resolv.conf` del contenedor.
+
+Ejemplo para correr un contenedor con DNS personalizado:
+
+```bash
+docker run -it --name c1 --dns=8.8.8.8 --dns-search=nigelpoulton.com alpine sh
+```
+
+### Balanceo de Carga Ingress
+
+Swarm soporta dos modos para publicar servicios externos:
+
+* **Ingress mode** (modo predeterminado)
+* **Host mode**
+
+**Ingress mode** permite que el servicio sea accesible desde cualquier nodo del cluster, incluso si ese nodo no ejecuta una réplica del servicio.
+
+**Host mode** solo permite acceso a través de nodos que ejecutan réplicas del servicio.
+
+Para publicar un servicio en modo host se usa la forma larga de la opción `--publish`, incluyendo `mode=host`:
+
+```bash
+docker service create -d --name svc1 --publish published=5001,target=80,mode=host nginx
+```
+
+Donde:
+
+* `published=5001`: puerto externo accesible.
+* `target=80`: puerto interno del servicio.
+* `mode=host`: define el modo host para publicar.
+
+En modo **ingress**, Docker usa una malla de routing (service mesh) a nivel de capa 4 que enruta el tráfico que entra en cualquier nodo hacia las réplicas del servicio, independientemente de en qué nodo estén corriendo.
+
+Esto asegura balanceo de carga distribuido entre réplicas y acceso uniforme al servicio.
+
+### Comandos Principales de Docker Networking
+
+Docker provee el subcomando `docker network` para gestionar redes:
+
+* `docker network ls`: lista todas las redes del host.
+* `docker network create`: crea nuevas redes; por defecto `nat` en Windows y `bridge` en Linux. Se puede especificar el driver con `-d`.
+* `docker network inspect`: muestra detalles de configuración de una red.
+* `docker network prune`: elimina redes no usadas.
+* `docker network rm`: elimina redes específicas.
+
+Ejemplo para crear una red overlay:
+
+```bash
+docker network create -d overlay overnet
+```
+
+---
 
 
