@@ -138,7 +138,7 @@ Docker como tecnología se compone principalmente de tres elementos clave:
 2. **El daemon** (motor o engine).
 3. **El orquestador**.
 
-<img src="img/img-007.jpg" alt="img7" width="50%" />
+<img src="img/img-007.png" alt="img7" width="50%" />
 
 ---
 
