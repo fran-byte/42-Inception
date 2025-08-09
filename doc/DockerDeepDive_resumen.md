@@ -982,17 +982,124 @@ El daemon continúa evolucionando para convertirse en un componente más especia
 
 ---
 
-### Resumen final del capítulo
 
-El **Docker Engine** es un software modular que facilita la construcción, distribución y ejecución de contenedores, implementando los estándares OCI y compuesta por múltiples componentes especializados:
 
-* **Docker daemon:** implementa la API Docker y actualmente maneja funciones como redes, volúmenes e imágenes (aunque esta última está migrando a containerd).
-* **containerd:** supervisor de alto nivel que gestiona el ciclo de vida de contenedores e imágenes, modular y utilizado en proyectos como Kubernetes.
-* **runc:** runtime de bajo nivel que se comunica con el kernel para crear contenedores OCI-compliant, basado en libcontainer.
 
-Esta arquitectura modular, la separación clara de responsabilidades y la adopción de estándares abiertos han permitido a Docker evolucionar hacia un ecosistema más estable, extensible y escalable.
+### Concepto y estructura de una imagen
 
----
+Una imagen en Docker funciona como un archivo manifest que contiene una lista de capas (layers) y metadatos. La aplicación y sus dependencias residen dentro de estas capas, que son totalmente independientes y no tienen conciencia de formar parte de un conjunto mayor. Cada imagen se identifica mediante un ID criptográfico (crypto ID) que es un hash del archivo manifest, mientras que cada capa tiene un crypto ID basado en el hash del contenido de dicha capa.
+
+Esto implica que cualquier cambio en la imagen o en cualquiera de sus capas provoca una modificación en sus respectivos hashes. Por tanto, las imágenes y capas son inmutables (immutable), lo que facilita detectar cualquier alteración.
+
+### Complicaciones con compresión y hashes
+
+Cuando se suben (push) o descargan (pull) imágenes, las capas se comprimen para ahorrar ancho de banda y espacio en el registro (registry). Sin embargo, la compresión altera el contenido, haciendo que los hashes de contenido originales ya no coincidan tras estas operaciones.
+
+Esto genera un problema para la verificación de integridad, como la que realiza Docker Hub, que valida cada capa subida con un hash para asegurarse de que no ha sido manipulada. Debido a la compresión, esta verificación fallaría.
+
+La solución es el uso del "distribution hash", que es el hash calculado sobre la versión comprimida de la capa. Este hash de distribución se incluye con cada capa enviada y recibida, garantizando que la capa no fue alterada durante la transferencia.
+
+### Imágenes multi-arquitectura (multi-architecture images)
+
+Docker inicialmente es muy simple, pero al crecer la tecnología tuvo que adaptarse para soportar múltiples plataformas y arquitecturas (Windows, Linux, ARM, x64, PowerPC, s390x, etc.). Esto complicaba el proceso para los usuarios, quienes debían asegurarse de descargar la imagen correcta para su plataforma y arquitectura específicas.
+
+**Definiciones clave:**
+
+* *Arquitectura* (architecture): se refiere al tipo de CPU, como x64, ARM.
+* *Plataforma* (platform): se refiere al sistema operativo (Linux, Windows) o a la combinación OS + arquitectura.
+
+La solución fue crear imágenes multi-arquitectura: un solo tag de imagen (como `golang:latest`) puede contener versiones para diferentes combinaciones de plataforma y arquitectura. Así, al ejecutar un simple comando `docker pull golang:latest`, Docker automáticamente obtiene la imagen adecuada para la plataforma y arquitectura del host.
+
+### Cómo funcionan las imágenes multi-arquitectura
+
+El API del registro (Registry API) utiliza dos constructos principales:
+
+* **Manifest lists**: una lista que indica las arquitecturas soportadas por un tag de imagen.
+* **Manifests**: cada uno corresponde a una arquitectura específica e incluye la configuración de la imagen y las capas correspondientes.
+
+Por ejemplo, para el tag `golang:latest`, el manifest list contiene entradas para Linux en x64, Linux en PowerPC, Windows en x64, Linux en ARM, etc. Cuando un cliente Docker (por ejemplo, un Raspberry Pi con Linux ARM) realiza un pull, primero obtiene el manifest list, busca la entrada correspondiente a su plataforma/arquitectura, luego descarga el manifest y, finalmente, las capas asociadas.
+
+### Ejemplos prácticos
+
+* En un sistema Linux ARM64:
+
+  ```bash
+  docker run --rm golang go version
+  ```
+
+  Salida:
+  `go version go1.20.4 linux/arm64`
+
+* En un sistema Windows x64:
+
+  ```powershell
+  docker run --rm golang go version
+  ```
+
+  Salida:
+  `go version go1.20.4 windows/amd64`
+
+Ambos comandos son idénticos, pero Docker gestiona automáticamente la selección de la imagen correcta.
+
+### Inspección de manifest lists
+
+El comando `docker manifest inspect` permite examinar el manifest list de cualquier imagen en Docker Hub. Por ejemplo:
+
+```bash
+docker manifest inspect golang | grep 'architecture\|os'
+```
+
+muestra las arquitecturas y sistemas operativos soportados, incluyendo versiones específicas de Windows.
+
+### Creación de imágenes multi-arquitectura propias
+
+Se pueden construir imágenes para diferentes plataformas y arquitecturas usando `docker buildx`. Por ejemplo, para crear una imagen para ARMv7 basada en un repositorio:
+
+```bash
+docker buildx build --platform linux/arm/v7 -t myimage:arm-v7 .
+```
+
+El comando puede ejecutarse en una máquina con arquitectura distinta, no es necesario usar un nodo ARMv7.
+
+### Eliminación de imágenes (Deleting Images)
+
+Para eliminar imágenes locales se usa el comando:
+
+```bash
+docker rmi <image_id>
+```
+
+Esto elimina la imagen y sus capas del host local. Sin embargo, capas compartidas entre varias imágenes no se eliminan hasta que todas las imágenes que las referencian sean eliminadas.
+
+No es posible eliminar una imagen si está siendo usada por contenedores activos o detenidos, primero se deben parar y eliminar esos contenedores.
+
+Ejemplo para eliminar varias imágenes:
+
+```bash
+docker rmi image_id1 image_id2
+```
+
+Un atajo útil para eliminar todas las imágenes es combinar:
+
+```bash
+docker rmi $(docker images -q) -f
+```
+
+Este comando obtiene todos los IDs de imágenes y las elimina forzosamente. En Windows funciona en PowerShell, no en CMD.
+
+### Comandos clave para trabajar con imágenes
+
+* `docker pull`: descarga imágenes de registros remotos (por defecto Docker Hub). Ejemplo:
+
+  ```bash
+  docker pull alpine:latest
+  ```
+* `docker images`: lista imágenes locales; con `--digests` muestra sus digests SHA256.
+* `docker inspect`: muestra detalles completos de una imagen, capas y metadatos.
+* `docker manifest inspect`: inspecciona manifest lists en registros remotos.
+* `docker buildx`: extensión CLI para construir imágenes multi-arquitectura.
+* `docker rmi`: elimina imágenes locales, pero no permite eliminar imágenes asociadas a contenedores activos o detenidos.
+
 
 
 
