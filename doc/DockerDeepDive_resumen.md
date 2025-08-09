@@ -438,6 +438,8 @@ $ sudo docker --version
 $ sudo docker info
 ```
 
+![img11](img/img-011.png)
+
 ---
 
 ### **Play with Docker**
