@@ -1804,6 +1804,51 @@ Ejemplo: Se crea un volumen "myvol", luego se elimina con `docker volume prune` 
 * `docker stack ps <stack-name>`: muestra detalles de las tareas de un stack.
 * `docker stack rm <stack-name>`: elimina un stack, sus servicios y redes.
 
+
 ---
+
+## Resumen detallado del capítulo sobre Seguridad en Docker
+
+### Escaneo de vulnerabilidades en imágenes (Image Vulnerability Scanning)
+
+El escaneo de vulnerabilidades en imágenes es una herramienta crucial para inspeccionar profundamente las imágenes Docker en busca de vulnerabilidades conocidas. Existen distintas herramientas y servicios para esto; algunas realizan análisis binarios a nivel profundo y otras simplemente revisan los nombres de paquetes sin examinar el contenido en detalle. Actualmente, Docker Hub ofrece escaneo de imágenes para ciertos tipos de cuentas de pago, aunque esto puede cambiar. También existen registros privados on-premises que incorporan escaneo integrado, además de servicios de terceros y extensiones para Docker Desktop (como Trivy).
+
+**Importante:** Conocer las vulnerabilidades implica la responsabilidad de mitigarlas o corregirlas.
+
+---
+
+### Firmado y verificación de imágenes con Docker Content Trust (DCT)
+
+Docker Content Trust facilita la verificación de la integridad y la autenticidad del editor de una imagen, lo que es esencial al descargar imágenes desde redes no confiables (como Internet). A nivel alto, DCT permite que los desarrolladores firmen las imágenes al subirlas a Docker Hub o a otros registros de contenedores, y que luego se verifique esa firma al descargarlas.
+
+DCT también puede usarse para contextualizar imágenes, por ejemplo, indicando si una imagen está firmada para un entorno específico ("prod" o "dev"), o si está obsoleta.
+
+#### Proceso para usar Docker Content Trust:
+
+1. **Generar un par de claves criptográficas** con `docker trust key generate <nombre>`.
+2. **Asociar la clave con un repositorio de imágenes** mediante `docker trust signer add`.
+3. **Firmar y subir una imagen** con `docker trust sign <repositorio>:<tag>`.
+4. Inspeccionar la firma con `docker trust inspect --pretty`.
+
+Al activar DCT exportando `DOCKER_CONTENT_TRUST=1`, se fuerza que todas las operaciones de push y pull requieran imágenes firmadas, bloqueando las no firmadas. Esto puede ser configurado permanentemente para reforzar la seguridad.
+
+---
+
+### Docker Secrets
+
+Para manejar datos sensibles como contraseñas, certificados o claves SSH, Docker incluye la funcionalidad de **Docker Secrets**, la cual requiere estar en un entorno Docker Swarm para aprovechar el almacenamiento en clúster.
+
+**Características clave de Docker Secrets:**
+
+* Los secretos se almacenan cifrados en reposo y se transmiten cifrados en la red.
+* Se montan en contenedores a través de sistemas de archivos en memoria (tmpfs), sin escribirlos en disco.
+* Se aplica un modelo de mínimo privilegio: solo los servicios explícitamente autorizados pueden acceder a los secretos.
+* Al terminar los contenedores, los secretos se eliminan de la memoria de forma segura.
+* Esto permite a las aplicaciones usar los secretos sin necesidad de manejarlos o descifrarlos manualmente.
+
+El ciclo básico de uso implica crear el secreto (`docker secret create`), asociarlo al servicio con el flag `--secret` en `docker service create`, y luego el sistema se encarga de la entrega segura y montaje en los contenedores.
+
+---
+
 
 
