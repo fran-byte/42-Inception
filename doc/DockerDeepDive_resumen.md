@@ -1185,3 +1185,266 @@ El capítulo resume los comandos más importantes para gestionar contenedores Do
 ---
 
 
+
+### Construcción de imágenes con múltiples etapas (multi-stage builds)
+
+El capítulo inicia mostrando un Dockerfile que define varias etapas de construcción para una aplicación en Go. Se utiliza la imagen base `golang:1.20-alpine` para crear dos binarios, uno para el cliente (`client`) y otro para el servidor (`server`), cada uno en etapas separadas llamadas `build-client` y `build-server`. Luego, en las etapas finales `prod-client` y `prod-server`, que usan la imagen base mínima `scratch`, se copian los binarios desde las etapas de construcción para generar imágenes finales optimizadas y de pequeño tamaño.
+
+Esto permite que la imagen final contenga solo el binario compilado y no todo el entorno de compilación, reduciendo significativamente el tamaño de la imagen. Se ejemplifica el uso del flag `--target` de `docker build` para construir imágenes específicas de estas etapas nombradas.
+
+Los tamaños de las imágenes muestran que las imágenes finales del cliente y servidor pesan aproximadamente la mitad de la imagen combinada, dado que esta última incluye ambos binarios y las dependencias del build.
+
+---
+
+### Construcción multiplataforma (multi-platform builds)
+
+El capítulo explica cómo, usando `docker buildx`, es posible construir imágenes para múltiples arquitecturas en un solo comando, crucial para soportar diferentes entornos como ARM (M1 Mac) y AMD64 (x86\_64).
+
+* Se verifica la instalación de `buildx` con `docker buildx version`.
+* Se crea un builder con el driver `docker-container`.
+* Se usa un ejemplo para construir y subir imágenes a Docker Hub para tres plataformas: `linux/amd64`, `linux/arm64` y `linux/arm/v7`.
+* Se destacan las ventajas de construir multi-plataforma para que los usuarios puedan descargar la imagen correcta según su hardware, sin importar si es ARM o AMD.
+
+Las instrucciones del Dockerfile se ejecutan para cada plataforma y las capas resultantes se empujan a Docker Hub con soporte para manifest lists, permitiendo que Docker seleccione automáticamente la imagen correcta.
+
+---
+
+### Mejores prácticas para Dockerfiles y construcción de imágenes
+
+**Uso eficiente de la caché de construcción**
+
+* Docker construye imágenes en capas, una por cada instrucción del Dockerfile.
+* Si una instrucción ya fue ejecutada con el mismo contexto, Docker reutiliza la capa de la caché (cache hit).
+* Cuando una instrucción cambia (cache miss), se invalidan todas las capas siguientes.
+* Por ello, se recomienda ordenar las instrucciones en el Dockerfile de modo que las que cambian con más frecuencia queden hacia el final, maximizando la reutilización de la caché.
+
+Ejemplo típico:
+
+* `FROM alpine`
+* `RUN apk add --update nodejs nodejs-npm` (puede ser cacheado si no cambia)
+* `COPY . /src` (suele invalidar la caché si el código cambia)
+* `RUN npm install`
+* `EXPOSE 8080`
+* `ENTRYPOINT ["node", "./app.js"]`
+
+El COPY se basa en sumas de verificación (checksums) para detectar cambios en el contenido, no solo en la instrucción.
+
+Se puede forzar ignorar la caché con el flag `--no-cache` en el comando `docker build`.
+
+---
+
+### Imagenes “squashed” (comprimidas en una sola capa)
+
+* La opción `--squash` crea una imagen con todas las capas combinadas en una sola, reduciendo el tamaño.
+* Sin embargo, estas imágenes no pueden compartir capas con otras imágenes, lo que puede aumentar el uso total de disco.
+* Además, en pushes a Docker Hub, deben enviarse todos los datos, mientras que las imágenes no comprimidas solo envían las capas únicas.
+* Por estas razones, el squash no es una práctica recomendada universalmente.
+
+---
+
+### Uso del flag `no-install-recommends` con apt-get
+
+* En imágenes basadas en Debian/Ubuntu, se recomienda usar `apt-get install --no-install-recommends`.
+* Esto evita instalar paquetes recomendados y sugeridos, reduciendo la cantidad de dependencias innecesarias y el tamaño de la imagen.
+
+---
+
+### Comandos básicos y explicaciones de Dockerfiles
+
+* `docker build`: construye una imagen leyendo un Dockerfile.
+
+  * `-t`: etiqueta la imagen con un nombre y etiqueta.
+  * `-f`: especifica la ruta y nombre del Dockerfile.
+* `FROM`: define la imagen base para la construcción o etapa.
+* `RUN`: ejecuta comandos dentro de la imagen durante la construcción, generando una capa nueva.
+* `COPY`: copia archivos/directorios al sistema de archivos de la imagen, creando una nueva capa.
+* `EXPOSE`: documenta el puerto de red que la aplicación usa.
+* `ENTRYPOINT`: define el comando principal que se ejecutará cuando se inicie el contenedor.
+* Otros comandos comunes: `LABEL`, `ENV`, `ONBUILD`, `HEALTHCHECK`, `CMD`.
+
+---
+
+
+## Limpieza de recursos con `docker-compose down`
+
+El comando:
+
+```bash
+docker-compose down --volumes --rmi all
+```
+
+detiene y elimina todos los contenedores de la aplicación multi-contenedor, elimina las redes asociadas, elimina los volúmenes y elimina también las imágenes (flag `--rmi all`). Este es un paso importante para limpiar todos los recursos creados durante el despliegue de la aplicación.
+
+---
+
+## Uso de volúmenes para insertar datos persistentes
+
+Cuando se despliega la aplicación con:
+
+```bash
+docker compose up --detach
+```
+
+Docker Compose verifica si existe un volumen llamado `counter-vol`. Si no existe, lo crea automáticamente. Este volumen se monta en el contenedor `web-fe` en la ruta `/app`, que es donde la aplicación está instalada y ejecutándose (según el Dockerfile).
+
+El volumen puede verse listando con:
+
+```bash
+docker volume ls
+```
+
+Y obtener detalles con:
+
+```bash
+docker volume inspect multi-container_counter-vol
+```
+
+Es importante destacar que Docker Compose crea volúmenes y redes antes de desplegar los servicios, porque estos son componentes de infraestructura necesarios para los contenedores.
+
+---
+
+## Volúmenes montados y su impacto en la ejecución
+
+El montaje del volumen en `/app` permite que el código de la aplicación se ejecute directamente desde el volumen. Esto habilita la posibilidad de modificar archivos fuera del contenedor y que los cambios se reflejen inmediatamente en la aplicación en ejecución.
+
+### Ejemplo práctico para ver cambios en volumen
+
+1. Se modifica el archivo `app/templates/index.html` en el contexto local del proyecto.
+2. Se copia el archivo actualizado al volumen en el sistema de archivos del host Docker.
+3. Al actualizar la página web, se reflejan los cambios en la app.
+
+**Nota:** Esta práctica no funciona en Docker Desktop para Mac o Windows debido a que Docker Desktop ejecuta Docker dentro de una VM ligera donde los volúmenes están encapsulados.
+
+Para encontrar el path del volumen en el host:
+
+```bash
+docker inspect multi-container_counter-vol | grep Mountpoint
+```
+
+Ejemplo de copiar el archivo actualizado al volumen (se puede requerir `sudo`):
+
+```bash
+cp ./counter-app/app.py /var/lib/docker/volumes/multi-container_counter-vol/_data/app/templates/index.html
+```
+
+Luego, al acceder a la aplicación (por ejemplo, en `http://<IP_DockerHost>:5001`), se verá el contenido actualizado.
+
+---
+
+## Gestión básica de aplicaciones con Docker Compose: comandos clave
+
+* **`docker compose up`**: despliega la aplicación definida en el archivo Compose (por defecto `compose.yaml`), creando imágenes, contenedores, redes y volúmenes. El flag `--detach` inicia los contenedores en segundo plano.
+
+* **`docker compose stop`**: detiene todos los contenedores sin eliminarlos, permitiendo reinicios rápidos con `docker compose restart`.
+
+* **`docker compose rm`**: elimina contenedores y redes de una app detenida, pero no elimina volúmenes ni imágenes por defecto.
+
+* **`docker compose restart`**: reinicia una app detenida. Cambios realizados en el archivo Compose mientras la app está detenida no se aplican hasta un nuevo despliegue (`up`).
+
+* **`docker compose ps`**: muestra una lista de contenedores de la app, su estado, comandos y puertos expuestos.
+
+* **`docker compose down`**: detiene y elimina contenedores y redes, pero no elimina volúmenes ni imágenes.
+
+---
+
+
+
+# Capítulo 10: Docker Swarm
+
+### Resolución de problemas (Troubleshooting)
+
+Para visualizar los logs de los servicios en Swarm se utiliza el comando `docker service logs <nombre-servicio>`. Sin embargo, no todos los drivers de logging (log drivers) soportan este comando. Por defecto, los nodos Docker configuran los servicios para usar el driver de logs `json-file`, aunque existen otros como:
+
+* `awslogs`
+* `gelf`
+* `gcplogs`
+* `journald` (funciona solo en hosts Linux con systemd)
+* `splunk`
+* `syslog`
+
+Los drivers `json-file` y `journald` son los más sencillos de configurar y funcionan con `docker service logs`. Si se usan drivers de terceros, se deben revisar los logs con las herramientas nativas de la plataforma de logging.
+
+La configuración del driver de logs en el host Docker se puede definir en el archivo `daemon.json` (por defecto ubicado en `/etc/docker/daemon.json`), aunque puede no existir hasta que se cree manualmente. Un ejemplo para usar `syslog`:
+
+```json
+{
+  "log-driver": "syslog"
+}
+```
+
+Se puede forzar que un servicio use un driver distinto al predeterminado al crear el servicio con `docker service create --log-driver` y `--log-opts`, los cuales sobrescriben la configuración del `daemon.json`.
+
+Los servicios esperan que las aplicaciones se ejecuten como PID 1, enviando logs a STDOUT y errores a STDERR, que son capturados por el driver de logging y enviados a la ubicación configurada.
+
+Ejemplo de salida de `docker service logs svc1` muestra logs de todas las réplicas de un servicio, identificando cada línea con nombre de réplica, ID y host, permitiendo diagnosticar fallos, por ejemplo cuando algunas réplicas fallan al intentar conectar con otro servicio que aún está iniciándose.
+
+Opciones útiles del comando:
+
+* `--follow` para seguir logs en tiempo real.
+* `--tail` para mostrar solo las últimas líneas.
+* `--details` para obtener información adicional.
+
+---
+
+### Respaldo (Backup) y recuperación de un Swarm
+
+El respaldo del Swarm consiste en guardar la configuración y estado del plano de control (control plane), útil en casos extremos de fallos o corrupción. Aunque el plano de control es replicado y altamente disponible (HA), el respaldo es necesario ante operaciones destructivas propagadas a todos los nodos, como la eliminación maliciosa de Secrets, donde HA propaga rápidamente la pérdida.
+
+Para minimizar riesgos, es recomendable gestionar configuraciones y objetos declarativamente fuera del Swarm, por ejemplo en repositorios de control de versiones, para permitir redeploys en caso de desastre.
+
+#### Cómo respaldar un Swarm
+
+* La configuración del Swarm se almacena en `/var/lib/docker/swarm` en cada nodo manager.
+* Esta carpeta contiene el log de Raft, redes overlay, Secrets, Configs, Servicios, etc.
+* Dado que los datos se replican en todos los managers, se puede hacer backup desde cualquiera, pero se recomienda hacerlo desde un manager no líder para evitar elecciones de líder (leader election) al detener Docker.
+* Detener el demonio Docker (`service docker stop`) en el manager elegido.
+* Realizar la copia (ejemplo con `tar -czvf swarm.bkp /var/lib/docker/swarm/`).
+* Verificar que el archivo de backup exista.
+* Reiniciar el demonio Docker (`service docker restart`).
+* Si el Swarm está bloqueado, desbloquear con `docker swarm unlock` usando la clave correspondiente.
+
+Es aconsejable realizar el backup en horarios de baja actividad para minimizar riesgos.
+
+#### Cómo recuperar un Swarm desde backup
+
+Solo debe realizarse en caso de corrupción o pérdida irrecuperable.
+
+Requisitos para la recuperación:
+
+1. Restaurar en un nodo con la misma versión de Docker que el backup.
+2. Restaurar en un nodo con la misma IP que el original.
+
+Pasos para restaurar:
+
+1. Detener Docker en el nodo.
+2. Eliminar la carpeta `/var/lib/docker/swarm`.
+3. Extraer el backup (ejemplo: `tar -zxvf swarm.bkp -C /`).
+4. Verificar que los archivos se hayan restaurado.
+5. Iniciar Docker (`service docker start`).
+6. Desbloquear el Swarm si está bloqueado (`docker swarm unlock`).
+7. Inicializar un nuevo Swarm forzando un nuevo cluster con `docker swarm init --force-new-cluster --advertise-addr <IP>:2377 --listen-addr <IP>:2377`.
+8. Verificar que las redes overlay (por ejemplo, `unimatrix01`) se hayan recuperado (`docker network ls`).
+9. Añadir nuevos managers y workers según sea necesario y realizar backups frescos.
+
+Se recomienda probar este procedimiento de recuperación regularmente.
+
+---
+
+### Comandos esenciales de Docker Swarm
+
+* `docker swarm init`: crea un nuevo Swarm, el nodo actual se vuelve manager y entra en modo Swarm.
+* `docker swarm join-token`: muestra comandos y tokens para unir managers o workers al Swarm.
+* `docker node ls`: lista todos los nodos del Swarm, indicando roles y líder.
+* `docker service create`: crea un nuevo servicio.
+* `docker service ls`: lista servicios en ejecución con estado y réplicas.
+* `docker service ps <servicio>`: muestra información detallada de réplicas.
+* `docker service inspect`: muestra detalles del servicio, con opción `--pretty` para formato legible.
+* `docker service scale`: cambia el número de réplicas.
+* `docker service update`: actualiza propiedades de un servicio en ejecución.
+* `docker service logs`: visualiza logs del servicio.
+* `docker service rm`: elimina un servicio (elimina todas sus réplicas sin confirmación).
+
+---
+
+
+
