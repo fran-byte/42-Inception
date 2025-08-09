@@ -876,6 +876,8 @@ El API del registro (Registry API) utiliza dos constructos principales:
 * **Manifest lists**: una lista que indica las arquitecturas soportadas por un tag de imagen.
 * **Manifests**: cada uno corresponde a una arquitectura específica e incluye la configuración de la imagen y las capas correspondientes.
 
+![img37](img/img-037.png)
+
 Por ejemplo, para el tag `golang:latest`, el manifest list contiene entradas para Linux en x64, Linux en PowerPC, Windows en x64, Linux en ARM, etc. Cuando un cliente Docker (por ejemplo, un Raspberry Pi con Linux ARM) realiza un pull, primero obtiene el manifest list, busca la entrada correspondiente a su plataforma/arquitectura, luego descarga el manifest y, finalmente, las capas asociadas.
 
 ### Ejemplos prácticos
@@ -969,6 +971,8 @@ Este comando obtiene todos los IDs de imágenes y las elimina forzosamente. En W
 
 El capítulo comienza explicando la política de reinicio **--restart always**, la más simple y estricta. Esta política hace que Docker reinicie automáticamente un contenedor si falla o se detiene inesperadamente, a menos que el contenedor haya sido detenido explícitamente con `docker stop`. Por ejemplo, si se inicia un contenedor interactivo con esta política y se ejecuta un shell (`sh`), al salir del shell (comando `exit`), el proceso principal (PID 1) del contenedor termina, lo que detiene el contenedor. Sin embargo, Docker reinicia automáticamente el mismo contenedor —no crea uno nuevo— y el tiempo de actividad mostrado por `docker ps` será menor que el tiempo desde su creación.
 
+![img39](img/img-039.png)
+
 Otra característica importante de la política **always** es que, aunque el contenedor haya sido detenido con `docker stop`, si se reinicia el daemon de Docker, el contenedor se reiniciará automáticamente.
 
 En contraste, la política **--restart unless-stopped** no reinicia contenedores que hayan sido detenidos manualmente (`docker stop`) cuando se reinicia el daemon de Docker. Es decir, si un contenedor con esta política está detenido, al reiniciar Docker no se levantará automáticamente.
@@ -1003,6 +1007,8 @@ Aquí:
 * `--name webserver` nombra el contenedor.
 * `-p 80:8080` mapea el puerto 80 del host al 8080 del contenedor, permitiendo acceso externo a la aplicación web.
 * Se usa la imagen `nigelpoulton/ddd-book:web0.1`, que contiene un servidor Node.js.
+
+![img45](img/img-045.png)
 
 Al listar los contenedores con `docker ps`, se muestra el mapeo de puertos y el estado de ejecución.
 
@@ -1053,7 +1059,9 @@ Este capítulo explica detalladamente cómo construir imágenes Docker para una 
 
 ---
 
-#### Construcción de la imagen con Docker build
+#### Construcción de la imagen con Docker 
+
+![img47](img/img-047.png)
 
 Se muestra un ejemplo usando el comando:
 
@@ -1076,6 +1084,8 @@ El comando `docker history multi:stage` muestra que la imagen final tiene solo d
 
 El build multi-stage también permite construir varias imágenes a partir de un solo Dockerfile, separando por ejemplo la imagen para el cliente y para el servidor. Se presenta un ejemplo (archivo `Dockerfile-final`) con etapas separadas:
 
+![img49](img/img-049.png)
+
 ```dockerfile
 FROM golang:1.20-alpine AS base
 WORKDIR /src
@@ -1097,6 +1107,9 @@ FROM scratch AS prod-server
 COPY --from=build-server /bin/server /bin/
 ENTRYPOINT [ "/bin/server" ]
 ```
+![img51](img/img-051.png)
+![img53](img/img-053.png)
+![img55](img/img-055.png)
 
 Aquí, las dos últimas etapas (prod-client y prod-server) generan imágenes independientes para cliente y servidor. Con el flag `--target` de `docker build` se puede elegir cuál construir:
 
@@ -1175,6 +1188,8 @@ Esto ejecuta el build completo para cada plataforma, generando imágenes compati
 
 * `RUN`: Ejecuta comandos en la imagen durante el build (actualizar paquetes, instalar dependencias). Cada RUN crea una nueva capa.
 
+ ![img57](img/img-057.png)
+
 * `COPY`: Copia archivos desde el contexto de build a la imagen, creando una capa.
 
 * `EXPOSE`: Documenta el puerto de red que usa la aplicación.
@@ -1182,6 +1197,8 @@ Esto ejecuta el build completo para cada plataforma, generando imágenes compati
 * `ENTRYPOINT`: Define el comando predeterminado que se ejecutará cuando el contenedor arranque.
 
 * Otras instrucciones importantes: `LABEL`, `ENV`, `ONBUILD`, `HEALTHCHECK`, `CMD`.
+
+![img61](img/img-061.png)
 
 ---
 
