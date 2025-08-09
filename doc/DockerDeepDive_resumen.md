@@ -1614,4 +1614,196 @@ Además, Docker soporta en redes overlay enrutamiento Layer 3 (Capa 3). Por ejem
 ---
 
 
+### Gestión y características de los volúmenes Docker
+
+Al listar volúmenes con `docker volume ls`, se muestra información como el driver (controlador) y el nombre del volumen. Por ejemplo, un volumen llamado "myvol" con driver y ámbito (Scope) **local**, indica que fue creado con el driver local y solo está disponible para contenedores en ese host Docker.
+
+El atributo **Mountpoint** indica la ruta del volumen en el sistema de archivos del host Docker. En Linux, los volúmenes locales se crean bajo `/var/lib/docker/volumes/`, y en Windows bajo `C:\ProgramData\Docker\volumes\`. Aunque es posible acceder directamente a estos archivos desde el host, no se recomienda hacerlo para evitar problemas de consistencia.
+
+---
+
+### Creación, inspección y eliminación de volúmenes
+
+* Los volúmenes existen independientemente de los contenedores.
+* Se pueden eliminar volúmenes con dos comandos:
+
+  * `docker volume prune`: elimina **todos** los volúmenes no montados en contenedores o servicios (¡cuidado con su uso!).
+  * `docker volume rm <nombre>`: elimina un volumen específico no en uso.
+* No es posible eliminar un volumen que esté montado en un contenedor o servicio activo.
+
+Ejemplo: Se crea un volumen "myvol", luego se elimina con `docker volume prune` porque no estaba en uso.
+
+---
+
+### Uso de volúmenes con contenedores y servicios
+
+* Para montar un volumen en un contenedor se usa la opción `--mount`, especificando el volumen y el punto de montaje en el contenedor.
+
+* Si el volumen especificado no existe, Docker lo crea automáticamente. Por ejemplo:
+
+  ```bash
+  docker run -it --name voltainer --mount source=bizvol,target=/vol alpine
+  ```
+
+  Esto crea y monta el volumen "bizvol" en `/vol` dentro del contenedor.
+
+* No se puede eliminar un volumen que esté en uso, Docker devolverá un error.
+
+* Se puede escribir dentro del volumen desde el contenedor y los datos persistirán aun si el contenedor es eliminado. Esto se verifica accediendo al directorio del volumen en el host Docker.
+
+* Los datos almacenados en un volumen pueden ser reutilizados montando ese volumen en un nuevo contenedor o servicio, manteniendo la persistencia.
+
+---
+
+### Compartición de almacenamiento en un clúster Docker
+
+* Para compartir datos entre contenedores en diferentes nodos del clúster, se usan sistemas de almacenamiento externos (storage backends) como LUNs o NFS compartidos.
+
+* Esto permite que múltiples hosts Docker accedan al mismo volumen, facilitando el uso de datos compartidos por contenedores distribuidos.
+
+* Implementar esta arquitectura requiere:
+
+  * Acceso a sistemas especializados de almacenamiento.
+  * Conocimiento de cómo las aplicaciones interactúan con almacenamiento compartido.
+  * Instalación de plugins de volumen compatibles con el sistema de almacenamiento.
+
+* Los plugins de volumen son contenedores que extienden la funcionalidad de Docker para soportar almacenamiento externo. Se pueden buscar e instalar desde Docker Hub con `docker plugin install`.
+
+---
+
+### Riesgo de corrupción de datos con almacenamiento compartido
+
+* Cuando varios contenedores en diferentes nodos escriben simultáneamente en un volumen compartido, puede producirse corrupción de datos por condiciones de carrera.
+* Ejemplo:
+
+  * Aplicación en contenedor 1 actualiza datos y los mantiene en un buffer local (cache), pero no ha sincronizado aún con el volumen.
+  * Aplicación en contenedor 2 actualiza el mismo dato y lo escribe directamente.
+  * Cuando contenedor 1 finalmente sincroniza su buffer, sobreescribe el cambio realizado por contenedor 2, sin que este lo sepa.
+* Para evitar corrupción se deben diseñar aplicaciones conscientes del almacenamiento compartido, implementando mecanismos de bloqueo, sincronización o bases de datos transaccionales.
+
+---
+
+### Comandos principales para manejar volúmenes Docker
+
+* `docker volume create`: crea un nuevo volumen. Por defecto usa el driver local, pero se puede especificar otro con `-d`.
+* `docker volume ls`: lista todos los volúmenes en el host local.
+* `docker volume inspect`: muestra detalles del volumen, incluyendo ruta en el host, driver, etiquetas, etc.
+* `docker volume prune`: elimina todos los volúmenes no usados por contenedores o servicios.
+* `docker volume rm`: elimina volúmenes específicos que no estén en uso.
+* `docker plugin install`: instala plugins (incluidos los de volumen) desde Docker Hub.
+* `docker plugin ls`: lista los plugins instalados.
+
+---
+
+
+###  Desplegando aplicaciones con Docker Stacks
+
+#### Visualización de redes, volúmenes y servicios en un stack
+
+* Puedes usar los comandos `docker network ls`, `docker volume ls` y `docker service ls` para listar las redes, volúmenes y servicios creados como parte de la aplicación.
+* Importante: Las redes y volúmenes se crean antes que los servicios, porque estos últimos dependen de ellos y fallarán al arrancar si no existen.
+* Docker antepone el nombre del stack a cada recurso creado. Por ejemplo, con un stack llamado **ddd**, la red `counter-net` se denomina `ddd_counter-net`.
+
+#### Verificación del estado de un stack
+
+* `docker stack ls`: muestra todos los stacks en el sistema con información básica.
+* `docker stack ps <stack-name>`: ofrece información detallada sobre las tareas (replicas) del stack, incluyendo nodo, estado deseado, estado actual y errores.
+* Ejemplo de salida de `docker stack ps` muestra múltiples réplicas del servicio `web-fe` corriendo en diferentes nodos.
+* Cuando un servicio falla, este comando indica los errores (e.g., `task: non-zero exit (1)`), lo que ayuda a diagnosticar fallos.
+
+#### Consultar logs de servicios
+
+* `docker service logs <service-name or ID>` muestra los logs para todas las réplicas de un servicio.
+* Si se indica un ID de réplica específico, solo muestra logs de esa réplica.
+* Se pueden usar opciones como `--follow` (seguir logs en tiempo real), `--tail` (últimas líneas), y `--details` (más detalles).
+* Por ejemplo, los logs del servicio `ddd_web-fe` muestran que la aplicación Flask está corriendo y el modo debug activo.
+
+#### Verificación de la aplicación en el navegador
+
+* La app expuesta en Swarm Ingress escucha en el puerto 5001.
+* Se puede acceder desde cualquier nodo del clúster usando `http://<node-ip>:5001`.
+* En Docker Desktop, se puede usar `localhost:5001`.
+
+---
+
+### Gestión declarativa del stack
+
+* Un **stack** es un conjunto de servicios e infraestructuras (redes, volúmenes, secretos) que se gestionan como una unidad.
+* Cada componente del stack (redes, volúmenes, servicios) puede inspeccionarse individualmente con comandos estándar como `docker network`, `docker volume` y `docker service`.
+* Aunque es posible usar comandos imperativos para cambiar servicios (e.g., `docker service scale` para cambiar réplicas), esta **no es la forma recomendada**.
+
+#### Por qué evitar el método imperativo
+
+* Si escalas manualmente un servicio (por ejemplo, `docker service scale web-fe=10`) y luego actualizas el stack usando un archivo Compose sin reflejar ese cambio, Docker revertirá la cantidad de réplicas a la que esté definida en el archivo (por ejemplo, 4).
+* Esto genera inconsistencias entre el estado actual del cluster y la definición declarativa del stack.
+* Por eso, se recomienda siempre actualizar el archivo del stack (compose.yaml) y desplegar con `docker stack deploy` para que la definición sea la única fuente de verdad.
+
+---
+
+### Ejemplo práctico de gestión declarativa
+
+* Se quiere:
+
+  * Incrementar réplicas de `web-fe` de 4 a 10.
+  * Actualizar la imagen a `swarm-appv2`.
+
+* Se edita el archivo Compose (`compose.yaml`) cambiando:
+
+  * `image: nigelpoulton/ddd-book:swarm-appv2`
+  * `deploy.replicas: 10`
+
+* Se redepliega con:
+
+  ```bash
+  docker stack deploy -c compose.yaml ddd
+  ```
+
+* Docker actualiza solo los componentes que cambiaron:
+
+  * Escala `web-fe` a 10 réplicas.
+  * Actualiza la imagen para todos.
+
+* Durante el despliegue:
+
+  * Los nuevos contenedores se crean con la nueva imagen.
+  * Los contenedores antiguos se eliminan, porque Docker considera las réplicas como inmutables.
+  * El proceso de actualización respeta la política definida en Compose (`update_config`), por ejemplo, actualizando 2 réplicas a la vez, con un delay de 10 segundos y rollback en caso de fallo.
+
+---
+
+### Problema común con volúmenes persistentes y actualizaciones
+
+* Aunque las réplicas se actualizan con la nueva imagen, el volumen que montan puede contener datos antiguos (como archivos estáticos de la versión previa).
+* Esto provoca que, en tiempo de ejecución, el contenido viejo sobrescriba la nueva versión del app, por ejemplo, mostrando la vista web antigua.
+* Solución: si el volumen no es necesario, eliminarlo del stack.
+
+#### Cómo eliminar el volumen declarativamente
+
+* Se edita el archivo Compose para:
+
+  * Eliminar la sección `volumes:`
+  * Quitar la definición del volumen `counter-vol`
+  * Eliminar el volumen montado en el servicio `web-fe`
+* Se redepliega el stack con `docker stack deploy`.
+* Esto actualizará las réplicas sin el volumen.
+* El volumen antiguo debe eliminarse manualmente con `docker volume rm`.
+
+---
+
+### Procedimiento correcto para eliminar un stack
+
+* Usar `docker stack rm <stack-name>` elimina servicios y redes, pero **no elimina los volúmenes** porque son persistentes y existen independientemente del ciclo de vida del stack.
+* El comando no pide confirmación, por lo que hay que usarlo con precaución.
+
+---
+
+### Resumen de comandos clave para stacks
+
+* `docker stack deploy -c compose.yaml <stack-name>`: despliega o actualiza un stack usando un archivo Compose.
+* `docker stack ls`: lista todos los stacks activos en el swarm con la cantidad de servicios.
+* `docker stack ps <stack-name>`: muestra detalles de las tareas de un stack.
+* `docker stack rm <stack-name>`: elimina un stack, sus servicios y redes.
+
+---
+
 
