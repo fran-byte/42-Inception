@@ -778,6 +778,10 @@ runc interactúa con el kernel del sistema operativo para ensamblar los elemento
 
 ---
 
+![img15](img/img-015.png)
+
+<br><br>
+
 ### Beneficio principal: contenedores "daemonless"
 
 Al separar la lógica del runtime del daemon, el contenedor puede seguir funcionando independientemente del estado del daemon Docker, lo que permite actualizaciones y mantenimiento del daemon sin afectar contenedores en ejecución.
