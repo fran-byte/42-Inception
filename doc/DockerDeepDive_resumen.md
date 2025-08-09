@@ -831,7 +831,7 @@ El daemon continúa evolucionando para convertirse en un componente más especia
 
 Una imagen en Docker funciona como un archivo manifest que contiene una lista de capas (layers) y metadatos. La aplicación y sus dependencias residen dentro de estas capas, que son totalmente independientes y no tienen conciencia de formar parte de un conjunto mayor. Cada imagen se identifica mediante un ID criptográfico (crypto ID) que es un hash del archivo manifest, mientras que cada capa tiene un crypto ID basado en el hash del contenido de dicha capa.
 
-![img15](img/img-021.png)
+![img15](img/img-023.png)
 
 <br><br>
 
