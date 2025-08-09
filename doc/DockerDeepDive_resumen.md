@@ -778,7 +778,7 @@ runc interactúa con el kernel del sistema operativo para ensamblar los elemento
 
 ---
 
-![img15](img/img-015.png)
+![img15](img/img-019.png)
 
 <br><br>
 
