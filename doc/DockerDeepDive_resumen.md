@@ -1102,4 +1102,86 @@ Este comando obtiene todos los IDs de imágenes y las elimina forzosamente. En W
 
 
 
+---
+
+
+### Políticas de reinicio de contenedores en Docker
+
+El capítulo comienza explicando la política de reinicio **--restart always**, la más simple y estricta. Esta política hace que Docker reinicie automáticamente un contenedor si falla o se detiene inesperadamente, a menos que el contenedor haya sido detenido explícitamente con `docker stop`. Por ejemplo, si se inicia un contenedor interactivo con esta política y se ejecuta un shell (`sh`), al salir del shell (comando `exit`), el proceso principal (PID 1) del contenedor termina, lo que detiene el contenedor. Sin embargo, Docker reinicia automáticamente el mismo contenedor —no crea uno nuevo— y el tiempo de actividad mostrado por `docker ps` será menor que el tiempo desde su creación.
+
+Otra característica importante de la política **always** es que, aunque el contenedor haya sido detenido con `docker stop`, si se reinicia el daemon de Docker, el contenedor se reiniciará automáticamente.
+
+En contraste, la política **--restart unless-stopped** no reinicia contenedores que hayan sido detenidos manualmente (`docker stop`) cuando se reinicia el daemon de Docker. Es decir, si un contenedor con esta política está detenido, al reiniciar Docker no se levantará automáticamente.
+
+Se ilustra esto con un ejemplo práctico:
+
+1. Crear dos contenedores:
+
+   * Uno con política `--restart always`
+   * Otro con política `--restart unless-stopped`
+2. Parar ambos con `docker stop`.
+3. Reiniciar el daemon de Docker (`systemctl restart docker` en Linux con systemd).
+4. Observar que el contenedor con `--restart always` se reinicia automáticamente, mientras que el de `--restart unless-stopped` permanece detenido.
+
+La política **on-failure** reinicia un contenedor solo si su proceso termina con un código de salida distinto de cero (fallo), y también reinicia contenedores detenidos cuando se reinicia el daemon.
+
+Para entornos Docker Compose o Docker Stacks, la política de reinicio se define dentro del objeto `restart_policy` de un servicio, con valores posibles: `always`, `unless-stopped`, o `on-failure`.
+
+---
+
+### Ejemplo de servidor web en Linux con Docker
+
+El capítulo continúa mostrando cómo iniciar un contenedor que ejecuta una aplicación web basada en Node.js, escuchando en el puerto 8080 dentro del contenedor. Se usa el comando:
+
+```bash
+docker run -d --name webserver -p 80:8080 nigelpoulton/ddd-book:web0.1
+```
+
+Aquí:
+
+* `-d` ejecuta el contenedor en modo "detached" o en segundo plano.
+* `--name webserver` nombra el contenedor.
+* `-p 80:8080` mapea el puerto 80 del host al 8080 del contenedor, permitiendo acceso externo a la aplicación web.
+* Se usa la imagen `nigelpoulton/ddd-book:web0.1`, que contiene un servidor Node.js.
+
+Al listar los contenedores con `docker ps`, se muestra el mapeo de puertos y el estado de ejecución.
+
+Desde un navegador, se puede acceder a la aplicación apuntando a `localhost:80` (o la IP/DNS del host Docker).
+
+El capítulo destaca que el contenedor funciona sin que el usuario especifique explícitamente qué aplicación ejecutar, gracias a que la imagen contiene una instrucción predeterminada (`Entrypoint`) que indica el comando por defecto (`node ./app.js`).
+
+Este comportamiento se confirma con `docker inspect` sobre la imagen, mostrando que el contenedor ejecuta el comando Node.js automáticamente al iniciarse.
+
+---
+
+### Limpieza rápida de contenedores
+
+Para eliminar rápidamente todos los contenedores de un host Docker, se puede usar:
+
+```bash
+docker rm $(docker ps -aq) -f
+```
+
+* `docker ps -aq` lista todos los IDs de contenedores, tanto activos como detenidos.
+* `docker rm` con `-f` fuerza la eliminación incluso de contenedores en ejecución, destruyéndolos sin oportunidad de limpieza.
+
+Se advierte que esta operación no debe realizarse en sistemas de producción o con contenedores importantes, ya que borra todo sin advertencia.
+
+---
+
+### Comandos esenciales para manejar contenedores
+
+El capítulo resume los comandos más importantes para gestionar contenedores Docker:
+
+* **docker run**: crea y arranca un contenedor basado en una imagen, ejecutando el comando especificado. Por ejemplo, `docker run -it ubuntu /bin/bash` inicia un contenedor Ubuntu con una shell interactiva.
+* **Ctrl-P Q**: secuencia para desacoplar (detach) la terminal de un contenedor sin detenerlo.
+* **docker ps**: lista contenedores en ejecución; `docker ps -a` incluye también los detenidos.
+* **docker exec**: ejecuta un nuevo proceso dentro de un contenedor activo, útil para abrir un shell adicional, p.ej. `docker exec -it <container> bash`.
+* **docker stop**: detiene un contenedor enviando señales SIGTERM y luego SIGKILL si es necesario.
+* **docker start**: reinicia un contenedor detenido.
+* **docker rm**: elimina un contenedor detenido; se recomienda parar el contenedor antes de borrarlo.
+* **docker inspect**: muestra información detallada sobre la configuración y estado de un contenedor.
+
+---
+
 
