@@ -1,294 +1,218 @@
 # Docker Deep Dive
 
 
+
 ### 1: Contenedores desde 30,000 pies de altura
 
-¡Los contenedores han conquistado el mundo!
-En este capítulo veremos por qué tenemos contenedores, qué hacen por nosotros y dónde podemos usarlos.
+**Introducción y contexto histórico**
+
+Los contenedores se han consolidado como una tecnología fundamental en el mundo de la informática moderna. Este capítulo explica por qué existen los contenedores, qué ventajas ofrecen y dónde se pueden aplicar.
+
+**Los malos viejos tiempos**
+
+Históricamente, las aplicaciones empresariales son críticas: su falla puede significar la caída o quiebra de la empresa. Tradicionalmente, cada aplicación se ejecutaba en un servidor físico dedicado, debido a limitaciones técnicas de los sistemas operativos (Windows, Linux) que impedían correr múltiples aplicaciones en un solo servidor de forma segura.
+
+Esto generaba que cada nueva aplicación implicara comprar un servidor nuevo y sobredimensionado, debido a la incertidumbre sobre los requisitos de rendimiento. Como resultado, se desperdiciaba mucho capital y recursos, con servidores operando a solo un 5–10% de su capacidad.
+
+**¡Hola VMware!**
+
+VMware revolucionó este panorama con las máquinas virtuales (VMs), que permitían ejecutar múltiples aplicaciones seguras en un mismo servidor al virtualizar el hardware. Esto aumentó la eficiencia y redujo la necesidad de adquirir nuevos servidores.
+
+**Limitaciones de las máquinas virtuales (VMs)**
+
+Aunque las VMs aportaron mejoras, tienen inconvenientes:
+
+* Cada VM requiere un sistema operativo (OS) completo, consumiendo recursos (CPU, RAM) que podrían destinarse a las aplicaciones.
+* Cada OS requiere mantenimiento, parches y a veces licencias, aumentando costos y complejidad.
+* Las VMs son lentas para arrancar.
+* La portabilidad entre hipervisores y nubes no es óptima, dificultando la migración de cargas de trabajo.
+
+**¡Hola contenedores!**
+
+Las empresas tecnológicas a gran escala, como Google, comenzaron a usar contenedores para superar las limitaciones de las VMs. Un contenedor es conceptualmente similar a una VM, pero comparte el OS del host, en lugar de requerir uno propio.
+
+Esto implica:
+
+* Menor consumo de recursos (CPU, RAM, almacenamiento).
+* Reducción de costos en licencias y mantenimiento.
+* Arranque mucho más rápido.
+* Mayor portabilidad: mover contenedores entre diferentes entornos (laptop, nube, VMs, hardware físico) es sencillo.
+
+**Contenedores Linux**
+
+El modelo moderno de contenedores se originó en Linux gracias a tecnologías del kernel como:
+
+* **Namespaces**: aislamiento de recursos del sistema.
+* **Control groups (cgroups)**: limitación y contabilización de recursos.
+* **Capabilities**: control granular de privilegios.
+* **Docker**: herramienta que simplifica el uso y gestión de contenedores.
+
+Google fue un actor clave en desarrollar estas tecnologías. El ecosistema de contenedores modernos depende de estas bases.
+
+Antes de Docker, los contenedores eran complejos y estaban fuera del alcance para la mayoría, pero Docker democratizó su uso.
+
+**Tecnologías previas similares a contenedores**
+
+Aunque Docker es el foco, existen tecnologías similares anteriores, como:
+
+* System/360 (mainframes)
+* BSD Jails
+* Solaris Zones
+
+**¡Hola Docker!**
+
+Docker es la herramienta que hizo accesible el uso de contenedores Linux para usuarios y empresas, simplificando su creación y gestión.
+
+**Docker y Windows**
+
+Microsoft ha integrado soporte para contenedores en Windows, incluyendo:
+
+* **Windows containers**: corren aplicaciones Windows y requieren un host con kernel Windows (Windows 10, 11 y versiones modernas de Windows Server).
+* **Linux containers en Windows**: con WSL 2 (Windows Subsystem for Linux), cualquier host Windows puede correr contenedores Linux, lo que facilita desarrollo y pruebas.
+
+Sin embargo, la mayoría de los contenedores siguen siendo Linux porque:
+
+* Son más ligeros y rápidos.
+* Existe un ecosistema más amplio de herramientas.
+
+Este libro se centra en contenedores Linux.
+
+**Windows containers vs Linux containers**
+
+Los contenedores comparten el kernel del host:
+
+* Aplicaciones Windows necesitan kernel Windows.
+* Aplicaciones Linux necesitan kernel Linux.
+
+Gracias a WSL 2, es posible ejecutar contenedores Linux en Windows.
+
+**¿Contenedores en Mac?**
+
+No existen contenedores nativos Mac OS, pero es común usar Docker Desktop que ejecuta contenedores Linux dentro de una VM Linux ligera. Esto es popular entre desarrolladores Mac.
+
+**¿Y Kubernetes?**
+
+Kubernetes es un sistema open-source desarrollado por Google que se ha convertido en el orquestador estándar para aplicaciones en contenedores.
+
+* “Aplicación en contenedor” se refiere a una aplicación empaquetada y ejecutada como contenedor.
+* Kubernetes usaba Docker como runtime por defecto, pero ahora, gracias a la Container Runtime Interface (CRI), puede usar otros runtimes, siendo **containerd** (la parte de Docker responsable de iniciar y detener contenedores) el más común.
 
 ---
 
-### Los malos viejos tiempos
+Este resumen completo y detallado recoge todo el contenido importante del capítulo, manteniendo la terminología técnica precisa y el orden del original, para que puedas entender el contexto y funcionamiento fundamental de los contenedores y Docker. ¿Quieres que continúe con los siguientes capítulos de la misma forma?
 
-Las aplicaciones son el corazón de las empresas. Si las aplicaciones fallan, las empresas fallan.
-A veces incluso quiebran. ¡Estas afirmaciones son cada vez más ciertas!
-
-La mayoría de las aplicaciones se ejecutan en servidores. En el pasado, solo podíamos ejecutar **una aplicación por servidor**. El mundo de sistemas abiertos como Windows y Linux simplemente no tenía las tecnologías para ejecutar de forma segura múltiples aplicaciones en el mismo servidor.
-
-Como resultado, la historia era más o menos así: cada vez que la empresa necesitaba una nueva aplicación, el departamento de TI compraba un nuevo servidor.
-La mayoría de las veces, nadie sabía los requisitos de rendimiento de la nueva aplicación, lo que obligaba al departamento de TI a adivinar el modelo y tamaño del servidor que debía comprar.
-
-La única opción de TI era comprar **servidores grandes y rápidos**, que costaban mucho dinero.
-Después de todo, lo último que alguien quería, incluido el negocio, era servidores con poca potencia incapaces de procesar transacciones y potencialmente perder clientes e ingresos. Así que TI compraba grande.
-Esto daba como resultado **servidores sobredimensionados** operando al **5–10% de su capacidad**, un desperdicio trágico de capital de la empresa y de recursos medioambientales.
-
----
-
-### ¡Hola VMware!
-
-En medio de todo esto, **VMware, Inc.** dio al mundo un regalo: la **máquina virtual (VM)**.
-Casi de la noche a la mañana, el mundo cambió para mejor. Finalmente teníamos una tecnología que permitía ejecutar **múltiples aplicaciones de negocio de forma segura en un solo servidor**.
-¡Cue fuegos artificiales!
-
-Esto fue un cambio radical. El departamento de TI ya no necesitaba adquirir un nuevo servidor sobredimensionado cada vez que el negocio pedía una nueva aplicación.
-Muchas veces podían ejecutar nuevas aplicaciones en **servidores existentes con capacidad sobrante**.
-
-De repente, podíamos **aprovechar al máximo los activos corporativos existentes**, sacando mucho más rendimiento por cada dólar invertido.
-
----
-
-### VMwarts
-
-Pero… ¡siempre hay un “pero”!
-Aunque las VMs son geniales, están lejos de ser perfectas.
-
-El hecho de que **cada VM requiera su propio sistema operativo (OS)** es un gran inconveniente.
-Cada OS consume CPU, RAM y otros recursos que podrían usarse para ejecutar más aplicaciones. Cada OS necesita parches y monitorización. Y en algunos casos, cada OS requiere una licencia. Todo esto supone **tiempo y recursos desperdiciados**.
-
-El modelo de VM también presenta otros desafíos:
-
-* Son **lentas de arrancar**.
-* La **portabilidad** no es ideal: mover cargas de trabajo de VMs entre hipervisores y nubes es más difícil de lo que debería.
-
----
-
-### ¡Hola contenedores!
-
-Durante mucho tiempo, grandes empresas de escala web como Google usaron tecnologías de contenedores para resolver las carencias del modelo de VM.
-
-En el modelo de contenedores, el contenedor es **aproximadamente análogo a una VM**, pero con una gran diferencia: **no necesita su propio sistema operativo completo**.
-Todos los contenedores en un mismo host **comparten el OS del host**. Esto libera grandes cantidades de recursos como CPU, RAM y almacenamiento, reduce costes de licencias y disminuye la carga de mantenimiento del OS.
-
-**Resultado neto:** ahorro en tiempo, recursos y capital.
-
-Además:
-
-* Los contenedores **arrancan rápido**.
-* Son **ultraportátiles**: mover cargas de contenedores de tu laptop a la nube, a VMs o a bare metal en tu centro de datos es muy sencillo.
-
----
-
-### Contenedores Linux
-
-Los contenedores modernos empezaron en el mundo Linux, fruto de un inmenso trabajo de muchas personas y organizaciones a lo largo de los años.
-Por ejemplo, **Google LLC** ha contribuido con muchas tecnologías relacionadas con contenedores al **kernel de Linux**. Sin estas y otras aportaciones, no tendríamos los contenedores modernos de hoy.
-
-Algunas tecnologías clave que impulsaron el crecimiento masivo de los contenedores incluyen:
-
-* **Kernel namespaces**
-* **Control groups (cgroups)**
-* **Capabilities**
-* **Docker**
-
-El ecosistema moderno de contenedores está profundamente en deuda con todos los que sentaron sus bases.
-
----
-
-Pese a todo esto, los contenedores eran complejos y fuera del alcance de la mayoría de organizaciones… hasta que llegó **Docker** y los democratizó.
-
-**Nota:** existen tecnologías de virtualización de sistemas operativos similares a los contenedores que son anteriores a Docker, como:
-
-* **System/360** en mainframes
-* **BSD Jails**
-* **Solaris Zones**
-
-En este libro nos centraremos en los contenedores modernos popularizados por Docker.
-
----
-
-### ¡Hola Docker!
-
-Veremos Docker en detalle en el siguiente capítulo, pero por ahora basta con decir que Docker fue la “magia” que hizo que los contenedores Linux fueran usables por cualquier persona.
-En pocas palabras, **Docker, Inc. simplificó los contenedores**.
-
----
-
-### Docker y Windows
-
-Microsoft trabajó mucho para llevar Docker y las tecnologías de contenedores a Windows.
-Actualmente, las plataformas Windows de escritorio y servidor soportan:
-
-* **Windows containers**
-* **Linux containers**
-
-**Windows containers** ejecutan aplicaciones Windows y requieren un host con kernel de Windows.
-Windows 10, Windows 11 y las versiones modernas de Windows Server tienen soporte nativo para Windows containers.
-
-Cualquier host Windows con **WSL 2 (Windows Subsystem for Linux)** puede ejecutar contenedores Linux, lo que hace de Windows 10 y 11 plataformas excelentes para desarrollar y probar contenedores Linux y Windows.
-
----
-
-A pesar del trabajo de Microsoft, la gran mayoría de contenedores son Linux, ya que:
-
-* Son **más pequeños y rápidos**.
-* La mayoría de herramientas está disponible para Linux.
-
-Todos los ejemplos de este libro son con **contenedores Linux**.
-
----
-
-### Windows containers vs Linux containers
-
-Un contenedor **comparte el kernel del host** en el que se ejecuta:
-
-* Aplicaciones Windows necesitan host con kernel Windows.
-* Aplicaciones Linux necesitan host con kernel Linux.
-
-Sin embargo, con **WSL 2** es posible ejecutar contenedores Linux en Windows.
-
----
-
-### ¿Contenedores Mac?
-
-No existen contenedores Mac como tal.
-Pero se pueden ejecutar contenedores Linux en Mac usando **Docker Desktop**, que los ejecuta dentro de una **VM Linux ligera**. Esto es muy popular entre desarrolladores.
-
----
-
-### ¿Y Kubernetes?
-
-**Kubernetes** es un proyecto open-source de Google que se ha convertido en el **orquestador de facto** de aplicaciones en contenedores.
-
-> “Aplicación en contenedor” = aplicación ejecutada como contenedor.
-
-Kubernetes solía usar Docker como runtime por defecto.
-Hoy, gracias a la **Container Runtime Interface (CRI)**, puede usar diferentes runtimes.
-La mayoría de clústeres modernos usan **containerd**, que es la parte especializada de Docker encargada de arrancar y detener contenedores.
 
 ---
 
 
+
+Claro, aquí tienes un resumen exhaustivo y traducido al español del capítulo 2 “Docker” siguiendo el formato y criterios que me diste:
+
+---
 
 ### 2: Docker
 
-Ningún libro o conversación sobre contenedores está completo sin hablar de Docker.
-Pero cuando decimos “Docker”, podemos referirnos a cualquiera de lo siguiente:
+**Introducción: qué es Docker**
 
-1. Docker, Inc., la empresa.
-2. Docker, la tecnología.
+Docker es una palabra que puede referirse a dos cosas distintas pero relacionadas:
+
+1. **Docker, Inc.**: la empresa que desarrolló y sigue evolucionando la tecnología.
+2. **Docker**: la tecnología de contenedores en sí misma.
 
 ---
 
-### Docker - La versión TL;DR
+### Docker — Versión rápida (TL;DR)
 
-Docker es un software que se ejecuta en Linux y Windows. Crea, gestiona e incluso puede orquestar contenedores.
-El software actualmente se construye a partir de varias herramientas del proyecto de código abierto **Moby**.
-Docker, Inc. es la empresa que creó la tecnología y que sigue desarrollando tecnologías y soluciones para que sea más fácil ejecutar en la nube el código que tienes en tu portátil.
-
-Esa es la versión rápida. Vamos a profundizar un poco más.
+Docker es un software que se ejecuta tanto en Linux como en Windows, diseñado para crear, gestionar y orquestar contenedores. Está compuesto por varias herramientas del proyecto open-source **Moby**. Docker, Inc. es la empresa que desarrolló esta tecnología y continúa facilitando su uso, especialmente para ejecutar código desde un portátil hasta la nube.
 
 ---
 
 ### Docker, Inc.
 
-Docker, Inc. es una empresa tecnológica con sede en San Francisco, fundada por el desarrollador y empresario franco-estadounidense **Solomon Hykes**. Solomon ya no forma parte de la compañía.
+Docker, Inc. es una empresa tecnológica con sede en San Francisco, fundada por **Solomon Hykes**, desarrollador franco-estadounidense, que ya no forma parte de la compañía.
 
-*Figura 2.1 Logo de Docker, Inc.*
-
-La empresa comenzó como un proveedor de **plataforma como servicio** (PaaS) llamado **dotCloud**.
-Detrás de escena, la plataforma dotCloud estaba construida sobre contenedores Linux.
-Para ayudar a crear y gestionar estos contenedores, desarrollaron una herramienta interna que eventualmente apodaron **“Docker”**. Así nació la tecnología Docker.
-
-También es interesante saber que la palabra “Docker” proviene de una expresión británica que significa **estibador** (dock worker): alguien que carga y descarga mercancía de los barcos.
-
-En 2013, eliminaron el lado de PaaS del negocio, rebrandearon la compañía como **Docker, Inc.** y se centraron en llevar Docker y los contenedores al mundo. Han tenido un éxito enorme en este objetivo.
-
-A lo largo de este libro utilizaremos el término **“Docker, Inc.”** cuando nos refiramos a la empresa. En todos los demás casos, “Docker” se referirá a la tecnología.
+* Originalmente, Docker, Inc. era **dotCloud**, un proveedor de plataforma como servicio (**PaaS**).
+* DotCloud estaba construido sobre contenedores Linux y desarrolló internamente una herramienta para crear y gestionar contenedores llamada **Docker**.
+* El nombre "Docker" proviene del término británico para "estibador" (dock worker), la persona que carga y descarga mercancía en los barcos.
+* En 2013, dotCloud eliminó su negocio PaaS, se renombró como Docker, Inc. y enfocó todos sus esfuerzos en promover la tecnología de contenedores Docker.
+* En adelante, en este libro **Docker, Inc.** se usará para referirse a la empresa, y **Docker** para la tecnología.
 
 ---
 
 ### La tecnología Docker
 
-Cuando la mayoría de la gente habla de Docker, se refiere a la tecnología que ejecuta contenedores.
-Sin embargo, hay al menos tres elementos que debemos conocer al hablar de Docker como tecnología:
+Docker como tecnología se compone principalmente de tres elementos clave:
 
-1. El **runtime** (tiempo de ejecución).
-2. El **daemon** (también llamado engine).
-3. El **orchestrator** (orquestador).
-
-*Figura 2.2 Arquitectura de Docker.*
+1. **El runtime** (tiempo de ejecución).
+2. **El daemon** (motor o engine).
+3. **El orquestador**.
 
 ---
 
-#### **El runtime**
+#### El runtime
 
-Opera en el nivel más bajo y es responsable de iniciar y detener contenedores (esto incluye construir todos los elementos del sistema operativo como **namespaces** y **cgroups**).
-Docker implementa una arquitectura de runtime por niveles: **runtime de alto nivel** y **runtime de bajo nivel** que trabajan juntos.
+El runtime es la capa más baja, responsable de iniciar y detener contenedores, construyendo elementos esenciales del sistema operativo como **namespaces** y **cgroups**.
 
-* **Runtime de bajo nivel:** llamado **runc**, es la implementación de referencia de la especificación **OCI runtime-spec** de la **Open Containers Initiative (OCI)**. Su función es interactuar con el sistema operativo subyacente e iniciar o detener contenedores. Cada contenedor en un nodo Docker fue creado e iniciado por una instancia de **runc**.
+* Docker usa un modelo de runtime por niveles:
 
-* **Runtime de alto nivel:** llamado **containerd**, gestiona todo el ciclo de vida del contenedor, incluyendo la descarga de imágenes y la gestión de instancias de **runc**. Se pronuncia *container-dee*, es un proyecto graduado de la **CNCF** y es usado por Docker y Kubernetes.
+  * **Runtime de bajo nivel:** **runc**. Es la implementación de referencia de la especificación **OCI runtime-spec** de la **Open Containers Initiative (OCI)**. Interactúa directamente con el OS y arranca o detiene contenedores. Cada contenedor se ejecuta en una instancia de **runc**.
+  * **Runtime de alto nivel:** **containerd**. Administra el ciclo de vida completo del contenedor, incluyendo la descarga de imágenes y el manejo de instancias de **runc**. Es un proyecto graduado por la **Cloud Native Computing Foundation (CNCF)**, utilizado tanto por Docker como por Kubernetes.
 
-Una instalación típica de Docker tiene un único proceso **containerd** en ejecución permanente, que instruye a **runc** para iniciar o detener contenedores.
-**runc** nunca es un proceso de larga duración: termina tan pronto como el contenedor se inicia.
-
----
-
-#### **El daemon de Docker**
-
-El **Docker daemon** (**dockerd**) se sitúa por encima de **containerd** y realiza tareas de nivel superior, como:
-
-* Exponer la **Docker API**.
-* Gestionar imágenes.
-* Gestionar volúmenes.
-* Gestionar redes.
-* Otras funciones de alto nivel.
-
-Una función clave del daemon es proporcionar una interfaz estándar y fácil de usar que abstraiga los niveles inferiores.
+En una instalación típica, **containerd** está siempre activo y coordina con **runc** para arrancar y detener contenedores, mientras que **runc** es efímero y termina una vez el contenedor inicia.
 
 ---
 
-#### **El orquestador: Docker Swarm**
+#### El daemon de Docker
 
-Docker también tiene soporte nativo para gestionar clústeres de nodos que ejecutan Docker.
-Estos clústeres se llaman **swarms** y la tecnología nativa es **Docker Swarm**.
-Es fácil de usar y muchas empresas lo usan en producción. Es mucho más sencillo de instalar y gestionar que Kubernetes, pero carece de muchas funciones avanzadas y del ecosistema de Kubernetes.
+El **Docker daemon** (**dockerd**) funciona encima de **containerd**, realizando tareas de alto nivel:
+
+* Expone la **Docker API**.
+* Gestiona imágenes, volúmenes y redes.
+* Facilita una interfaz estándar y accesible que abstrae la complejidad del runtime.
+
+---
+
+#### El orquestador: Docker Swarm
+
+Docker soporta de forma nativa la gestión de clústeres (grupos de nodos) llamados **swarms** mediante **Docker Swarm**.
+
+* Es sencillo de usar y ampliamente adoptado en producción.
+* Más fácil de instalar y gestionar que Kubernetes.
+* Sin embargo, carece de muchas funcionalidades avanzadas y del ecosistema robusto que ofrece Kubernetes.
 
 ---
 
 ### La Open Container Initiative (OCI)
 
-Anteriormente mencionamos la **Open Containers Initiative (OCI)**.
+La **Open Containers Initiative (OCI)** es un organismo de gobernanza que busca estandarizar componentes clave de bajo nivel en la infraestructura de contenedores, especialmente:
 
-La OCI es un consejo de gobernanza responsable de estandarizar los componentes fundamentales de bajo nivel de la infraestructura de contenedores. En particular, se enfoca en:
-
-* El formato de imagen (image format).
-* El runtime del contenedor (container runtime).
-
-*(Si estos términos no te resultan familiares, los veremos más adelante en el libro).*
+* El formato de imagen (**image format**).
+* El runtime del contenedor (**container runtime**).
 
 ---
 
-#### **Un poco de historia según Nigel** 😄 
+#### Historia y contexto
 
-Desde el primer día, el uso de Docker creció enormemente. Cada vez más personas lo usaban en más formas y para más cosas. Esto inevitablemente llevó a que algunas partes se sintieran frustradas, algo normal y saludable.
-
-En resumen, una empresa llamada **CoreOS** (posteriormente adquirida por Red Hat y luego por IBM) no estaba de acuerdo con la forma en que Docker hacía ciertas cosas. Por ello, crearon un estándar abierto llamado **appc** que definía elementos como el formato de imagen y el runtime del contenedor. También crearon una implementación de esa especificación llamada **rkt** (pronunciado “rocket”).
-
-Esto generó dos estándares en competencia, lo cual amenazaba con fracturar el ecosistema y presentar un dilema a usuarios y clientes. Aunque la competencia suele ser buena, la existencia de estándares en competencia genera confusión y ralentiza la adopción. No es bueno para nadie.
-
-Con esto en mente, todas las partes involucradas actuaron de forma madura y se unieron para formar la **OCI**, un consejo ágil y ligero para gobernar los estándares de contenedores.
+* Al crecer la adopción de Docker, surgieron tensiones y competencia con proyectos como **CoreOS**, que promovía un estándar alternativo llamado **appc** y su runtime **rkt**.
+* La existencia de múltiples estándares fragmentaba el ecosistema, generando confusión y ralentizando la adopción.
+* Como respuesta, todas las partes se unieron para formar la **OCI**, un consejo ágil para gobernar los estándares de contenedores.
 
 ---
 
-#### **Especificaciones publicadas por la OCI**
+#### Especificaciones OCI publicadas
 
-En el momento de la redacción, la OCI ha publicado tres especificaciones:
+Actualmente, la OCI ha lanzado tres especificaciones principales:
 
-* **image-spec** (formato de imagen).
-* **runtime-spec** (runtime del contenedor).
-* **distribution-spec** (especificación de distribución).
+* **image-spec**: define el formato estándar para las imágenes de contenedores.
+* **runtime-spec**: define el estándar para el runtime del contenedor.
+* **distribution-spec**: especifica la distribución de imágenes.
 
-Una analogía común es la de las vías de tren:
-Estas especificaciones son como acordar un tamaño y propiedades estándar para las vías, dejando que cada uno construya mejores trenes, vagones, sistemas de señalización, estaciones… con la seguridad de que funcionarán en las vías estandarizadas.
-Nadie quiere dos estándares diferentes para el tamaño de las vías.
+Estas especificaciones son comparables a estandarizar el tamaño de las vías de tren, permitiendo que fabricantes independientes construyan trenes y vagones compatibles, asegurando interoperabilidad.
 
-Las especificaciones de la OCI han tenido un gran impacto en la arquitectura y diseño del producto central de Docker. Todas las versiones modernas de Docker y Docker Hub implementan estas especificaciones.
-La OCI está organizada bajo el auspicio de la **Linux Foundation**.
+* Las versiones modernas de Docker y Docker Hub cumplen con estas especificaciones.
+* La OCI funciona bajo la **Linux Foundation**.
 
----
 
-Perfecto. Aquí tienes el contenido solicitado, primero la **traducción completa** y luego el **resumen estructurado** siguiendo el orden del capítulo.
 
 ---
 
@@ -529,6 +453,192 @@ $ sudo docker info
 Entra en: [https://labs.play-with-docker.com/](https://labs.play-with-docker.com/)
 
 ---
+
+
+
+### 3: Instalando Docker
+
+Docker se puede instalar de muchas formas y en múltiples entornos: Windows, Mac, Linux, servidores locales (on premises), portátiles o incluso en la nube. Además, las instalaciones pueden ser manuales, por scripts o con asistentes gráficos.
+
+No es necesario complicarse: basta con buscar “how to install docker on `<tu plataforma>`” para encontrar instrucciones actualizadas y fáciles. Aquí cubriremos lo esencial:
+
+* Docker Desktop (Windows y MacOS)
+* Multipass
+* Instalación en servidores Linux
+* Play with Docker (entorno online)
+
+---
+
+### Docker Desktop
+
+Docker Desktop es la aplicación oficial de escritorio de Docker, Inc., que facilita trabajar con contenedores. Incluye:
+
+* Docker Engine
+* Interfaz gráfica pulida
+* Sistema de extensiones con marketplace (para escaneo de imágenes, gestión de espacio, etc.)
+
+**Licencia:** Gratis para educación y uso personal; para empresas grandes (más de 250 empleados o más de 10M USD en ingresos) es de pago.
+
+**Plataformas soportadas:** Windows 10/11 64 bits, MacOS, Linux.
+
+**Características:**
+
+* Entorno Docker completo para desarrollo, pruebas y aprendizaje.
+* Incluye Docker Compose.
+* Permite activar un clúster Kubernetes de un solo nodo para estudio.
+* En Windows puede ejecutar contenedores Linux y Windows.
+* En Mac y Linux solo contenedores Linux.
+
+---
+
+#### Requisitos previos para Windows
+
+* Windows 10 o 11 64 bits.
+* Virtualización por hardware habilitada en BIOS (cuidado al modificarla).
+* WSL 2 (Windows Subsystem for Linux versión 2).
+
+---
+
+#### Instalación en Windows 10 y 11
+
+* Busca “install Docker Desktop on Windows” para descargar el instalador.
+
+* Puede que necesites instalar y habilitar WSL 2.
+
+* Inicia Docker Desktop desde el menú Inicio; la ballena animada indica progreso.
+
+* Verifica con:
+
+  ```bash
+  $ docker version
+  ```
+
+* Por defecto, Docker corre contenedores Linux (`OS/Arch: linux/amd64`).
+
+* Para cambiar a contenedores Windows, clic derecho en icono de ballena > **Switch to Windows containers…**.
+
+* Ejecutando de nuevo `docker version` verás `OS/Arch: windows/amd64`.
+
+* Ya puedes gestionar contenedores Windows.
+
+---
+
+#### Instalación en MacOS
+
+* Docker Desktop para Mac instala todos los componentes dentro de una VM ligera Linux que expone la API localmente.
+
+* Solo puede correr contenedores Linux.
+
+* Busca “install Docker Desktop on MacOS” y sigue el instalador.
+
+* Inicia desde Launchpad; verás la ballena animada en la barra superior.
+
+* Verifica con:
+
+  ```bash
+  $ docker version
+  ```
+
+* Cliente es nativo MacOS (`darwin/arm64`), servidor corre en VM Linux (`linux/arm64`).
+
+* Ya puedes usar Docker en Mac.
+
+---
+
+### Instalando Docker con Multipass
+
+Multipass es una herramienta gratuita para crear VMs Linux tipo cloud en Linux, Mac o Windows, ideal para pruebas rápidas con Docker.
+
+* Web oficial: [https://multipass.run/install](https://multipass.run/install)
+
+Comandos básicos:
+
+```bash
+$ multipass launch
+$ multipass ls
+$ multipass shell
+```
+
+Para crear VM con Docker preinstalado:
+
+```bash
+$ multipass launch docker --name node1
+```
+
+Conéctate a la VM:
+
+```bash
+$ multipass shell node1
+```
+
+Eliminar VM:
+
+```bash
+$ multipass delete node1
+$ multipass purge
+```
+
+---
+
+### Instalando Docker en Linux
+
+La recomendación es seguir siempre la documentación oficial más reciente.
+
+Ejemplo para Ubuntu 22.04 LTS:
+
+1. Elimina posibles instalaciones previas:
+
+   ```bash
+   $ sudo apt-get remove docker docker-engine docker.io containerd runc
+   ```
+
+2. Actualiza e instala dependencias:
+
+   ```bash
+   $ sudo apt-get update
+   $ sudo apt-get install ca-certificates curl gnupg
+   ```
+
+3. Añade la clave GPG de Docker:
+
+   ```bash
+   $ sudo install -m 0755 -d /etc/apt/keyrings
+   $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+   $ sudo chmod a+r /etc/apt/keyrings/docker.gpg
+   ```
+
+4. Configura el repositorio Docker:
+
+   ```bash
+   $ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+   https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+   | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+   ```
+
+5. Instala Docker y sus componentes:
+
+   ```bash
+   $ sudo apt-get update
+   $ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+   ```
+
+Verifica instalación:
+
+```bash
+$ sudo docker --version
+$ sudo docker info
+```
+
+---
+
+### Play with Docker (PWD)
+
+**Play with Docker** es un entorno Docker online gratuito, con sesiones de hasta 4 horas, que permite crear múltiples nodos y formar un **swarm**.
+
+Sitio web: [https://labs.play-with-docker.com/](https://labs.play-with-docker.com/)
+
+---
+
 
 
 
