@@ -2,7 +2,7 @@
 
 
 
-### 1: Contenedores desde 30,000 pies de altura
+# 1: Contenedores desde 30,000 pies de altura
 
 **Introducción y contexto histórico**
 
@@ -101,7 +101,7 @@ Kubernetes es un sistema open-source desarrollado por Google que se ha convertid
 
 
 
-### 2: Docker
+# 2: Docker
 
 **Introducción: qué es Docker**
 
@@ -208,7 +208,7 @@ Estas especificaciones son comparables a estandarizar el tamaño de las vías de
 ---
 
 
-### 3: Instalando Docker
+# 3: Instalando Docker
 
 Existen muchas formas y lugares para instalar Docker: en Windows, Mac y Linux.
 Puedes instalarlo en la nube, en servidores locales (on premises) o en tu portátil. También hay instalaciones manuales, mediante scripts o con asistentes gráficos…
@@ -445,182 +445,6 @@ Entra en: [https://labs.play-with-docker.com/](https://labs.play-with-docker.com
 
 ---
 
-
-
-### 3: Instalando Docker
-
-Docker se puede instalar de muchas formas y en múltiples entornos: Windows, Mac, Linux, servidores locales (on premises), portátiles o incluso en la nube. Además, las instalaciones pueden ser manuales, por scripts o con asistentes gráficos.
-
-No es necesario complicarse: basta con buscar “how to install docker on `<tu plataforma>`” para encontrar instrucciones actualizadas y fáciles. Aquí cubriremos lo esencial:
-
-* Docker Desktop (Windows y MacOS)
-* Multipass
-* Instalación en servidores Linux
-* Play with Docker (entorno online)
-
----
-
-### Docker Desktop
-
-Docker Desktop es la aplicación oficial de escritorio de Docker, Inc., que facilita trabajar con contenedores. Incluye:
-
-* Docker Engine
-* Interfaz gráfica pulida
-* Sistema de extensiones con marketplace (para escaneo de imágenes, gestión de espacio, etc.)
-
-**Licencia:** Gratis para educación y uso personal; para empresas grandes (más de 250 empleados o más de 10M USD en ingresos) es de pago.
-
-**Plataformas soportadas:** Windows 10/11 64 bits, MacOS, Linux.
-
-**Características:**
-
-* Entorno Docker completo para desarrollo, pruebas y aprendizaje.
-* Incluye Docker Compose.
-* Permite activar un clúster Kubernetes de un solo nodo para estudio.
-* En Windows puede ejecutar contenedores Linux y Windows.
-* En Mac y Linux solo contenedores Linux.
-
----
-
-#### Requisitos previos para Windows
-
-* Windows 10 o 11 64 bits.
-* Virtualización por hardware habilitada en BIOS (cuidado al modificarla).
-* WSL 2 (Windows Subsystem for Linux versión 2).
-
----
-
-#### Instalación en Windows 10 y 11
-
-* Busca “install Docker Desktop on Windows” para descargar el instalador.
-
-* Puede que necesites instalar y habilitar WSL 2.
-
-* Inicia Docker Desktop desde el menú Inicio; la ballena animada indica progreso.
-
-* Verifica con:
-
-  ```bash
-  $ docker version
-  ```
-
-* Por defecto, Docker corre contenedores Linux (`OS/Arch: linux/amd64`).
-
-* Para cambiar a contenedores Windows, clic derecho en icono de ballena > **Switch to Windows containers…**.
-
-* Ejecutando de nuevo `docker version` verás `OS/Arch: windows/amd64`.
-
-* Ya puedes gestionar contenedores Windows.
-
----
-
-#### Instalación en MacOS
-
-* Docker Desktop para Mac instala todos los componentes dentro de una VM ligera Linux que expone la API localmente.
-
-* Solo puede correr contenedores Linux.
-
-* Busca “install Docker Desktop on MacOS” y sigue el instalador.
-
-* Inicia desde Launchpad; verás la ballena animada en la barra superior.
-
-* Verifica con:
-
-  ```bash
-  $ docker version
-  ```
-
-* Cliente es nativo MacOS (`darwin/arm64`), servidor corre en VM Linux (`linux/arm64`).
-
-* Ya puedes usar Docker en Mac.
-
----
-
-### Instalando Docker con Multipass
-
-Multipass es una herramienta gratuita para crear VMs Linux tipo cloud en Linux, Mac o Windows, ideal para pruebas rápidas con Docker.
-
-* Web oficial: [https://multipass.run/install](https://multipass.run/install)
-
-Comandos básicos:
-
-```bash
-$ multipass launch
-$ multipass ls
-$ multipass shell
-```
-
-Para crear VM con Docker preinstalado:
-
-```bash
-$ multipass launch docker --name node1
-```
-
-Conéctate a la VM:
-
-```bash
-$ multipass shell node1
-```
-
-Eliminar VM:
-
-```bash
-$ multipass delete node1
-$ multipass purge
-```
-
----
-
-### Instalando Docker en Linux
-
-La recomendación es seguir siempre la documentación oficial más reciente.
-
-Ejemplo para Ubuntu 22.04 LTS:
-
-1. Elimina posibles instalaciones previas:
-
-   ```bash
-   $ sudo apt-get remove docker docker-engine docker.io containerd runc
-   ```
-
-2. Actualiza e instala dependencias:
-
-   ```bash
-   $ sudo apt-get update
-   $ sudo apt-get install ca-certificates curl gnupg
-   ```
-
-3. Añade la clave GPG de Docker:
-
-   ```bash
-   $ sudo install -m 0755 -d /etc/apt/keyrings
-   $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-   $ sudo chmod a+r /etc/apt/keyrings/docker.gpg
-   ```
-
-4. Configura el repositorio Docker:
-
-   ```bash
-   $ echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-   https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
-   | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-   ```
-
-5. Instala Docker y sus componentes:
-
-   ```bash
-   $ sudo apt-get update
-   $ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-   ```
-
-Verifica instalación:
-
-```bash
-$ sudo docker --version
-$ sudo docker info
-```
-
----
 
 
 
