@@ -720,7 +720,7 @@ Para resolverlo, Docker, Inc. inició un proceso para descomponer el daemon en h
 <div align="center">
   *Vieja arquitectura de Docker*
 </div>
-
+<br><br><br>
 
 ![img17](img/img-017.png)
 
@@ -729,7 +729,7 @@ Para resolverlo, Docker, Inc. inició un proceso para descomponer el daemon en h
 *Muestra una vista general (high-level view) de la arquitectura actual del motor Docker (Docker engine) con descripciones breves*
 
 </div>
-
+<br><br><br>
 ---
 
 ### Influencia del Open Container Initiative (OCI)
