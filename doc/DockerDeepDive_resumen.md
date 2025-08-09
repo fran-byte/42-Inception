@@ -1126,6 +1126,8 @@ El resultado son imágenes de tamaño reducido (7.5MB aprox. cada una), la mitad
 
 Docker permite construir imágenes para varias arquitecturas (plataformas) con un solo comando usando `docker buildx`, que suele venir incluido en Docker Desktop y motores modernos.
 
+![img65](img/img-065.png)
+
 En un ejemplo, desde un Mac con chip ARM (M1), se construyen imágenes para:
 
 * linux/amd64 (x86\_64)
@@ -1171,6 +1173,8 @@ Esto ejecuta el build completo para cada plataforma, generando imágenes compati
 
 4. **Squash de imágenes**
    La opción `--squash` comprime todas las capas en una sola. Esto puede reducir tamaño, pero elimina el beneficio de compartir capas entre imágenes, aumentando el espacio usado y la transferencia al subir a Docker Hub.
+
+![img67](img/img-067.jpg)
 
 5. **Usar `no-install-recommends` en apt**
    Al instalar paquetes con `apt-get` en imágenes basadas en Debian/Ubuntu, usar el flag `--no-install-recommends` para evitar instalar paquetes recomendados innecesarios, manteniendo las imágenes más ligeras.
@@ -1230,6 +1234,8 @@ Esto ejecuta el build completo para cada plataforma, generando imágenes compati
 ### Uso de volúmenes para persistencia e inserción de datos
 
 * El archivo Compose define un volumen llamado `counter-vol` que se monta en el contenedor `web-fe` en la ruta `/app`.
+
+![img71](img/img-071.jpg)
 
   Ejemplo del fragmento YAML:
 
@@ -1337,17 +1343,26 @@ Opciones útiles del comando:
 * `--tail` para mostrar solo las últimas líneas.
 * `--details` para obtener información adicional.
 
+![img75](img/img-075.png)
+
 ---
 
 ### Respaldo (Backup) y recuperación de un Swarm
 
 El respaldo del Swarm consiste en guardar la configuración y estado del plano de control (control plane), útil en casos extremos de fallos o corrupción. Aunque el plano de control es replicado y altamente disponible (HA), el respaldo es necesario ante operaciones destructivas propagadas a todos los nodos, como la eliminación maliciosa de Secrets, donde HA propaga rápidamente la pérdida.
 
+![img77](img/img-077.png)
+
+
 Para minimizar riesgos, es recomendable gestionar configuraciones y objetos declarativamente fuera del Swarm, por ejemplo en repositorios de control de versiones, para permitir redeploys en caso de desastre.
 
 #### Cómo respaldar un Swarm
 
 * La configuración del Swarm se almacena en `/var/lib/docker/swarm` en cada nodo manager.
+
+![img79](img/img-079.png)
+
+  
 * Esta carpeta contiene el log de Raft, redes overlay, Secrets, Configs, Servicios, etc.
 * Dado que los datos se replican en todos los managers, se puede hacer backup desde cualquiera, pero se recomienda hacerlo desde un manager no líder para evitar elecciones de líder (leader election) al detener Docker.
 * Detener el demonio Docker (`service docker stop`) en el manager elegido.
@@ -1381,6 +1396,9 @@ Pasos para restaurar:
 
 Se recomienda probar este procedimiento de recuperación regularmente.
 
+![img81](img/img-081.png)
+
+
 ---
 
 ### Comandos esenciales de Docker Swarm
@@ -1402,6 +1420,9 @@ Se recomienda probar este procedimiento de recuperación regularmente.
 
 ## 11: Docker Networking
 
+![img87](img/img-087.png)
+
+
 ### Niveles de Verbosidad en Logs del Daemon (demonio)
 
 Docker permite configurar distintos niveles de detalle para los logs del daemon, que van desde el más detallado (debug) hasta el menos detallado (fatal):
@@ -1411,6 +1432,12 @@ Docker permite configurar distintos niveles de detalle para los logs del daemon,
 * **warn**: tercer nivel de verbosidad.
 * **error**: cuarto nivel.
 * **fatal**: menos verboso, solo errores críticos.
+
+![img89](img/img-089.png)
+![img91](img/img-091.png)
+![img93](img/img-093.png)
+
+  
 
 Para habilitar el nivel debug y activar la depuración en Docker, se modifica el archivo `daemon.json` así:
 
