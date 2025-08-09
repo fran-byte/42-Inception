@@ -631,6 +631,232 @@ $ sudo docker info
 
 ---
 
+
+
+### 4: The big picture
+
+El objetivo de este capítulo es ofrecerte una visión general rápida de qué trata Docker antes de profundizar en capítulos posteriores.
+Dividiremos este capítulo en dos partes:
+
+* La perspectiva de Ops
+* La perspectiva de Dev
+
+En la sección de Ops, descargaremos una imagen, iniciaremos un contenedor nuevo, accederemos a él, ejecutaremos un comando dentro y luego lo destruiremos.
+En la sección de Dev, nos enfocaremos más en la aplicación. Clonaremos código desde GitHub, inspeccionaremos un Dockerfile, contenedorizaremos la app y la ejecutaremos como contenedor.
+
+Estas dos secciones te darán una buena idea de qué es Docker y cómo encajan sus componentes principales. Se recomienda leer ambas para obtener las perspectivas de desarrollo y operaciones. ¿DevOps, alguien?
+
+No te preocupes si algunos conceptos son nuevos. No pretendemos hacerte experto en este capítulo, sino darte una sensación general para que, cuando entremos en detalles, ya tengas una idea clara del panorama.
+
+Para seguir los ejemplos, solo necesitas un host Docker con conexión a internet. Recomiendo Docker Desktop para Mac o Windows, aunque los ejemplos funcionan en cualquier sistema con Docker instalado. Usaremos ejemplos tanto con contenedores Linux como Windows.
+
+Si no puedes instalar software ni tienes acceso a nube pública, otra excelente opción es **Play With Docker (PWD)**, un entorno Docker online y gratuito de 4 horas. Solo apunta tu navegador a [https://labs.play-with-docker.com/](https://labs.play-with-docker.com/) y listo (necesitarás una cuenta Docker Hub o GitHub para iniciar sesión).
+
+En este capítulo, usaremos indistintamente “Docker host” o “Docker node” para referirnos al sistema donde corre Docker.
+
+---
+
+#### The Ops Perspective
+
+Al instalar Docker, obtienes dos componentes principales:
+
+* El cliente Docker
+* El motor Docker (a veces llamado “daemon”)
+
+El motor implementa el runtime, API y todo lo necesario para ejecutar contenedores.
+En una instalación típica de Linux, el cliente se comunica con el daemon vía un socket local Unix en `/var/run/docker.sock`. En Windows, usa un pipe nombrado `npipe:////./pipe/docker_engine`.
+
+Para verificar que cliente y daemon están activos y comunicándose, usa:
+
+```bash
+$ docker version
+```
+
+**Ejemplo de salida:**
+
+```
+Client: Docker Engine - Community
+Version: 24.0.0
+API version: 1.43
+Go version: go1.20.4
+Git commit: 98fdcd7
+Built: Mon May 15 18:48:45 2023
+OS/Arch: linux/arm64
+Context: default
+
+Server: Docker Engine - Community
+Engine:
+Version: 24.0.0
+API version: 1.43 (minimum version 1.12)
+Go version: go1.20.4
+Git commit: 1331b8c
+Built: Mon May 15 18:48:45 2023
+OS/Arch: linux/arm64
+Experimental: false
+```
+
+Si obtienes respuesta tanto del cliente como del servidor, estás listo para continuar.
+
+Si usas Linux y recibes error del servidor, verifica que Docker esté corriendo y prueba con `sudo docker version`. Si funciona con `sudo`, agrega tu usuario al grupo `docker` o antepón siempre `sudo` a los comandos Docker.
+
+---
+
+#### Imágenes
+
+Piensa en una imagen Docker como un objeto que contiene un sistema de archivos de un OS, una aplicación y todas sus dependencias. Para operaciones, es parecido a una plantilla de máquina virtual (VM). Para desarrollo, es como una clase en programación.
+
+Ejecuta:
+
+```bash
+$ docker images
+```
+
+Si es un host Docker nuevo o PWD, probablemente no veas imágenes listadas.
+
+Para obtener imágenes en tu host Docker, debes “tirarlas” (pull). Por ejemplo, baja la imagen de Ubuntu:
+
+```bash
+$ docker pull ubuntu:latest
+```
+
+Verás que Docker descarga varias capas y finaliza mostrando la imagen. Luego:
+
+```bash
+$ docker images
+```
+
+Deberías ver algo así:
+
+```
+REPOSITORY TAG IMAGE ID CREATED SIZE
+ubuntu latest dfd64a3b4296 1 minute ago 106MB
+```
+
+Más adelante profundizaremos dónde se almacena la imagen y qué contiene. Por ahora, basta saber que incluye una versión reducida del sistema de archivos de Ubuntu y utilidades básicas.
+
+Si bajas una imagen de una app, como `nginx:latest`, tendrás el OS mínimo y el código para correr NGINX.
+
+Cada imagen tiene un ID único. Puedes usar el nombre o la parte inicial del ID para referenciarla, mientras sea único.
+
+---
+
+#### Contenedores
+
+Con una imagen local, puedes ejecutar un contenedor con:
+
+```bash
+$ docker run -it ubuntu:latest /bin/bash
+```
+
+Fíjate que tu prompt cambia porque ahora estás dentro del contenedor con una shell interactiva (`-it`).
+
+`docker run` arranca un contenedor nuevo. Las opciones `-it` indican que sea interactivo y que conecte tu terminal con el contenedor. El contenedor se basa en la imagen `ubuntu:latest` y corre el comando `/bin/bash`.
+
+Dentro, corre:
+
+```bash
+root@6dc20d508db0:/# ps -elf
+```
+
+Verás dos procesos:
+
+* PID 1: el `/bin/bash` que lanzaste
+* PID 9: el comando `ps -elf` que acabas de ejecutar
+
+El resto de procesos del host no están dentro del contenedor, que es un entorno aislado.
+
+Presiona `Ctrl-P Q` para salir del contenedor sin detenerlo. Volverás a la terminal del host.
+
+Ejecuta en el host:
+
+```bash
+$ docker ps
+```
+
+Verás tu contenedor aún corriendo, con su nombre generado, cuánto tiempo lleva activo, etc.
+
+---
+
+#### Volver a entrar a un contenedor
+
+Puedes reconectarte a un contenedor en ejecución con:
+
+```bash
+$ docker exec -it <nombre_o_id_del_contenedor> bash
+```
+
+Ejemplo:
+
+```bash
+$ docker exec -it vigilant_borg bash
+```
+
+Cambiará tu prompt al del contenedor otra vez.
+
+Sal con `Ctrl-P Q` y vuelve al host.
+
+Para detener y eliminar el contenedor:
+
+```bash
+$ docker stop vigilant_borg
+$ docker rm vigilant_borg
+```
+
+Confirma que el contenedor desapareció con:
+
+```bash
+$ docker ps -a
+```
+
+¡Felicidades! Acabas de bajar una imagen, lanzar un contenedor, conectarte, ejecutar comandos, detenerlo y eliminarlo.
+
+---
+
+#### The Dev Perspective
+
+Los contenedores giran en torno a las aplicaciones.
+Vamos a clonar una app, ver su Dockerfile, construirla y correrla como contenedor.
+
+Clona la app Node.js desde GitHub:
+
+```bash
+$ git clone https://github.com/nigelpoulton/psweb.git
+```
+
+Entra al directorio y lista archivos:
+
+```bash
+$ cd psweb
+$ ls -l
+```
+
+Verás archivos como `Dockerfile`, `app.js`, `package.json`, etc.
+
+El Dockerfile contiene instrucciones para construir la imagen:
+
+```Dockerfile
+FROM alpine
+LABEL maintainer="nigelpoulton@hotmail.com"
+RUN apk add --update nodejs nodejs-npm
+COPY . /src
+WORKDIR /src
+RUN npm install
+EXPOSE 8080
+ENTRYPOINT ["node", "./app.js"]
+```
+
+Cada línea indica a Docker qué hacer: partir de Alpine Linux, instalar Node.js, copiar archivos, instalar dependencias, exponer el puerto 8080 y lanzar la app.
+
+Ahora construye la imagen con:
+
+```bash
+$ docker build -t test:latest .
+```
+
+Este comando crea una imagen llamada `test` con la etiqueta `latest` usando el Dockerfile del directorio actual (`.`).
+
+---
+
 ### Play with Docker (PWD)
 
 **Play with Docker** es un entorno Docker online gratuito, con sesiones de hasta 4 horas, que permite crear múltiples nodos y formar un **swarm**.
