@@ -714,6 +714,9 @@ Con el tiempo, el daemon monolítico de Docker se volvió un problema porque:
 
 Para resolverlo, Docker, Inc. inició un proceso para descomponer el daemon en herramientas especializadas y modulares siguiendo la filosofía Unix de crear pequeños programas que puedan combinarse para formar sistemas más complejos. El resultado fue que todo el código relacionado con la ejecución y el runtime de contenedores fue extraído y refactorizado en componentes más pequeños.
 
+![img15](img/img-015.png)
+![img17](img/img-017.png)
+
 ---
 
 ### Influencia del Open Container Initiative (OCI)
