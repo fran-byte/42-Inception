@@ -187,23 +187,70 @@ Es como si `containerd` fuera el capataz de una obra y `runc` el albañil que po
 
 ---
 
-#### El daemon de Docker
+#### El orquestador: Docker Swarm
 
-El **Docker daemon** (**dockerd**) funciona encima de **containerd**, realizando tareas de alto nivel:
+### **¿Qué es el Docker Daemon (`dockerd`)?**  
+Imagina que hasta ahora tenemos:  
+- **`runc`** → El obrero que construye contenedores.  
+- **`containerd`** → El gerente que coordina a `runc` y maneja el ciclo de vida de los contenedores.  
 
-* Expone la **Docker API**.
-* Gestiona imágenes, volúmenes y redes.
-* Facilita una interfaz estándar y accesible que abstrae la complejidad del runtime.
+Ahora, **`dockerd`** sería como el **recepcionista o la cara pública de Docker**, el que interactúa contigo (el usuario) y hace que todo sea más fácil de usar.  
 
 ---
 
-#### El orquestador: Docker Swarm
+### **¿Qué hace el Docker Daemon?**  
+1. **Expone la API de Docker**  
+   - Es como el "telefono" o la "ventanilla de atención al cliente" de Docker.  
+   - Cuando usas comandos como `docker run`, `docker build` o `docker ps`, en realidad estás hablando con el **Docker Daemon** a través de su API.  
 
-Docker soporta de forma nativa la gestión de clústeres (grupos de nodos) llamados **swarms** mediante **Docker Swarm**.
+2. **Gestiona imágenes, volúmenes y redes**  
+   - **Imágenes:** Descarga, almacena y prepara las "plantillas" de los contenedores.  
+   - **Volúmenes:** Maneja el almacenamiento persistente (como discos externos para los contenedores).  
+   - **Redes:** Configura cómo se comunican los contenedores entre sí o con el mundo exterior.  
 
-* Es sencillo de usar y ampliamente adoptado en producción.
-* Más fácil de instalar y gestionar que Kubernetes.
-* Sin embargo, carece de muchas funcionalidades avanzadas y del ecosistema robusto que ofrece Kubernetes.
+3. **Facilita una interfaz amigable**  
+   - `containerd` y `runc` son potentes, pero complicados de usar directamente.  
+   - **`dockerd` simplifica todo**, permitiéndote controlar Docker con comandos sencillos.  
+
+---
+
+### **¿Cómo encaja con `containerd` y `runc`?**  
+- **Tú (usuario)** → Hablas con `dockerd` (usando `docker [comando]`).  
+- **`dockerd`** → Procesa tu petición y le pide ayuda a `containerd` para lo técnico.  
+- **`containerd`** → Delega en `runc` la creación real del contenedor.  
+
+**Ejemplo con `docker run ubuntu`:**  
+1. Tú escribes `docker run ubuntu` en la terminal.  
+2. **`dockerd`** recibe el comando y verifica si tienes la imagen `ubuntu`.  
+3. Si no la tiene, la descarga (gestión de imágenes).  
+4. Luego, le pide a **`containerd`** que inicie un contenedor.  
+5. **`containerd`** llama a **`runc`** para que cree el contenedor.  
+6. **`runc`** lo aísla con `namespaces` y `cgroups` y lo pone en marcha.  
+7. **`dockerd`** te muestra el resultado en la terminal.  
+
+---
+
+### **¿Por qué existe `dockerd` si ya está `containerd`?**  
+- **`containerd` es más "técnico" y minimalista**, diseñado para ser usado por herramientas como Kubernetes.  
+- **`dockerd` agrega funciones más "user-friendly"**, como:  
+  - Manejo de redes avanzadas.  
+  - Construcción de imágenes (`docker build`).  
+  - Interacción sencilla mediante la línea de comandos.  
+
+---
+
+### **Resumen**  
+- **`dockerd`** = La cara visible de Docker, el que entiende tus comandos y maneja cosas complejas por ti.  
+- **`containerd`** = El jefe interno que coordina el trabajo pesado.  
+- **`runc`** = El obrero que realmente construye los contenedores.  
+
+**Es como un restaurante:**  
+- **Tú (cliente)** → Pides un plato (`docker run`).  
+- **`dockerd` (mesero)** → Toma tu orden y la lleva a cocina.  
+- **`containerd` (chef)** → Organiza cómo preparar la comida.  
+- **`runc` (cocinero)** → Cocina realmente el plato.  
+
+Así, Docker divide el trabajo en capas para que sea más eficiente y fácil de usar.
 
 ---
 
