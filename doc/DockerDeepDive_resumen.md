@@ -146,12 +146,46 @@ Docker como tecnología se compone principalmente de tres elementos clave:
 
 El runtime es la capa más baja, responsable de iniciar y detener contenedores, construyendo elementos esenciales del sistema operativo como **namespaces** y **cgroups**.
 
-* Docker usa un modelo de runtime por niveles:
+* Docker usa un modelo de runtime por ¡Claro! Vamos a explicarlo de forma sencilla, como si estuvieras aprendiendo sobre Docker desde cero.  
 
-  * **Runtime de bajo nivel:** **runc**. Es la implementación de referencia de la especificación **OCI runtime-spec** de la **Open Containers Initiative (OCI)**. Interactúa directamente con el OS y arranca o detiene contenedores. Cada contenedor se ejecuta en una instancia de **runc**.
-  * **Runtime de alto nivel:** **containerd**. Administra el ciclo de vida completo del contenedor, incluyendo la descarga de imágenes y el manejo de instancias de **runc**. Es un proyecto graduado por la **Cloud Native Computing Foundation (CNCF)**, utilizado tanto por Docker como por Kubernetes.
+### **¿Qué es un "runtime" en Docker?**  
+Imagina que un contenedor es como una caja donde se ejecuta una aplicación aislada del resto del sistema. El **runtime** es el "motor" que se encarga de:  
+- **Crear** la caja (el contenedor).  
+- **Encenderla** (iniciar el contenedor).  
+- **Apagarla** (detener el contenedor).  
 
-En una instalación típica, **containerd** está siempre activo y coordina con **runc** para arrancar y detener contenedores, mientras que **runc** es efímero y termina una vez el contenedor inicia.
+### **Los dos niveles del runtime en Docker**  
+Docker usa dos herramientas principales para manejar contenedores, trabajando en equipo:  
+
+1. **`runc` (runtime de bajo nivel)**  
+   - Es como el **obrero** que construye y destruye contenedores.  
+   - Se encarga de crear los "muros" que aíslan el contenedor (usando `namespaces` y `cgroups`).  
+   - **Solo actúa cuando se inicia o detiene un contenedor**, y luego desaparece.  
+
+2. **`containerd` (runtime de alto nivel)**  
+   - Es como el **gerente** que supervisa todo el proceso.  
+   - Maneja tareas más complejas, como:  
+     - Descargar imágenes de contenedores (como si fueran plantillas).  
+     - Ordenarle a `runc` que cree o elimine contenedores.  
+     - Mantener registro de qué contenedores están en ejecución.  
+   - **Siempre está activo en segundo plano**, incluso cuando no hay contenedores corriendo.  
+
+### **¿Cómo trabajan juntos?**  
+- Cuando ejecutas `docker run`, **`containerd` recibe la orden** y decide qué hacer.  
+- Si necesita crear un contenedor, **llama a `runc`** para que lo construya.  
+- Una vez que el contenedor está en marcha, **`runc` ya no es necesario** (hasta que se detenga el contenedor).  
+- **`containerd` sigue vigilando** el contenedor por si hay que reiniciarlo, pausarlo, etc.  
+
+### **¿Por qué dos capas en lugar de una?**  
+- **`runc` es simple y rápido**, pero no hace gestión avanzada.  
+- **`containerd` es más potente**, pero no interactúa directamente con el sistema operativo.  
+- Juntos, forman un sistema **eficiente y modular**, usado no solo por Docker, sino también por Kubernetes.  
+
+### **Resumen**  
+- **`runc`** = El que hace el trabajo pesado de aislar el contenedor (pero solo cuando se lo piden).  
+- **`containerd`** = El jefe que coordina todo y se queda vigilando.  
+
+Es como si `containerd` fuera el capataz de una obra y `runc` el albañil que pone los ladrillos cuando se le necesita.  
 
 ---
 
