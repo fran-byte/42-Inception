@@ -146,8 +146,6 @@ Docker como tecnología se compone principalmente de tres elementos clave:
 
 El runtime es la capa más baja, responsable de iniciar y detener contenedores, construyendo elementos esenciales del sistema operativo como **namespaces** y **cgroups**.
 
-* Docker usa un modelo de runtime por ¡Claro! Vamos a explicarlo de forma sencilla, como si estuvieras aprendiendo sobre Docker desde cero.  
-
 ### **¿Qué es un "runtime" en Docker?**  
 Imagina que un contenedor es como una caja donde se ejecuta una aplicación aislada del resto del sistema. El **runtime** es el "motor" que se encarga de:  
 - **Crear** la caja (el contenedor).  
