@@ -1,8 +1,5 @@
-¡Por supuesto! Aquí tienes un **mini tutorial paso a paso** para instalar Docker en tu máquina virtual con **Debian**, explicado de forma clara y directa 🛠️🐳
 
----
-
-## 🚀 Mini Tutorial: Instalar Docker en Debian (VM)
+## 🚀 Instalando Docker en Debian (VM)
 
 ### ✅ Paso 1: Actualiza tu sistema
 
