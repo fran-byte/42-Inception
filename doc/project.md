@@ -23,7 +23,10 @@ sudo apt install ca-certificates curl gnupg lsb-release -y
 ```bash
 sudo install -m 0755 -d /etc/apt/keyrings
 ```
+- Crea el directorio /etc/apt/keyrings con permisos seguros (0755).
 
+- Este directorio se usa para guardar claves GPG que verifican la autenticidad de los paquetes descargados desde repositorios externos (como el de Docker). Es una práctica moderna y más segura que usar /etc/apt/trusted.gpg.
+- 
 ---
 
 ### ✅ Paso 4: Descarga la clave GPG de Docker
@@ -34,6 +37,11 @@ Usamos `wget` para evitar errores con `curl`:
 wget https://download.docker.com/linux/ubuntu/gpg -O docker.gpg
 sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg docker.gpg
 ```
+- Descarga la clave pública de Docker desde su servidor oficial.
+
+- gpg --dearmor : Convierte la clave desde formato ASCII (texto plano) a formato binario (.gpg) que APT puede usar.
+
+ - Cuando agregas el repositorio de Docker, APT necesita verificar que los paquetes provienen realmente de Docker Inc. Esta clave permite esa verificación.
 
 ---
 
