@@ -2,7 +2,7 @@
 
 
 ## 🧱 **1. Preparación del entorno**
-- Crea una **máquina virtual** (VM) Linux.
+- Crea una **máquina virtual** (VM) usaremos debian.
 - [Instala](docker_install.md) **Docker** y **Docker Compose**.
 - Crea la estructura de carpetas base:
   ```bash
