@@ -1,6 +1,6 @@
 # 🚀 Inception Project - Dockerized Infrastructure
 
-(Resources)[doc/resources.md]
+[Resources](doc/resources.md)
 
 ## 📋 Índice
 1. [Preparación del Entorno](#-preparación-del-entorno)
