@@ -1,4 +1,4 @@
-## 0 ** Resources**
+## 0 **Resources**
 - Apartado de [recursos](doc/resources.md)
 
 
