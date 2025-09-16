@@ -79,7 +79,7 @@ Si ves el mensaje “Hello from Docker!”, ¡todo está funcionando correctamen
 
 ---
 
-# Instalar y configurar SSH
+## 🚀 Instalar y configurar SSH
 
 ```
 sudo apt install openssh-server -y
