@@ -1,4 +1,4 @@
-# 42-Inception - Índice de Recursos Esenciales
+# Índice de Recursos Esenciales
 
 ## 1. Fundamentos de Docker  
 *Conceptos esenciales para entender la virtualización con contenedores: arquitectura Docker, creación de imágenes con Dockerfile, gestión de ciclos de vida de contenedores, y diferencias clave con máquinas virtuales tradicionales.*  
