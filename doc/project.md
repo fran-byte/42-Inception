@@ -15,7 +15,7 @@
 ## 🧱 Preparación del Entorno
 
 - **Máquina Virtual (Debian)**: Entorno aislado y controlado para garantizar consistencia en la configuración y evitar conflictos con el sistema principal.
-- **Instalación de Docker y Docker Compose**: Herramientas esenciales para la creación y gestión de contenedores.
+- **[Instalación](doc/docker_install)) de Docker y Docker Compose**: Herramientas esenciales para la creación y gestión de contenedores.
 - **Estructura de Carpetas Base**: Organización clara del proyecto para separar configuraciones, servicios y secretos.
 
 ```bash
