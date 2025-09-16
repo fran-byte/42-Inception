@@ -93,14 +93,14 @@ sudo systemctl start ssh
 sudo systemctl status ssh
 ```
 
-## Instalar herramientas opcionales:
+## 🚀 Instalar herramientas opcionales:
 
 ```
 sudo apt install git vim htop net-tools -y
 
 ```
 
-## Configurar /etc/hosts para el dominio local
+## 🚀 Configurar /etc/hosts para el dominio local
 
 ```
 echo "127.0.0.1 frromero.42.fr" | sudo tee -a /etc/hosts
