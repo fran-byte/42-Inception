@@ -1,4 +1,4 @@
-## 🚀 Instalando Docker y Docker Compose en Debian (VM)
+## 🚀 Instalando Docker, Docker Compose en Debian (VM) y Conf. dominio local
 
 ### ✅ Paso 1: Actualiza tu sistema
 
