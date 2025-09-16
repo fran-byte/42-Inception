@@ -11,6 +11,77 @@
   touch inception/Makefile inception/srcs/docker-compose.yml inception/srcs/.env
   ```
 
+
+## 📁 **Estructura del proyecto y contenido por carpeta**
+
+---
+
+### 🔹 `requirements/nginx/`
+
+**Propósito:** Contenedor que actúa como **puerta de entrada** a tu infraestructura, sirviendo contenido por HTTPS (TLSv1.2 o TLSv1.3).
+
+**Contenido típico:**
+- `Dockerfile`: construye la imagen de NGINX desde Alpine o Debian.
+- `conf/nginx.conf`: configuración personalizada de NGINX (incluye certificados, proxy hacia WordPress, etc.).
+- `tools/` (opcional): scripts para generar certificados TLS autofirmados o configuraciones adicionales.
+- `.dockerignore`: para excluir archivos innecesarios al construir la imagen.
+
+---
+
+### 🔹 `requirements/wordpress/`
+
+**Propósito:** Contenedor que ejecuta WordPress con **PHP-FPM**, sin NGINX.
+
+**Contenido típico:**
+- `Dockerfile`: instala WordPress y PHP-FPM desde Alpine o Debian.
+- `conf/` (opcional): configuración de PHP-FPM.
+- `tools/` (opcional): scripts para inicializar WordPress o configurar plugins.
+- `.dockerignore`: para excluir archivos innecesarios.
+
+> Este contenedor será **servido por NGINX** mediante proxy, no debe tener servidor web propio.
+
+---
+
+### 🔹 `requirements/mariadb/`
+
+**Propósito:** Contenedor que ejecuta **MariaDB**, la base de datos de WordPress.
+
+**Contenido típico:**
+- `Dockerfile`: instala y configura MariaDB desde Alpine o Debian.
+- `conf/`: configuración personalizada de MariaDB (por ejemplo, `my.cnf`).
+- `tools/`: scripts para crear usuarios, bases de datos, etc.
+- `.dockerignore`: para excluir archivos innecesarios.
+
+> Debes crear **dos usuarios** en la base de datos, uno de ellos administrador (sin usar nombres como `admin`, `administrator`, etc.).
+
+---
+
+### 🔹 `secrets/`
+
+**Propósito:** Almacenar **credenciales sensibles** que no deben estar en los Dockerfiles ni en el repositorio.
+
+**Contenido típico:**
+- `db_password.txt`: contraseña del usuario de la base de datos.
+- `db_root_password.txt`: contraseña del usuario root de MariaDB.
+- `credentials.txt`: otras credenciales necesarias (por ejemplo, para WordPress).
+
+> Estos archivos deben estar **excluidos del control de versiones** (`.gitignore`) y pueden usarse con Docker secrets.
+
+---
+
+### 🔹 `srcs/`
+
+**Propósito:** Carpeta principal de configuración del proyecto.
+
+**Contenido típico:**
+- `.env`: archivo con variables de entorno (dominio, usuarios, contraseñas, etc.).
+- `docker-compose.yml`: define los servicios, redes, volúmenes y cómo se construyen los contenedores.
+- `Makefile`: automatiza la construcción y despliegue del proyecto.
+- `requirements/`: subcarpeta con los tres servicios obligatorios (nginx, wordpress, mariadb) y posibles bonus.
+
+
+
+
 ---
 
 ## 📁 **2. Estructura del proyecto**
