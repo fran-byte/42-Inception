@@ -1,4 +1,5 @@
-
+## 0 ** Resources**
+- Apartado de [recursos](doc/resources.md)
 
 
 ## 🧱 **1. Preparación del entorno**
