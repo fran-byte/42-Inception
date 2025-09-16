@@ -1,54 +1,177 @@
-# 42-Inception - Índice de Recursos Esenciales
 
-## 1. Fundamentos de Docker  
-*Conceptos esenciales para entender la virtualización con contenedores: arquitectura Docker, creación de imágenes con Dockerfile, gestión de ciclos de vida de contenedores, y diferencias clave con máquinas virtuales tradicionales.*  
-- [Documentación Oficial Docker](https://docs.docker.com/)  
-- [Docker Deep Dive (Nigel Poulton)](https://www.amazon.com/Docker-Deep-Dive-Nigel-Poulton/dp/1521822808)  
 
-## 2. Docker Compose  
-*Orquestación avanzada de múltiples servicios: configuración de dependencias entre contenedores, gestión de redes aisladas, escalamiento de servicios, y optimización del archivo docker-compose.yml para entornos complejos.*  
-- [Guía Oficial Docker Compose](https://docs.docker.com/compose/)  
-- [Tutorial: Multi-Container Apps](https://www.youtube.com/watch?v=HG6yIjZapSA)  
 
-## 3. NGINX + TLS  
-*Configuración segura de servidor web: implementación de TLS 1.2/1.3, generación de certificados autofirmados, optimización como reverse proxy para aplicaciones PHP, y hardening de configuraciones para cumplir con estándares de seguridad.*  
-- [Configuración HTTPS en NGINX](https://www.nginx.com/blog/using-free-ssltls-certificates-from-lets-encrypt-with-nginx/)  
-- [Generación de Certificados Autofirmados](https://www.digitalocean.com/community/tutorials/openssl-essentials-working-with-ssl-certificates-private-keys-and-csrs)  
+## 🧱 **1. Preparación del entorno**
+- Crea una **máquina virtual** (VM) usaremos debian.
+- [Instala](docker_install.md) **Docker** y **Docker Compose**.
+- Crea la estructura de carpetas base:
+  ```bash
+  mkdir -p inception/srcs/requirements/{nginx,wordpress,mariadb}
+  mkdir -p inception/secrets
+  touch inception/Makefile inception/srcs/docker-compose.yml inception/srcs/.env
+  ```
 
-## 4. WordPress + PHP-FPM  
-*Implementación óptima de CMS: instalación manual sin dependencias externas, configuración de PHP-FPM para procesamiento eficiente, gestión de plugins y temas, y conexión segura con base de datos MariaDB.*  
-- [Instalación Manual WordPress](https://make.wordpress.org/hosting/handbook/server-environment/)  
-- [Configuración PHP-FPM](https://www.php.net/manual/en/install.fpm.configuration.php)  
 
-## 5. MariaDB en Docker  
-*Gestión de bases de datos en contenedores: creación segura de usuarios y privilegios, configuración de almacenamiento persistente con volúmenes, optimización de consultas, y prácticas de backup/recovery para datos críticos.*  
-- [Imagen Oficial MariaDB](https://hub.docker.com/_/mariadb)  
-- [Seguridad en MariaDB](https://mariadb.com/kb/en/security-overview/)  
-
-## 6. Seguridad y Variables de Entorno  
-*Protección de infraestructura: implementación de Docker Secrets para credenciales, gestión centralizada con archivos .env, prevención de hardcoding en Dockerfiles, y prácticas de hardening para contenedores.*  
-- [Docker Secrets](https://docs.docker.com/engine/swarm/secrets/)  
-- [Manejo de .env Files](https://docs.docker.com/compose/environment-variables/#the-env-file)  
-
-## 7. Docker Networking  
-*Comunicación segura entre servicios: configuración de redes puente aisladas, resolución DNS entre contenedores, exposición selectiva de puertos, y diagnóstico de problemas de conectividad en entornos multi-container.*  
-- [Tipos de Redes Docker](https://docs.docker.com/network/)  
-- [Comunicación entre Contenedores](https://docs.docker.com/network/links/)  
-
-## 8. Makefile para Docker  
-*Automatización de flujos de trabajo: creación de targets para construcción, despliegue y limpieza, integración con docker-compose, gestión de dependencias entre servicios, y simplificación de comandos complejos.*  
-- [Tutorial Makefile](https://makefiletutorial.com/)  
-- [Ejemplos Docker + Makefile](https://github.com/docker/awesome-compose/tree/master/nginx-golang)  
-
-## 9. Volúmenes y Persistencia  
-*Gestión de almacenamiento persistente: diferencias entre volúmenes y bind mounts, configuración de permisos, estrategias de backup para bases de datos, y recuperación de datos en fallos de contenedores.*  
-- [Manejo de Volúmenes](https://docs.docker.com/storage/volumes/)  
-- [Backup de Datos en Docker](https://docs.docker.com/storage/volumes/#back-up-restore-or-migrate-data-volumes)  
-
-## 10. Bonus: Servicios Adicionales  
-*Implementación de funcionalidades avanzadas: integración de Redis para caché de WordPress, configuración segura de servidores FTP, despliegue de sitios estáticos modernos, y justificación de componentes adicionales durante la defensa.*  
-- **Redis**: [WordPress + Redis Cache](https://redis.io/docs/connect/clients/php/)  
-- **FTP**: [vsftpd en Docker](https://github.com/fauria/docker-vsftpd)  
-- **Adminer**: [Docker Hub Adminer](https://hub.docker.com/_/adminer)  
+## 📁 **Estructura del proyecto y contenido por carpeta**
 
 ---
+
+### 🔹 `requirements/nginx/`
+
+**Propósito:** Contenedor que actúa como **puerta de entrada** a tu infraestructura, sirviendo contenido por HTTPS (TLSv1.2 o TLSv1.3).
+
+**Contenido típico:**
+- `Dockerfile`: construye la imagen de NGINX desde Alpine o Debian.
+- `conf/nginx.conf`: configuración personalizada de NGINX (incluye certificados, proxy hacia WordPress, etc.).
+- `tools/` (opcional): scripts para generar certificados TLS autofirmados o configuraciones adicionales.
+- `.dockerignore`: para excluir archivos innecesarios al construir la imagen.
+
+---
+
+### 🔹 `requirements/wordpress/`
+
+**Propósito:** Contenedor que ejecuta WordPress con **PHP-FPM**, sin NGINX.
+
+**Contenido típico:**
+- `Dockerfile`: instala WordPress y PHP-FPM desde Alpine o Debian.
+- `conf/` (opcional): configuración de PHP-FPM.
+- `tools/` (opcional): scripts para inicializar WordPress o configurar plugins.
+- `.dockerignore`: para excluir archivos innecesarios.
+
+> Este contenedor será **servido por NGINX** mediante proxy, no debe tener servidor web propio.
+
+---
+
+### 🔹 `requirements/mariadb/`
+
+**Propósito:** Contenedor que ejecuta **MariaDB**, la base de datos de WordPress.
+
+**Contenido típico:**
+- `Dockerfile`: instala y configura MariaDB desde Alpine o Debian.
+- `conf/`: configuración personalizada de MariaDB (por ejemplo, `my.cnf`).
+- `tools/`: scripts para crear usuarios, bases de datos, etc.
+- `.dockerignore`: para excluir archivos innecesarios.
+
+> Debes crear **dos usuarios** en la base de datos, uno de ellos administrador (sin usar nombres como `admin`, `administrator`, etc.).
+
+---
+
+### 🔹 `secrets/`
+
+**Propósito:** Almacenar **credenciales sensibles** que no deben estar en los Dockerfiles ni en el repositorio.
+
+**Contenido típico:**
+- `db_password.txt`: contraseña del usuario de la base de datos.
+- `db_root_password.txt`: contraseña del usuario root de MariaDB.
+- `credentials.txt`: otras credenciales necesarias (por ejemplo, para WordPress).
+
+> Estos archivos deben estar **excluidos del control de versiones** (`.gitignore`) y pueden usarse con Docker secrets.
+
+---
+
+### 🔹 `srcs/`
+
+**Propósito:** Carpeta principal de configuración del proyecto.
+
+**Contenido típico:**
+- `.env`: archivo con variables de entorno (dominio, usuarios, contraseñas, etc.).
+- `docker-compose.yml`: define los servicios, redes, volúmenes y cómo se construyen los contenedores.
+- `Makefile`: automatiza la construcción y despliegue del proyecto.
+- `requirements/`: subcarpeta con los tres servicios obligatorios (nginx, wordpress, mariadb) y posibles bonus.
+
+
+
+
+---
+
+## 📁 **2. Estructura del proyecto**
+```
+inception/
+├── Makefile
+├── secrets/
+│   ├── db_password.txt
+│   └── db_root_password.txt
+├── srcs/
+│   ├── .env
+│   ├── docker-compose.yml
+│   └── requirements/
+│       ├── nginx/
+│       │   ├── Dockerfile
+│       │   └── conf/nginx.conf
+│       ├── wordpress/
+│       │   └── Dockerfile
+│       └── mariadb/
+│           └── Dockerfile
+```
+
+---
+
+## 🐳 **3. Crear los Dockerfiles**
+- **NGINX**: con TLSv1.2/1.3, puerto 443, sin `tail -f`.
+- **WordPress**: con PHP-FPM, sin NGINX.
+- **MariaDB**: con configuración de usuarios y base de datos.
+
+Cada Dockerfile debe usar como base `alpine` o `debian`, y **no puedes usar imágenes preconstruidas** como `wordpress:latest`.
+
+---
+
+## 🔐 **4. Variables de entorno**
+- Crea un archivo `.env` con variables como:
+  ```env
+  DOMAIN_NAME=francisco.42.fr
+  MYSQL_ROOT_PASSWORD=...
+  MYSQL_USER=...
+  MYSQL_PASSWORD=...
+  MYSQL_DATABASE=wordpress
+  ```
+
+---
+
+## 🧩 **5. Configurar `docker-compose.yml`**
+- Define los tres servicios: `nginx`, `wordpress`, `mariadb`.
+- Usa `build:` para cada uno, apuntando a su carpeta.
+- Define volúmenes:
+  - Uno para la base de datos.
+  - Otro para los archivos de WordPress.
+- Define una red personalizada.
+- Configura `restart: always` para cada contenedor.
+
+---
+
+## 🛠️ **6. Crear el Makefile**
+- El Makefile debe construir todo el entorno con:
+  ```makefile
+  all:
+  	docker-compose --env-file srcs/.env -f srcs/docker-compose.yml up --build -d
+  ```
+
+---
+
+## 🌐 **7. Configurar el dominio**
+- El dominio debe ser `francisco.42.fr` apuntando a tu IP local.
+- Puedes simular esto en `/etc/hosts`:
+  ```bash
+  echo "127.0.0.1 francisco.42.fr" | sudo tee -a /etc/hosts
+  ```
+
+---
+
+## 🧪 **8. Pruebas y validación**
+- Verifica que:
+  - NGINX responde por HTTPS.
+  - WordPress se conecta a MariaDB.
+  - Los volúmenes persisten datos.
+  - Los contenedores se reinician automáticamente.
+
+---
+
+## 🎁 **9. Bonus (opcional)**
+Solo si la parte obligatoria funciona perfectamente:
+- Redis cache para WordPress.
+- FTP server.
+- Sitio estático (no PHP).
+- Adminer.
+- Otro servicio útil que puedas justificar.
+
+---
+
