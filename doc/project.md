@@ -3,7 +3,7 @@
 
 ## 🧱 **1. Preparación del entorno**
 - Crea una **máquina virtual** (VM) Linux.
-- Instala **Docker** y **Docker Compose**.
+- [Instala](docker_install.md) **Docker** y **Docker Compose**.
 - Crea la estructura de carpetas base:
   ```bash
   mkdir -p inception/srcs/requirements/{nginx,wordpress,mariadb}
