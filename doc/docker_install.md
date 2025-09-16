@@ -76,3 +76,32 @@ Si ves el mensaje “Hello from Docker!”, ¡todo está funcionando correctamen
 
 
 ---
+
+# Instalar y configurar SSH
+
+```
+sudo apt install openssh-server -y
+sudo systemctl enable ssh
+sudo systemctl start ssh
+```
+
+## Verificamos:
+
+```
+sudo systemctl status ssh
+```
+
+## Instalar herramientas opcionales:
+
+```
+sudo apt install git vim htop net-tools -y
+
+```
+
+## Configurar /etc/hosts para el dominio local
+
+```
+echo "127.0.0.1 frromero.42.fr" | sudo tee -a /etc/hosts
+```
+
+
