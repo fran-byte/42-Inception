@@ -95,17 +95,16 @@ inception/
 │   ├── .env
 │   ├── docker-compose.yml
 │   └── requirements/
-│       └── nginx/
-│           ├── Dockerfile
-│           └── conf/
-|               └── nginx.conf
-|           └── tools/
-|               └── certs.sh
-certs.sh
-│       └── wordpress/
-|           ├── Dockerfile
-|           └── tools/
-|               └── script.sh
+│       ├── nginx/
+│       │   ├── Dockerfile
+│       │   └── conf/
+|       │   |   └── nginx.conf
+|       │   └── tools/
+|       │       └── certs.sh
+│       ├── wordpress/
+|       |   ├── Dockerfile
+|       |   └── tools/
+|       |       └── script.sh
 │       └── mariadb/
 │           ├── Dockerfile
 |           └── tools/
