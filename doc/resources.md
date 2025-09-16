@@ -4,7 +4,7 @@
 *Conceptos esenciales para entender la virtualización con contenedores: arquitectura Docker, creación de imágenes con Dockerfile, gestión de ciclos de vida de contenedores, y diferencias clave con máquinas virtuales tradicionales.*  
 - [Documentación Oficial Docker](https://docs.docker.com/)  
 - [Docker Deep Dive (Nigel Poulton)](https://www.amazon.com/Docker-Deep-Dive-Nigel-Poulton/dp/1521822808)
-- [Resumen adaptado Docker Deep Dive](resources.md)
+- [Resumen adaptado Docker Deep Dive](DockerDeepDive_resumen.md)
 
 ## 2. Docker Compose  
 *Orquestación avanzada de múltiples servicios: configuración de dependencias entre contenedores, gestión de redes aisladas, escalamiento de servicios, y optimización del archivo docker-compose.yml para entornos complejos.*  
