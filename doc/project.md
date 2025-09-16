@@ -95,13 +95,21 @@ inception/
 │   ├── .env
 │   ├── docker-compose.yml
 │   └── requirements/
-│       ├── nginx/
-│       │   ├── Dockerfile
-│       │   └── conf/nginx.conf
-│       ├── wordpress/
-│       │   └── Dockerfile
+│       └── nginx/
+│           ├── Dockerfile
+│           └── conf/
+|               └── nginx.conf
+|           └── tools/
+|               └── certs.sh
+certs.sh
+│       └── wordpress/
+|           ├── Dockerfile
+|           └── tools/
+|               └── script.sh
 │       └── mariadb/
-│           └── Dockerfile
+│           ├── Dockerfile
+|           └── tools/
+|               └── script.sh
 ```
 
 ---
