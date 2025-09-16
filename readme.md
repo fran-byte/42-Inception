@@ -107,7 +107,7 @@ inception/
 |       |
 │       └── mariadb/
 │           └── Dockerfile
-│       │   └── tools/
+│           └── tools/
 ```
 
 ---
