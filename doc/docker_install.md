@@ -105,5 +105,5 @@ sudo apt install git vim htop net-tools -y
 ```
 echo "127.0.0.1 frromero.42.fr" | sudo tee -a /etc/hosts
 ```
-
+- Con ese cambio, cuando accedas a https://frromero.42.fr en tu navegador local, se redirigirá correctamente a tu contenedor NGINX que sirve WordPress por HTTPS.
 
