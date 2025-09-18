@@ -66,6 +66,34 @@ inception/
 - `tools/`: Scripts para generar certificados TLS autofirmados o configuraciones adicionales.
 - `.dockerignore`: Excluye archivos innecesarios al construir la imagen.
 
+
+
+---
+
+## ✅ Verificado del estado actual de Nginx
+
+| Requisito del proyecto | ¿Cumple? | Detalles |
+|------------------------|----------|----------|
+| Instalación manual     | ✔️       | Usas `debian:bookworm-slim` y `apt install nginx` |
+| HTTPS con SSL propio   | ✔️       | Certificados `selfsigned.crt` y `selfsigned.key` presentes y configurados |
+| Redirección HTTP→HTTPS | ✔️       | Bloque `server` en puerto 80 con `return 301` |
+| Puerto 443 expuesto    | ✔️       | `EXPOSE 443` en Dockerfile y mapeado en `docker-compose.yml` |
+| Comunicación con WordPress | ✔️   | Usas `fastcgi_pass wordpress:9000` para PHP-FPM |
+| Configuración personalizada | ✔️   | `nginx.conf` bien estructurado y copiado al contenedor |
+| Volumen compartido     | ✔️       | `wordpress_data:/var/www/html` montado en Nginx |
+
+---
+
+
+
+
+
+
+
+
+
+
+
 ### 🔹 `requirements/wordpress/`
 
 **Propósito:** Contenedor que ejecuta WordPress con **PHP-FPM**, sin NGINX.
