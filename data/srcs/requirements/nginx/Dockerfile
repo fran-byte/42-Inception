@@ -1,20 +1,19 @@
-# Use a lightweight version of Debian as the base image
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 
-# Set environment variable to avoid interactive prompts during package installation
-ENV DEBIAN_FRONTEND=noninteractive
+# Instalar Nginx
+RUN apt update && apt install -y nginx && \
+    apt clean && rm -rf /var/lib/apt/lists/*
 
-# Install Nginx and clean up package cache to reduce image size
-RUN apt-get update && \
-    apt-get install -y nginx && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Copiar configuración personalizada
+COPY conf/nginx.conf /etc/nginx/nginx.conf
 
-# Copy custom Nginx configuration file
- COPY conf/nginx.conf /etc/nginx/nginx.conf
+# Copiar certificados SSL
+COPY certs/selfsigned.crt /etc/ssl/certs/selfsigned.crt
+COPY certs/selfsigned.key /etc/ssl/private/selfsigned.key
 
-# Expose port 80 to allow HTTP traffic
+# Exponer puertos HTTP y HTTPS
 EXPOSE 80
+EXPOSE 443
 
-# Start Nginx in the foreground
+# Ejecutar Nginx en primer plano
 CMD ["nginx", "-g", "daemon off;"]
