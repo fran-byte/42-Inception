@@ -70,20 +70,21 @@ inception/
 
 ---
 
-## ✅ Verificado del estado actual de Nginx
 
-| Requisito del proyecto | Detalles |
-|------------------------|----------|
-| Instalación manual     | Usas `debian:bookworm-slim` y `apt install nginx` |
-| HTTPS con SSL propio   | Certificados `selfsigned.crt` y `selfsigned.key` presentes y configurados |
-| Redirección HTTP→HTTPS | Bloque `server` en puerto 80 con `return 301` |
-| Puerto 443 expuesto    | `EXPOSE 443` en Dockerfile y mapeado en `docker-compose.yml` |
-| Comunicación con WordPress | Usas `fastcgi_pass wordpress:9000` para PHP-FPM |
-| Configuración personalizada | `nginx.conf` bien estructurado y copiado al contenedor |
-| Volumen compartido     | `wordpress_data:/var/www/html` montado en Nginx |
+
+## ✅ Verificación detallada de Nginx
+
+| **Requisito del proyecto**         | **Cumplimiento** | **Explicación técnica completa** |
+|-----------------------------------|------------------|----------------------------------|
+| **Instalación manual**            | ✔️               | Usas la imagen base `debian:bookworm-slim`, lo que demuestra que no estás usando una imagen preconfigurada de Nginx. Luego instalas Nginx manualmente con `apt install -y nginx`, cumpliendo el requisito de instalación desde cero. |
+| **HTTPS con SSL propio**          | ✔️               | Has generado tus propios certificados (`selfsigned.crt` y `selfsigned.key`) y los has copiado al contenedor en rutas estándar (`/etc/ssl/certs/` y `/etc/ssl/private/`). En `nginx.conf`, los usas correctamente con `ssl_certificate` y `ssl_certificate_key`. Esto habilita HTTPS sin depender de certificados externos. |
+| **Redirección HTTP→HTTPS**        | ✔️               | En el bloque del servidor que escucha en el puerto 80, usas `return 301 https://$host$request_uri;`, lo que fuerza la redirección de todas las peticiones HTTP hacia HTTPS. Esto es obligatorio para asegurar que el sitio se sirva exclusivamente por HTTPS. |
+| **Puerto 443 expuesto**           | ✔️               | En el `Dockerfile`, incluyes `EXPOSE 443`, lo que indica que el contenedor está preparado para recibir tráfico HTTPS. En `docker-compose.yml`, mapeas `"443:443"`, lo que permite que el tráfico externo llegue al contenedor. |
+| **Comunicación con WordPress**    | ✔️               | En `nginx.conf`, usas `fastcgi_pass wordpress:9000;`, lo que indica que Nginx está configurado para enviar peticiones PHP al contenedor de WordPress a través del puerto 9000, donde debe estar corriendo PHP-FPM. También incluyes `SCRIPT_FILENAME`, que es esencial para que PHP-FPM sepa qué archivo ejecutar. |
+| **Configuración personalizada**   | ✔️               | Has creado tu propio archivo `nginx.conf` y lo copias al contenedor con `COPY conf/nginx.conf /etc/nginx/nginx.conf`. El archivo está bien estructurado, incluye los bloques `server`, define `root`, `index`, y gestiona correctamente las peticiones PHP. Esto demuestra que no estás usando la configuración por defecto. |
+| **Volumen compartido**            | ✔️               | En `docker-compose.yml`, montas el volumen `wordpress_data:/var/www/html` tanto en Nginx como en WordPress. Esto permite que Nginx sirva los archivos PHP que WordPress genera, y que ambos contenedores compartan el mismo sistema de archivos para el sitio web. |
 
 ---
-
 
 
 
