@@ -246,3 +246,68 @@ Solo se evaluará si la parte obligatoria funciona perfectamente:
 - **Servicio personalizado**: Cualquier servicio adicional que se considere útil, debiendo justificarse durante la defensa.
 
 Para la parte bonus, se permite abrir puertos adicionales según sea necesario.
+
+
+---
+---
+
+¡Vamos allá, Fran! Aquí tienes un **chuletario esencial** para moverte con soltura tanto **dentro del contenedor MariaDB** como **dentro del cliente SQL**. Ideal para debuggear, verificar, y controlar tu entorno sin perder tiempo.
+
+---
+
+## 🐳 **Comandos fuera del contenedor (Docker)**
+
+| Acción | Comando |
+|-------|--------|
+| Ver contenedores activos | `docker ps` |
+| Ver todos los contenedores | `docker ps -a` |
+| Entrar al contenedor MariaDB | `docker exec -it mariadb bash` |
+| Ver logs del contenedor | `docker logs mariadb` |
+| Parar el contenedor | `docker stop mariadb` |
+| Reiniciar el contenedor | `docker restart mariadb` |
+| Eliminar contenedor | `docker rm mariadb` |
+| Ver redes | `docker network ls` |
+| Ver volúmenes | `docker volume ls` |
+| Inspeccionar volumen | `docker volume inspect srcs_db_data` |
+
+---
+
+## 🧠 **Comandos dentro del contenedor (cliente MariaDB)**
+
+Una vez dentro del contenedor, accedes al cliente con:
+
+```bash
+mysql -u frromero -p
+```
+
+Y luego introduces la contraseña (`contraseña_de_usuario`).
+
+---
+
+### 📚 Comandos SQL básicos
+
+| Acción | Comando SQL |
+|--------|-------------|
+| Ver bases de datos | `SHOW DATABASES;` |
+| Usar una base de datos | `USE wordpress;` |
+| Ver tablas | `SHOW TABLES;` |
+| Ver usuarios | `SELECT user, host FROM mysql.user;` |
+| Crear usuario | `CREATE USER 'nombre'@'%' IDENTIFIED BY 'clave';` |
+| Crear base de datos | `CREATE DATABASE nombre;` |
+| Dar permisos | `GRANT ALL PRIVILEGES ON nombre.* TO 'usuario'@'%';` |
+| Ver permisos | `SHOW GRANTS FOR 'usuario'@'%';` |
+| Eliminar usuario | `DROP USER 'usuario'@'%';` |
+| Eliminar base de datos | `DROP DATABASE nombre;` |
+| Salir del cliente | `exit` |
+
+---
+
+### 🔧 Tip extra: acceder como root
+
+Si necesitas entrar como root (por ejemplo, para ver todo):
+
+```bash
+mysql -u root
+```
+
+(Si no hay contraseña configurada para root, entra directo. Si la hay, usa `-p` y escribe la clave.)
