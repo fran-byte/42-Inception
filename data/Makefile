@@ -1,30 +1,31 @@
-DOCKER_COMPOSE=docker compose
-DOCKER_COMPOSE_FILE=./srcs/docker-compose.yml
+# Variables
+DC = docker compose                   # Alias para el comando 'docker compose'
+DC_FILE = ./srcs/docker-compose.yml   # Ruta al archivo docker-compose que se usará
 
-.PHONY: kill build down clean fclean restart re logs
+# Declaración de targets como phony (no son archivos)
+.PHONY: up stop rm clean purge restart re logs
 
-build:
-	@mkdir -p ./data/mariadb
-	@mkdir -p ./data/wordpress
-	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) up --build -d
+# Levanta los servicios
+up:
+        @mkdir -p ./data/db ./data/wp       # Crea carpetas persistentes para la base de datos y WordPress
+        @$(DC) -f $(DC_FILE) up --build -d  # Construye y levanta los contenedores en segundo plano
 
-kill:
-	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) kill
+# Detiene los contenedores sin eliminarlos
+stop:
+        @$(DC) -f $(DC_FILE) stop
 
-down:
-	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) down
+# Elimina los contenedores (pero conserva volúmenes y datos)
+rm:
+        @$(DC) -f $(DC_FILE) down
 
+# Elimina contenedores y volúmenes
 clean:
-	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) down -v
+        @$(DC) -f $(DC_FILE) down -v
 
-fclean: clean
-	@rm -rf ./data/mariadb
-	@rm -rf ./data/wordpress
-	@docker system prune -a -f
+# Limpieza total: contenedores, volúmenes, carpetas locales y caché de Docker
+purge: clean
+        @rm -rf ./data/db ./data/wp  # Borra carpetas locales de datos
+         @docker system prune -a -f  # Elimina imágenes, contenedores y redes no usadas
 
-restart: clean build
-
-re: fclean build
-
-logs:
-	@$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) logs -f
+# Reinicia todo desde cero
+restart: clean up
