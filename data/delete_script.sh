@@ -11,7 +11,7 @@ mkdir -p srcs/requirements/mariadb/tools
 touch Makefile
 touch secrets/db_password.txt
 touch secrets/db_root_password.txt
-touch srcs/.env
+touch secrets/.env
 touch srcs/docker-compose.yml
 touch srcs/requirements/nginx/Dockerfile
 touch srcs/requirements/nginx/conf/nginx.conf
