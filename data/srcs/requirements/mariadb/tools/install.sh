@@ -1,23 +1,26 @@
 #!/bin/bash
 
+# Si falla se detiene
 set -e
 
-echo "🔧 Actualizando paquetes..."
-apt update
+# Cargando variables de entorno
+if [ -f /secrets/.env ]; then
+    export $(grep -v '^#' /secrets/.env | xargs)
+else
+    echo "Archivo .env no encontrado en /secrets"
+    exit 1
+fi
 
-echo "📦 Instalando MariaDB..."
-DEBIAN_FRONTEND=noninteractive apt install -y mariadb-server
+# Ejecutar comandos SQL al arrancar MariaDB
+# Usamos un script de inicialización en lugar de lanzar dos veces el servidor
 
-echo "✅ MariaDB instalado. Iniciando servicio..."
-service mysql start
-
-echo "🔐 Configurando base de datos..."
-mysql -u root <<EOF
-CREATE DATABASE IF NOT EXISTS ${WORDPRESS_DB_NAME};
-CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
-GRANT ALL PRIVILEGES ON ${WORDPRESS_DB_NAME}.* TO '${MYSQL_USER}'@'%';
+# Crear script SQL temporal
+cat <<EOF > /tmp/init.sql
+CREATE DATABASE IF NOT EXISTS ${DB_NAME};
+CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASSWORD}';
+GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%';
 FLUSH PRIVILEGES;
 EOF
 
-echo "🎉 Instalación completa."
-tail -f /dev/null  # Mantiene el contenedor vivo
+# Lanzamos MariaDB con el script de inicialización
+exec mysqld_safe --init-file=/tmp/init.sql
