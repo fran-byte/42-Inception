@@ -1,11 +1,20 @@
-FROM debian:bookworm-slim
+# OS de este contenedor
+FROM debian:bullseye-slim
 
-ENV MYSQL_ROOT_PASSWORD=Eskorbuto13/12
-ENV MYSQL_USER=wpuser
-ENV MYSQL_PASSWORD=Eskorbuto13/12
-ENV WORDPRESS_DB_NAME=wordpress
+# Instalando MariaDB y cliente
+RUN apt-get update && apt-get install -y \
+    mariadb-server \
+    mariadb-client \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY tools/install.sh /install.sh
-RUN chmod +x /install.sh
+# Creando directorio de almacenamiento de datos
+# Asignando permisos al usuario y al grupo mysql
+# que ejecutará el servicio
+RUN mkdir -p /var/lib/mysql && chown -R mysql:mysql /var/lib/mysql
 
-CMD ["/install.sh"]
+# Copiar el script de instalación personalizado
+COPY tools/install.sh /usr/local/bin/install.sh
+RUN chmod +x /usr/local/bin/install.sh
+
+# Ejecutar el script al iniciar el contenedor
+CMD ["install.sh"]
