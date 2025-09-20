@@ -1,26 +1,34 @@
 #!/bin/bash
-
-# Si falla se detiene
 set -e
 
-# Cargando variables de entorno
-if [ -f /secrets/.env ]; then
-    export $(grep -v '^#' /secrets/.env | xargs)
-else
-    echo "Archivo .env no encontrado en /secrets"
-    exit 1
-fi
+echo "🔧 Configurando MariaDB durante el build..."
 
-# Ejecutar comandos SQL al arrancar MariaDB
-# Usamos un script de inicialización en lugar de lanzar dos veces el servidor
+# Inicializar la base de datos
+mysql_install_db --user=mysql --datadir=/var/lib/mysql
 
-# Crear script SQL temporal
-cat <<EOF > /tmp/init.sql
-CREATE DATABASE IF NOT EXISTS ${DB_NAME};
-CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASSWORD}';
-GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%';
+# Iniciar MariaDB temporalmente para configurarlo
+mysqld_safe --user=mysql --skip-networking &
+
+# Esperar a que esté listo
+sleep 5
+
+# Configurar usuarios y bases de datos (usando valores por defecto durante el build)
+# NOTA: Los secrets no están disponibles durante el build, así que usamos valores temporales
+# Estos serán sobrescritos en el primer inicio con los valores reales de los secrets
+
+cat <<SQL > /tmp/init.sql
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'temp_root_password';
+CREATE DATABASE IF NOT EXISTS wordpress;
+CREATE USER IF NOT EXISTS 'wpuser'@'%' IDENTIFIED BY 'temp_password';
+GRANT ALL PRIVILEGES ON wordpress.* TO 'wpuser'@'%';
 FLUSH PRIVILEGES;
-EOF
+SQL
 
-# Lanzamos MariaDB con el script de inicialización
-exec mysqld_safe --init-file=/tmp/init.sql
+# Ejecutar el script de configuración
+mysql -uroot < /tmp/init.sql
+
+# Detener el servidor temporal
+killall mysqld
+sleep 3
+
+echo "✅ Configuración de MariaDB completada durante el build."

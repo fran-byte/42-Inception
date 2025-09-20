@@ -1,36 +1,47 @@
+
 networks:
   inception_net:
     driver: bridge
-
-volumes:
-  db_data:
-  wp_data:
 
 services:
   mariadb:
     build: ./requirements/mariadb
     container_name: mariadb
     restart: always
-    env_file:
-      - ./.env
+    environment:
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wpuser
+      MYSQL_PASSWORD_FILE: /run/secrets/db_password
     volumes:
-      - ../secrets:/secrets
-      - db_data:/var/lib/mysql
+      - ${VOLUMES_ROOT}/db:/var/lib/mysql
     networks:
       - inception_net
+    secrets:
+      - db_root_password
+      - db_password
 
   # wordpress:
   #   build: ./requirements/wordpress
   #   container_name: wordpress
   #   restart: always
-  #   env_file:
-  #     - ../secrets/.env
-  #   depends_on:
-  #     - mariadb
+  #   environment:
+  #     WORDPRESS_DB_HOST: mariadb
+  #     WORDPRESS_DB_USER: wpuser
+  #     WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
+  #     WORDPRESS_DB_NAME: wordpress
+  #     WORDPRESS_ADMIN_USER: manager
+  #     WORDPRESS_ADMIN_PASSWORD_FILE: /run/secrets/wordpress_password
+  #     WORDPRESS_ADMIN_EMAIL: manager@42.fr
   #   volumes:
-  #     - wp_data:/var/www/html
+  #     - ${VOLUMES_ROOT}/wp:/var/www/html
   #   networks:
   #     - inception_net
+  #   depends_on:
+  #     - mariadb
+  #   secrets:
+  #     - db_password
+  #     - wordpress_password
 
   # nginx:
   #   build: ./requirements/nginx
@@ -39,10 +50,18 @@ services:
   #   ports:
   #     - "443:443"
   #   volumes:
-  #     - wp_data:/var/www/html
+  #     - ${VOLUMES_ROOT}/wp:/var/www/html
+  #     - ./requirements/nginx/conf:/etc/nginx/conf.d
   #     - ./requirements/nginx/certs:/etc/ssl/certs
-  #     - ./requirements/nginx/conf:/etc/nginx
-  #   depends_on:
-  #     - wordpress
   #   networks:
   #     - inception_net
+  #   depends_on:
+  #     - wordpress
+
+secrets:
+  db_root_password:
+    file: ../secrets/db_root_password.txt
+  db_password:
+    file: ../secrets/db_password.txt
+  # wordpress_password:
+  #   file: ../secrets/wordpress_password.txt
