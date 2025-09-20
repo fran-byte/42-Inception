@@ -29,6 +29,12 @@ echo -e "${YELLOW}📦 Paso 2/10: Instalando paquetes base...${NC}"
 sudo apt install ca-certificates curl gnupg lsb-release wget openssh-server git vim htop net-tools tree unzip -y
 echo -e "${GREEN}✅ Paquetes base instalados${NC}"
 
+### ✅ Paso 2.5: Reinstalar certificados raíz del sistema
+echo -e "${YELLOW}🔐 Paso 2.5/10: Reinstalando certificados raíz del sistema...${NC}"
+sudo apt install --reinstall ca-certificates -y
+sudo update-ca-certificates
+echo -e "${GREEN}✅ Certificados raíz actualizados${NC}"
+
 ### ✅ Paso 3: Configurar directorio para claves GPG
 echo -e "${YELLOW}🔑 Paso 3/10: Configurando claves GPG...${NC}"
 sudo install -m 0755 -d /etc/apt/keyrings
