@@ -40,6 +40,7 @@
 ## 🧱 Preparación del Entorno
 
 - **Máquina Virtual (Debian)**: Entorno aislado y controlado para garantizar consistencia en la configuración y evitar conflictos con el sistema principal.
+- Corregir Error deVMX root mode. SOLUCIOÓN: `sudo rmmod kvm_intel`
 - **[Instalación](doc/docker_install.md) de Docker y Docker Compose**: Herramientas esenciales para la creación y gestión de contenedores.
 - **Estructura de Carpetas Base**: Organización clara del proyecto para separar configuraciones, servicios y secretos.
 
