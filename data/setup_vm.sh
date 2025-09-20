@@ -83,6 +83,9 @@ fi
 echo -e "${YELLOW}🛠️  Paso 10/10: Instalando herramientas adicionales...${NC}"
 sudo apt install python3 python3-pip python3-venv bash-completion -y
 
+# ✅ Paso 11: Instalar tree
+sudo apt install -y tree
+
 # Configurar bash completion
 echo -e "${GREEN}✅ Herramientas adicionales instaladas${NC}"
 
