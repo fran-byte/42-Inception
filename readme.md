@@ -14,6 +14,29 @@
 9. [Pruebas y Validación](#-pruebas-y-validación)
 10. [Parte Bonus](#-parte-bonus)
 
+## 0. Requisitos del Proyecto Inception:
+
+
+| Categoría                     | Requisitos                                                                                                                                                                                                                               |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Entorno**                   | - Todo debe hacerse en una **Máquina Virtual**.<br>- Se debe usar **Docker Compose**.<br>- Cada servicio en un **contenedor dedicado**.<br>- Imágenes basadas en **Alpine** o **Debian** (última versión estable –1).                    |
+| **Estructura de archivos**    | - Todos los archivos en una carpeta `srcs/`.<br>- Un **Makefile** en la raíz que construya todo (llamando a `docker-compose.yml`).<br>- Un **Dockerfile por servicio** (no usar imágenes prehechas de DockerHub, salvo Alpine/Debian).   |
+| **Servicios obligatorios**    | - Contenedor **NGINX** (TLSv1.2 o TLSv1.3, puerto 443).<br>- Contenedor **WordPress con php-fpm** (sin nginx).<br>- Contenedor **MariaDB** (sin nginx).                                                                                  |
+| **Volúmenes**                 | - Uno para la base de datos de WordPress.<br>- Otro para los archivos del sitio WordPress.                                                                                                                                               |
+| **Redes**                     | - Usar una **docker-network** definida en `docker-compose.yml`.<br>- Prohibido `network: host`, `--link` o `links:`.                                                                                                                     |
+| **Políticas de ejecución**    | - Los contenedores deben **reiniciarse automáticamente** en caso de fallo.<br>- Prohibido usar bucles infinitos (`tail -f`, `sleep infinity`, `while true`, etc.).<br>- Seguir buenas prácticas con **PID 1** en Docker.                 |
+| **Base de datos**             | - En la BD de WordPress debe haber **2 usuarios**:<br>   • Uno administrador (**NO** puede contener "admin", "administrator", etc.).                                                                                                     |
+| **Dominios y paths**          | - Los volúmenes deben estar en `/home/login/data/` (reemplazar `login` por tu usuario).<br>- Debes configurar un dominio `login.42.fr` → tu IP local.                                                                                    |
+| **Restricciones adicionales** | - Prohibido usar la etiqueta `latest` en imágenes.<br>- No guardar **contraseñas en Dockerfiles**.<br>- Debes usar **variables de entorno** (recomendado `.env` y/o `docker secrets`).                                                   |
+| **Entrada a la infra**        | - El único punto de entrada debe ser **NGINX** en el puerto 443 con TLSv1.2/1.3.                                                                                                                                                         |
+| **Bonus (opcional)**          | - Redis cache para WordPress.<br>- Servidor FTP vinculado al volumen de WordPress.<br>- Sitio estático (no PHP).<br>- Adminer.<br>- Otro servicio útil (con justificación).<br>⚠️ Solo se evalúan si la parte obligatoria está perfecta. |
+| **Entrega y evaluación**      | - Subir el trabajo al repositorio Git.<br>- Se evaluará **solo lo que está en el repo**.<br>- Pueden pedir cambios pequeños durante la defensa.                                                                                          |
+
+---
+
+
+
+
 ## 🧱 Preparación del Entorno
 
 - **Máquina Virtual (Debian)**: Entorno aislado y controlado para garantizar consistencia en la configuración y evitar conflictos con el sistema principal.
