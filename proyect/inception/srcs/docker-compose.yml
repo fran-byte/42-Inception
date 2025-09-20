@@ -12,7 +12,7 @@ services:
     container_name: mariadb
     restart: always
     env_file:
-      - ../secrets/.env
+      - ./.env
     volumes:
       - ../secrets:/secrets
       - db_data:/var/lib/mysql

@@ -1,5 +1,5 @@
 # OS de este contenedor
-FROM debian:bullseye-slim
+FROM debian:bookworm
 
 # Instalando MariaDB y cliente
 RUN apt-get update && apt-get install -y \
