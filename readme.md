@@ -7,17 +7,17 @@
 
 ## 📋 Índice
 
-1. [Preparación del Entorno](#-preparación-del-entorno)
-2. [Estructura del Proyecto](#-estructura-del-proyecto)
-3. [Descripción de Carpetas y Archivos](#-descripción-de-carpetas-y-archivos)
-4. [Configuración de Dockerfiles](#-configuración-de-dockerfiles)
-5. [Variables de Entorno](#-variables-de-entorno)
-6. [Configuración de Docker Compose](#-configuración-de-docker-compose)
-7. [Makefile](#-Makefile)
-8. [Configuración del Dominio](#-configuración-del-dominio)
-9. [Pruebas y Validación](#-pruebas-y-validación)
-10. [Parte Bonus](#-parte-bonus)
-11. [Comandos útiles Docker & MariaDB](#-comandos-útiles-docker--mariadb)
+1. [Preparación del Entorno](#preparación-del-entorno)
+2. [Estructura del Proyecto](#estructura-del-proyecto)
+3. [Descripción de Carpetas y Archivos](#descripción-de-carpetas-y-archivos-por-orden-de-creación)
+4. [Configuración de Dockerfiles](#configuración-de-dockerfiles)
+5. [Variables de Entorno](#variables-de-entorno)
+6. [Configuración de Docker Compose](#configurar-docker-composeyml)
+7. [Makefile](#makefile)
+8. [Configuración del Dominio](#configurar-dominio)
+9. [Pruebas y Validación](#pruebas-y-validación)
+10. [Parte Bonus](#parte-bonus-opcional)
+11. [Comandos útiles Docker & MariaDB](#comandos-útiles-docker--mariadb)
 
 ---
 
@@ -47,7 +47,8 @@
 
   ```bash
   sudo rmmod kvm_intel
-  ```
+````
+
 * **[Instalación de Docker y Docker Compose](doc/docker_install.md)**.
 * Organización de carpetas base para separar configuraciones, servicios y secretos.
 
@@ -233,4 +234,3 @@ mysql -u frromero -p
 mysql -u root -p
 ```
 
----
