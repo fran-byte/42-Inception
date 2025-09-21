@@ -1,4 +1,4 @@
-## 🚀 Instalando entorno (script)
+## 🚀 Instalando entorno (mediante script)
 
 ---
 
