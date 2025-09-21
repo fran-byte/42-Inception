@@ -21,47 +21,47 @@ services:
       - db_root_password
       - db_password
 
-  # wordpress:
-  #   build: ./requirements/wordpress
-  #   container_name: wordpress
-  #   restart: always
-  #   environment:
-  #     WORDPRESS_DB_HOST: mariadb
-  #     WORDPRESS_DB_USER: wpuser
-  #     WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
-  #     WORDPRESS_DB_NAME: wordpress
-  #     WORDPRESS_ADMIN_USER: manager
-  #     WORDPRESS_ADMIN_PASSWORD_FILE: /run/secrets/wordpress_password
-  #     WORDPRESS_ADMIN_EMAIL: manager@42.fr
-  #   volumes:
-  #     - ${VOLUMES_ROOT}/wp:/var/www/html
-  #   networks:
-  #     - inception_net
-  #   depends_on:
-  #     - mariadb
-  #   secrets:
-  #     - db_password
-  #     - wordpress_password
+  wordpress:  # ← ESTA LÍNEA DEBE TENER 2 ESPACIOS DE INDENTACIÓN
+    build: ./requirements/wordpress
+    container_name: wordpress
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: mariadb
+      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_ADMIN_USER: manager
+      WORDPRESS_ADMIN_PASSWORD_FILE: /run/secrets/wordpress_password
+      WORDPRESS_ADMIN_EMAIL: manager@42.fr
+    volumes:
+      - ${VOLUMES_ROOT}/wp:/var/www/html
+    networks:
+      - inception_net
+    depends_on:
+      - mariadb
+    secrets:
+      - db_password
+      - wordpress_password
 
-  # nginx:
-  #   build: ./requirements/nginx
-  #   container_name: nginx
-  #   restart: always
-  #   ports:
-  #     - "443:443"
-  #   volumes:
-  #     - ${VOLUMES_ROOT}/wp:/var/www/html
-  #     - ./requirements/nginx/conf:/etc/nginx/conf.d
-  #     - ./requirements/nginx/certs:/etc/ssl/certs
-  #   networks:
-  #     - inception_net
-  #   depends_on:
-  #     - wordpress
+# nginx:
+#   build: ./requirements/nginx
+#   container_name: nginx
+#   restart: always
+#   ports:
+#     - "443:443"
+#   volumes:
+#     - ${VOLUMES_ROOT}/wp:/var/www/html
+#     - ./requirements/nginx/conf:/etc/nginx/conf.d
+#     - ./requirements/nginx/certs:/etc/ssl/certs
+#   networks:
+#     - inception_net
+#   depends_on:
+#     - wordpress
 
 secrets:
   db_root_password:
     file: ../secrets/db_root_password.txt
   db_password:
     file: ../secrets/db_password.txt
-  # wordpress_password:
-  #   file: ../secrets/wordpress_password.txt
+  wordpress_password:
+    file: ../secrets/wordpress_password.txt
