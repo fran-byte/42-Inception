@@ -1,4 +1,3 @@
-
 # 🚀 Inception Project - Dockerized Infrastructure
 
 [Resources](doc/resources.md)
@@ -9,14 +8,14 @@
 
 1. [Preparación del Entorno](#preparación-del-entorno)
 2. [Estructura del Proyecto](#estructura-del-proyecto)
-3. [Descripción de Carpetas y Archivos](#descripción-de-carpetas-y-archivos-por-orden-de-creación)
+3. [Descripción de Carpetas y Archivos](#descripción-de-carpetas-y-archivos)
 4. [Configuración de Dockerfiles](#configuración-de-dockerfiles)
 5. [Variables de Entorno](#variables-de-entorno)
-6. [Configuración de Docker Compose](#configurar-docker-composeyml)
+6. [Configuración de Docker Compose](#configuración-de-docker-compose)
 7. [Makefile](#makefile)
-8. [Configuración del Dominio](#configurar-dominio)
+8. [Configuración del Dominio](#configuración-del-dominio)
 9. [Pruebas y Validación](#pruebas-y-validación)
-10. [Parte Bonus](#parte-bonus-opcional)
+10. [Parte Bonus](#parte-bonus)
 11. [Comandos útiles Docker & MariaDB](#comandos-útiles-docker--mariadb)
 
 ---
@@ -47,7 +46,7 @@
 
   ```bash
   sudo rmmod kvm_intel
-````
+  ```
 
 * **[Instalación de Docker y Docker Compose](doc/docker_install.md)**.
 * Organización de carpetas base para separar configuraciones, servicios y secretos.
@@ -88,7 +87,7 @@
 
 ---
 
-## 📋 Descripción de Carpetas y Archivos (por orden de creación)
+## 📋 Descripción de Carpetas y Archivos
 
 ### 🔹 `requirements/mariadb/`
 
@@ -106,7 +105,6 @@
 
 * **Propósito:** Puerta de entrada, sirve contenido HTTPS.
 * **Contenido:**
-
   * `Dockerfile`: Construye imagen NGINX desde Alpine o Debian.
   * `conf/nginx.conf`: Configuración personalizada (certificados, proxy WordPress).
   * `tools/`: Scripts para generar certificados TLS autofirmados o configuraciones adicionales.
@@ -145,7 +143,7 @@ MYSQL_DATABASE=wordpress
 
 ---
 
-## 🧩 Configurar `docker-compose.yml`
+## 🧩 Configuración de Docker Compose
 
 * Servicios: `mariadb` → `wordpress` → `nginx`.
 * `build:` para cada servicio.
@@ -164,7 +162,7 @@ all:
 
 ---
 
-## 🌐 Configurar Dominio
+## 🌐 Configuración del Dominio
 
 ```bash
 echo "127.0.0.1 frromero.42.fr" | sudo tee -a /etc/hosts
@@ -182,7 +180,7 @@ echo "127.0.0.1 frromero.42.fr" | sudo tee -a /etc/hosts
 
 ---
 
-## 🎁 Parte Bonus (Opcional)
+## 🎁 Parte Bonus
 
 * Redis cache, FTP server, sitio estático, Adminer, otro servicio.
 * Permite abrir puertos adicionales según necesidad.
@@ -233,4 +231,3 @@ mysql -u frromero -p
 ```bash
 mysql -u root -p
 ```
-
