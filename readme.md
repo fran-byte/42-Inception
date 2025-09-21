@@ -1,5 +1,7 @@
 # 🚀 Inception Project - Dockerized Infrastructure
 
+... En proceso
+
 [Resources](doc/resources.md)
 
 ## 📋 Índice
