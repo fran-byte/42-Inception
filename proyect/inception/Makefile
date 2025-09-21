@@ -3,7 +3,7 @@ DC = docker compose                   # Alias para el comando 'docker compose'
 DC_FILE = ./srcs/docker-compose.yml   # Ruta al archivo docker-compose que se usará
 
 # Declaración de targets como phony (no son archivos)
-.PHONY: up stop rm clean purge restart re logs
+.PHONY: up stop rm clean purge restart logs fix-perms
 
 # Levanta los servicios
 up:
