@@ -8,7 +8,6 @@
 #!/bin/bash
 ```
 
-* Esto indica que el script debe ejecutarse con **Bash**, el intérprete de comandos de Linux.
 
 ---
 
