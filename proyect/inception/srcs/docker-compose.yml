@@ -1,3 +1,4 @@
+version: '3.8'
 
 networks:
   inception_net:
@@ -14,14 +15,15 @@ services:
       MYSQL_USER: wpuser
       MYSQL_PASSWORD_FILE: /run/secrets/db_password
     volumes:
-      - ${VOLUMES_ROOT}/db:/var/lib/mysql
+      - db_data:/var/lib/mysql
+      - ./requirements/mariadb/conf:/etc/mysql/conf.d:ro 
     networks:
       - inception_net
     secrets:
       - db_root_password
       - db_password
 
-  wordpress:  # ← ESTA LÍNEA DEBE TENER 2 ESPACIOS DE INDENTACIÓN
+  wordpress:
     build: ./requirements/wordpress
     container_name: wordpress
     restart: always
@@ -34,7 +36,7 @@ services:
       WORDPRESS_ADMIN_PASSWORD_FILE: /run/secrets/wordpress_password
       WORDPRESS_ADMIN_EMAIL: manager@42.fr
     volumes:
-      - ${VOLUMES_ROOT}/wp:/var/www/html
+      - wp_data:/var/www/html
     networks:
       - inception_net
     depends_on:
@@ -42,21 +44,37 @@ services:
     secrets:
       - db_password
       - wordpress_password
+    ports:
+      - "9000:9000"
 
-# nginx:
-#   build: ./requirements/nginx
-#   container_name: nginx
-#   restart: always
-#   ports:
-#     - "443:443"
-#   volumes:
-#     - ${VOLUMES_ROOT}/wp:/var/www/html
-#     - ./requirements/nginx/conf:/etc/nginx/conf.d
-#     - ./requirements/nginx/certs:/etc/ssl/certs
-#   networks:
-#     - inception_net
-#   depends_on:
-#     - wordpress
+#  nginx:
+#    build: ./requirements/nginx
+#    container_name: nginx
+#    restart: always
+#    ports:
+#      - "443:443"
+#    volumes:
+#      - wp_data:/var/www/html:ro
+#      - ./requirements/nginx/conf:/etc/nginx/conf.d
+#      - ./requirements/nginx/certs:/etc/ssl/certs
+#    networks:
+#      - inception_net
+#    depends_on:
+#      - wordpress
+
+volumes:
+  db_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${VOLUMES_ROOT}/db
+      o: bind
+  wp_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${VOLUMES_ROOT}/wp
+      o: bind
 
 secrets:
   db_root_password:
