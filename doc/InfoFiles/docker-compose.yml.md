@@ -29,7 +29,7 @@ Este archivo define la infraestructura de contenedores con **Docker Compose**, o
 
 ---
 
-### 🌍 WordPress (comentado en este archivo)
+### 🌍 WordPress
 - **Build**: `./requirements/wordpress`  
 - **Container name**: `wordpress`  
 - **Restart policy**: `always`  
@@ -48,7 +48,7 @@ Este archivo define la infraestructura de contenedores con **Docker Compose**, o
 
 ---
 
-### ⚡ Nginx (comentado en este archivo)
+### ⚡ Nginx
 - **Build**: `./requirements/nginx`  
 - **Container name**: `nginx`  
 - **Restart policy**: `always`  
