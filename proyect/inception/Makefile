@@ -26,8 +26,8 @@ clean:
 
 # Limpieza total: contenedores, volúmenes, carpetas locales y caché de Docker
 purge: clean
-	@rm -rf ./data/db ./data/wp  # Borra carpetas locales de datos
-	@docker system prune -a -f  # Elimina imágenes, contenedores y redes no usadas
+	@rm -rf ./data            # Borra carpetas locales de datos
+	@docker system prune -a -f # Elimina imágenes, contenedores y redes no usadas
 
 # Reinicia todo desde cero
 restart: clean up
