@@ -1,6 +1,6 @@
 # 🚀 Inception Project - Dockerized Infrastructure
 
-... En proceso
+... En proceso ...
 
 [Resources](doc/resources.md)
 
