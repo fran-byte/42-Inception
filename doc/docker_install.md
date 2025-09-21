@@ -21,10 +21,6 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 ```
 
-* Define variables para usar colores en la salida por terminal.
-* `\033[` inicia un **código de escape ANSI** para colores.
-* `NC` es "No Color", para resetear el color al valor por defecto.
-
 ---
 
 ### **3️⃣ Mensajes iniciales**
