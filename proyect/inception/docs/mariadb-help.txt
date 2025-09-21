@@ -1,0 +1,7 @@
+COMANDOS MARIADB:
+
+- Conectar: docker exec -it mariadb mysql -u root -p
+- Ver bases: docker exec mariadb mysql -u root -p"password" -e "SHOW DATABASES;"
+- Ver usuarios: docker exec mariadb mysql -u root -p"password" -e "SELECT User FROM mysql.user;"
+- Logs: docker logs mariadb
+- Reiniciar: docker restart mariadb

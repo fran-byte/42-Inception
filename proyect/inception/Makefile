@@ -1,39 +1,67 @@
 # Variables
-DC = docker compose                   # Alias para el comando 'docker compose'
-DC_FILE = ./srcs/docker-compose.yml   # Ruta al archivo docker-compose que se usará
+DC = docker compose                   # Alias for 'docker compose' command
+DC_FILE = ./srcs/docker-compose.yml   # Path to docker-compose file
 
-# Declaración de targets como phony (no son archivos)
-.PHONY: up stop rm clean purge restart logs fix-perms
+# Phony targets declaration
+.PHONY: up stop rm clean purge restart logs fix-perms logs-mariadb logs-wordpress logs-nginx help-mariadb help-wordpress help-nginx
 
-# Levanta los servicios
+# Start services
 up:
-	@mkdir -p ./data/db ./data/wp       # Crea carpetas persistentes para la base de datos y WordPress
-	@sudo chown -R 999:999 ./data/db ./data/wp  # 🔥 ESTA LÍNEA ES NUEVA - Permisos correctos
-	@sudo chmod -R 755 ./data/db ./data/wp      # 🔥 ESTA LÍNEA ES NUEVA - Permisos correctos
-	@$(DC) -f $(DC_FILE) up --build -d  # Construye y levanta los contenedores en segundo plano
+	@mkdir -p ./data/db ./data/wp       # Create persistent folders for database and WordPress
+	@sudo chown -R 999:999 ./data/db ./data/wp  # Set correct permissions
+	@sudo chmod -R 755 ./data/db ./data/wp      # Set correct permissions
+	@$(DC) -f $(DC_FILE) up --build -d  # Build and start containers in background
 
-# Detiene los contenedores sin eliminarlos
+# Stop containers without removing them
 stop:
 	@$(DC) -f $(DC_FILE) stop
 
-# Elimina los contenedores (pero conserva volúmenes y datos)
+# Remove containers (but keep volumes and data)
 rm:
 	@$(DC) -f $(DC_FILE) down
 
-# Elimina contenedores y volúmenes
+# Remove containers and volumes
 clean:
 	@$(DC) -f $(DC_FILE) down -v
 
-# Limpieza total: contenedores, volúmenes, carpetas locales y caché de Docker
+# Full cleanup: containers, volumes, local folders and Docker cache
 purge: clean
-	@rm -rf ./data            # Borra carpetas locales de datos
-	@docker system prune -a -f # Elimina imágenes, contenedores y redes no usadas
+	@rm -rf ./data            # Remove local data folders
+	@docker system prune -a -f # Remove unused images, containers and networks
 
-# Reinicia todo desde cero
+# Restart everything from scratch
 restart: clean up
 
-# 🔥 AÑADE ESTE NUEVO TARGET PARA SOLO CORREGIR PERMISOS
+# Fix permissions
 fix-perms:
 	@sudo chown -R 999:999 ./data/db ./data/wp
 	@sudo chmod -R 755 ./data/db ./data/wp
-	@echo "✅ Permisos corregidos para data/db y data/wp"
+	@echo "✅ Permissions fixed for data/db and data/wp"
+
+# View MariaDB logs
+logs-mariadb:
+	@$(DC) -f $(DC_FILE) logs mariadb
+
+# View WordPress logs (when active)
+logs-wordpress:
+	@$(DC) -f $(DC_FILE) logs wordpress
+
+# View Nginx logs (when active)
+logs-nginx:
+	@$(DC) -f $(DC_FILE) logs nginx
+
+# View logs for all services
+logs:
+	@$(DC) -f $(DC_FILE) logs
+
+# MariaDB help
+help-mariadb:
+	@cat docs/mariadb-help.txt
+
+# WordPress help (when active)
+help-wordpress:
+	@cat docs/wordpress-help.txt
+
+# Nginx help (when active)
+help-nginx:
+	@cat docs/nginx-help.txt

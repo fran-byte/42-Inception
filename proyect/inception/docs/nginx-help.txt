@@ -1,0 +1,6 @@
+COMANDOS NGINX:
+
+- Logs: docker logs nginx
+- Probar config: docker exec nginx nginx -t
+- Recargar: docker exec nginx nginx -s reload
+- Ver config: docker exec nginx cat /etc/nginx/nginx.conf

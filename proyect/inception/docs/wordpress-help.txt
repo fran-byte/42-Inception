@@ -1,0 +1,6 @@
+COMANDOS WORDPRESS:
+
+- Logs: docker logs wordpress
+- Acceder: docker exec -it wordpress /bin/sh
+- Ver archivos: docker exec wordpress ls /var/www/html
+- Reiniciar: docker restart wordpress
