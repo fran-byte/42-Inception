@@ -6,7 +6,7 @@
 
 ## 📋 Índice
 
-1. [Preparación del Entorno](#preparación-del-entorno)
+1. [Preparación del Entorno](#-preparación-del-entorno)
 2. [Estructura del Proyecto](#estructura-del-proyecto)
 3. [Descripción de Carpetas y Archivos](#descripción-de-carpetas-y-archivos)
 4. [Configuración de Dockerfiles](#configuración-de-dockerfiles)
