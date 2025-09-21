@@ -12,7 +12,7 @@
 4. [Configuración de Dockerfiles](#-configuración-de-dockerfiles)
 5. [Variables de Entorno](#-variables-de-entorno)
 6. [Configuración de Docker Compose](#-configuración-de-docker-compose)
-7. [Makefile](#-makefile)
+7. [Makefile](#makefile)
 8. [Configuración del Dominio](#-configuración-del-dominio)
 9. [Pruebas y Validación](#-pruebas-y-validación)
 10. [Parte Bonus](#-parte-bonus)
