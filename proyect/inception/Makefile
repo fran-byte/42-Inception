@@ -3,7 +3,7 @@ DC = docker compose                   # Alias for 'docker compose' command
 DC_FILE = ./srcs/docker-compose.yml   # Path to docker-compose file
 
 # Phony targets declaration
-.PHONY: up stop rm clean purge restart logs fix-perms logs-mariadb logs-wordpress logs-nginx help-mariadb help-wordpress help-nginx
+.PHONY: up stop rm status clean purge restart logs fix-perms logs-mariadb logs-wordpress logs-nginx help-mariadb help-wordpress help-nginx
 
 # Start services
 up:
@@ -11,6 +11,10 @@ up:
 	@sudo chown -R 999:999 ./data/db ./data/wp  # Set correct permissions
 	@sudo chmod -R 755 ./data/db ./data/wp      # Set correct permissions
 	@$(DC) -f $(DC_FILE) up --build -d  # Build and start containers in background
+
+# Estado de los contenedores
+status:
+	@$(DC) -f $(DC_FILE) ps
 
 # Stop containers without removing them
 stop:

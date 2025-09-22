@@ -1,85 +1,47 @@
 version: '3.8'
 
-networks:
-  inception_net:
-    driver: bridge
-
 services:
   mariadb:
     build: ./requirements/mariadb
     container_name: mariadb
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+      MYSQL_ROOT_PASSWORD: rootpass
       MYSQL_DATABASE: wordpress
       MYSQL_USER: wpuser
-      MYSQL_PASSWORD_FILE: /run/secrets/db_password
+      MYSQL_PASSWORD: wppass
     volumes:
       - db_data:/var/lib/mysql
-      - ./requirements/mariadb/conf:/etc/mysql/conf.d:ro 
     networks:
       - inception_net
-    secrets:
-      - db_root_password
-      - db_password
 
   wordpress:
     build: ./requirements/wordpress
     container_name: wordpress
     restart: always
+    depends_on:
+      - mariadb
     environment:
-      WORDPRESS_DB_HOST: mariadb
-      WORDPRESS_DB_USER: wpuser
-      WORDPRESS_DB_PASSWORD_FILE: /run/secrets/db_password
+      WORDPRESS_DB_HOST: mariadb:3306
       WORDPRESS_DB_NAME: wordpress
-      WORDPRESS_ADMIN_USER: manager
-      WORDPRESS_ADMIN_PASSWORD_FILE: /run/secrets/wordpress_password
-      WORDPRESS_ADMIN_EMAIL: manager@42.fr
+      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_DB_PASSWORD: wppass
+      DOMAIN_NAME: localhost
+      WP_ADMIN_USER: admin
+      WP_ADMIN_PASSWORD: adminpass
+      WP_ADMIN_EMAIL: admin@example.com
+      WP_REGULAR_USER: author
+      WP_REGULAR_PASSWORD: authorpass
+      WP_REGULAR_EMAIL: author@example.com
     volumes:
       - wp_data:/var/www/html
     networks:
       - inception_net
-    depends_on:
-      - mariadb
-    secrets:
-      - db_password
-      - wordpress_password
-    ports:
-      - "9000:9000"
-
-#  nginx:
-#    build: ./requirements/nginx
-#    container_name: nginx
-#    restart: always
-#    ports:
-#      - "443:443"
-#    volumes:
-#      - wp_data:/var/www/html:ro
-#      - ./requirements/nginx/conf:/etc/nginx/conf.d
-#      - ./requirements/nginx/certs:/etc/ssl/certs
-#    networks:
-#      - inception_net
-#    depends_on:
-#      - wordpress
 
 volumes:
   db_data:
-    driver: local
-    driver_opts:
-      type: none
-      device: ${VOLUMES_ROOT}/db
-      o: bind
   wp_data:
-    driver: local
-    driver_opts:
-      type: none
-      device: ${VOLUMES_ROOT}/wp
-      o: bind
 
-secrets:
-  db_root_password:
-    file: ../secrets/db_root_password.txt
-  db_password:
-    file: ../secrets/db_password.txt
-  wordpress_password:
-    file: ../secrets/wordpress_password.txt
+networks:
+  inception_net:
+    driver: bridge
