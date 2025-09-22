@@ -1,4 +1,4 @@
-FROM alpine:3.20
+FROM alpine:3.19
 
 RUN apk update && apk add \
     php83 \
@@ -20,6 +20,9 @@ RUN apk update && apk add \
     curl \
     unzip \
     mariadb-client
+
+# symlink para que 'php' apunte a 'php83'
+RUN ln -s /usr/bin/php83 /usr/bin/php
 
 # Crear directorios necesarios
 RUN mkdir -p /var/www/html /run/php
