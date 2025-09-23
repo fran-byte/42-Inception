@@ -1,57 +1,44 @@
 #!/bin/sh
 set -e
 
-echo "🔧 Checking MariaDB initialization..."
+echo "🔧 Inicializando MariaDB..."
 
-if [ -z "$(ls -A /var/lib/mysql/mysql)" ]; then
-    echo "📦 Initializing MariaDB system tables..."
-    mysql_install_db --user=mysql --datadir=/var/lib/mysql
-else
-    echo "✅ System tables already exist"
+# Leer secrets
+MYSQL_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
+MYSQL_PASSWORD=$(cat /run/secrets/db_wp_password)
+MYSQL_DATABASE=${MYSQL_DATABASE:-wordpress}
+MYSQL_USER=${MYSQL_USER:-wpuser}
+
+# Inicializar DB si no existe
+if [ ! -d "/var/lib/mysql/mysql" ]; then
+    echo "📦 Creando las tablas del sistema..."
+    mariadb-install-db --user=mysql --datadir=/var/lib/mysql
 fi
 
 chown -R mysql:mysql /var/lib/mysql
 
-echo "🔐 Configuring database and user..."
-
-# Verificar que las variables de entorno existen
-if [ -z "$MYSQL_ROOT_PASSWORD" ] || [ -z "$MYSQL_PASSWORD" ]; then
-    echo "❌ ERROR: Environment variables not set!"
-    exit 1
-fi
-
-echo "📝 Configuring with root password: ${MYSQL_ROOT_PASSWORD:0:5}..."
-
 # Iniciar MariaDB temporal
-mysqld --user=mysql --skip-networking --socket=/tmp/mysql.sock --skip-log-error &
+mysqld --user=mysql --skip-networking &
 MYSQL_PID=$!
 
-# Esperar con verificación
-sleep 5
-until mysqladmin ping -S /tmp/mysql.sock --silent; do
-    echo "⏳ Waiting for temporary MariaDB to start..."
+# Esperar a que MariaDB arranque
+until mysqladmin ping --silent; do
+    echo "⏳ Esperando a MariaDB..."
     sleep 2
 done
 
-# Configurar usando VARIABLES DE ENTORNO, no leyendo archivos
-mysql -S /tmp/mysql.sock -u root << EOF
-ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
-CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};
+# Configurar DB y usuario usando root con contraseña
+mysql -u root -p"${MYSQL_ROOT_PASSWORD}" << EOF
+CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
 DROP USER IF EXISTS '${MYSQL_USER}'@'%';
 CREATE USER '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
-GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';
+GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';
 FLUSH PRIVILEGES;
 EOF
 
-if [ $? -eq 0 ]; then
-    echo "✅ Database and user configured successfully"
-else
-    echo "❌ ERROR: Failed to configure database"
-    exit 1
-fi
-
+# Detener instancia temporal
 kill $MYSQL_PID
 wait $MYSQL_PID
 
-echo "✅ Starting MariaDB..."
+echo "✅ MariaDB lista"
 exec mysqld --user=mysql --console

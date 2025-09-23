@@ -4,12 +4,13 @@ services:
     container_name: mariadb
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpass
-      MYSQL_DATABASE: wordpress
-      MYSQL_USER: wpuser
-      MYSQL_PASSWORD: wppass
+      MYSQL_DATABASE: ${WORDPRESS_DB_NAME}
+      MYSQL_USER: ${WORDPRESS_DB_USER}
+    secrets:
+      - db_root_password
+      - db_wp_password
     volumes:
-      - db_data:/var/lib/mysql
+      - ${VOLUMES_ROOT}/db:/var/lib/mysql
     networks:
       - inception_net
 
@@ -21,25 +22,36 @@ services:
       - mariadb
     environment:
       WORDPRESS_DB_HOST: mariadb:3306
-      WORDPRESS_DB_NAME: wordpress
-      WORDPRESS_DB_USER: wpuser
-      WORDPRESS_DB_PASSWORD: wppass
-      DOMAIN_NAME: localhost
-      WP_ADMIN_USER: admin
-      WP_ADMIN_PASSWORD: adminpass
-      WP_ADMIN_EMAIL: admin@example.com
-      WP_REGULAR_USER: author
-      WP_REGULAR_PASSWORD: authorpass
-      WP_REGULAR_EMAIL: author@example.com
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      WP_ADMIN_USER: ${WP_ADMIN_USER}
+      WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
+      WP_REGULAR_USER: ${WP_REGULAR_USER}
+      WP_REGULAR_EMAIL: ${WP_REGULAR_EMAIL}
+    secrets:
+      - db_wp_password
+      - wp_admin_password
+      - wp_regular_password
     volumes:
-      - wp_data:/var/www/html
+      - ${VOLUMES_ROOT}/wp:/var/www/html
     networks:
       - inception_net
 
 volumes:
-  db_data:
-  wp_data:
+  db:
+  wp:
 
 networks:
   inception_net:
     driver: bridge
+
+secrets:
+  db_root_password:
+    file: ${PROJECT_ROOT}/secrets/db_root_password.txt
+  db_wp_password:
+    file: ${PROJECT_ROOT}/secrets/db_wp_password.txt
+  wp_admin_password:
+    file: ${PROJECT_ROOT}/secrets/wp_admin_password.txt
+  wp_regular_password:
+    file: ${PROJECT_ROOT}/secrets/wp_regular_password.txt

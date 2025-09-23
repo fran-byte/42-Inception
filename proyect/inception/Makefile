@@ -1,5 +1,11 @@
 # Variables
-DC = docker compose                   # Alias for 'docker compose' command
+
+# Definiendo punto de montaje (será donde esté ubicado este Makefile)
+PROJECT_ROOT := $(shell pwd)
+export PROJECT_ROOT
+
+# Docker Compose con env-file
+DC = docker compose --env-file srcs/.env
 DC_FILE = ./srcs/docker-compose.yml   # Path to docker-compose file
 
 # Phony targets declaration
@@ -7,10 +13,10 @@ DC_FILE = ./srcs/docker-compose.yml   # Path to docker-compose file
 
 # Start services
 up:
-	@mkdir -p ./data/db ./data/wp       # Create persistent folders for database and WordPress
-	@sudo chown -R 999:999 ./data/db ./data/wp  # Set correct permissions
-	@sudo chmod -R 755 ./data/db ./data/wp      # Set correct permissions
-	@$(DC) -f $(DC_FILE) up --build -d  # Build and start containers in background
+	@mkdir -p ./data/db ./data/wp                        # Create persistent folders for database and WordPress
+	@sudo chown -R 999:999 ./data/db ./data/wp           # Set correct permissions
+	@sudo chmod -R 755 ./data/db ./data/wp              # Set correct permissions
+	@$(DC) -f $(DC_FILE) up --build -d                   # Build and start containers in background
 
 # Estado de los contenedores
 status:
@@ -30,8 +36,8 @@ clean:
 
 # Full cleanup: containers, volumes, local folders and Docker cache
 purge: clean
-	@rm -rf ./data            # Remove local data folders
-	@docker system prune -a -f # Remove unused images, containers and networks
+	@rm -rf ./data                  # Remove local data folders
+	@docker system prune -a -f      # Remove unused images, containers and networks
 
 # Restart everything from scratch
 restart: clean up
