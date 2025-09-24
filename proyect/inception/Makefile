@@ -9,7 +9,11 @@ DC = docker compose --env-file srcs/.env
 DC_FILE = ./srcs/docker-compose.yml   # Path to docker-compose file
 
 # Phony targets declaration
-.PHONY: up stop rm status clean purge restart logs fix-perms logs-mariadb logs-wordpress logs-nginx help-mariadb help-wordpress help-nginx
+.PHONY: up stop rm status clean purge restart logs fix-perms \
+        logs-mariadb logs-wordpress logs-nginx \
+        restart-mariadb restart-wordpress restart-nginx \
+        rebuild-mariadb rebuild-wordpress rebuild-nginx \
+        help-mariadb help-wordpress help-nginx
 
 # Start services
 up:
@@ -37,6 +41,7 @@ clean:
 # Full cleanup: containers, volumes, local folders and Docker cache
 purge: clean
 	@rm -rf ./data                  # Remove local data folders
+	@docker volume rm srcs_db_data srcs_wp_data || true # Remove Volume
 	@docker system prune -a -f      # Remove unused images, containers and networks
 
 # Restart everything from scratch
@@ -48,21 +53,48 @@ fix-perms:
 	@sudo chmod -R 755 ./data/db ./data/wp
 	@echo "✅ Permissions fixed for data/db and data/wp"
 
-# View MariaDB logs
+# View logs for individual services
 logs-mariadb:
-	@$(DC) -f $(DC_FILE) logs mariadb
+	@$(DC) -f $(DC_FILE) logs --tail=50 mariadb
 
-# View WordPress logs (when active)
 logs-wordpress:
-	@$(DC) -f $(DC_FILE) logs wordpress
+	@$(DC) -f $(DC_FILE) logs --tail=50 wordpress
 
-# View Nginx logs (when active)
 logs-nginx:
-	@$(DC) -f $(DC_FILE) logs nginx
+	@$(DC) -f $(DC_FILE) logs --tail=50 nginx
 
 # View logs for all services
 logs:
 	@$(DC) -f $(DC_FILE) logs
+
+# Restart individual services
+restart-mariadb:
+	@$(DC) -f $(DC_FILE) stop mariadb
+	@$(DC) -f $(DC_FILE) rm -f mariadb
+	@$(DC) -f $(DC_FILE) up -d mariadb
+
+restart-wordpress:
+	@$(DC) -f $(DC_FILE) stop wordpress
+	@$(DC) -f $(DC_FILE) rm -f wordpress
+	@$(DC) -f $(DC_FILE) up -d wordpress
+
+restart-nginx:
+	@$(DC) -f $(DC_FILE) stop nginx
+	@$(DC) -f $(DC_FILE) rm -f nginx
+	@$(DC) -f $(DC_FILE) up -d nginx
+
+# Rebuild individual services
+rebuild-mariadb:
+	@$(DC) -f $(DC_FILE) build --no-cache mariadb
+	@$(DC) -f $(DC_FILE) up -d mariadb
+
+rebuild-wordpress:
+	@$(DC) -f $(DC_FILE) build --no-cache wordpress
+	@$(DC) -f $(DC_FILE) up -d wordpress
+
+rebuild-nginx:
+	@$(DC) -f $(DC_FILE) build --no-cache nginx
+	@$(DC) -f $(DC_FILE) up -d nginx
 
 # MariaDB help
 help-mariadb:

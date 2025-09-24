@@ -1,5 +1,6 @@
 FROM alpine:3.19
 
+# Instalar paquetes necesarios
 RUN apk update && apk add \
     php83 \
     php83-fpm \
@@ -19,15 +20,28 @@ RUN apk update && apk add \
     wget \
     curl \
     unzip \
-    mariadb-client
+    mariadb-client \
+    bash \
+    shadow
 
-# symlink para que 'php' apunte a 'php83'
+# Crear symlink para que 'php' apunte a 'php83'
 RUN ln -s /usr/bin/php83 /usr/bin/php
 
 # Crear directorios necesarios
-RUN mkdir -p /var/www/html /run/php
-RUN chown -R nobody:nobody /var/www/html /run/php
-RUN chmod -R 755 /var/www/html
+RUN mkdir -p /var/www/html /run/php \
+    && chown -R nobody:nobody /var/www/html /run/php \
+    && chmod -R 755 /var/www/html
+
+# Descargar y descomprimir WordPress directamente en /var/www/html
+RUN wget https://wordpress.org/latest.tar.gz -O /tmp/wordpress.tar.gz \
+    && tar -xzf /tmp/wordpress.tar.gz -C /tmp/ \
+    && cp -a /tmp/wordpress/. /var/www/html/ \
+    && rm -rf /tmp/wordpress /tmp/wordpress.tar.gz
+
+# Ajustar permisos finales
+RUN chown -R nobody:nobody /var/www/html \
+    && find /var/www/html -type d -exec chmod 755 {} \; \
+    && find /var/www/html -type f -exec chmod 644 {} \;
 
 # Configurar PHP-FPM
 COPY conf/www.conf /etc/php83/php-fpm.d/www.conf
@@ -36,9 +50,6 @@ COPY conf/www.conf /etc/php83/php-fpm.d/www.conf
 COPY tools/install.sh /usr/local/bin/install.sh
 COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/install.sh /usr/local/bin/entrypoint.sh
-
-# Ejecutar script de instalación
-RUN /usr/local/bin/install.sh
 
 WORKDIR /var/www/html
 

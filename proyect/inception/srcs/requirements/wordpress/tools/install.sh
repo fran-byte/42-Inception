@@ -1,19 +1,28 @@
 #!/bin/sh
 set -e
 
-echo "📥 Descargando WordPress..."
+# Leer secret de la base de datos
+WORDPRESS_DB_PASSWORD=$(cat /run/secrets/wpuser_db_password)
 
-# Instalar WP-CLI si no está presente
-if ! command -v wp >/dev/null 2>&1; then
-    curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-    chmod +x wp-cli.phar
-    mv wp-cli.phar /usr/local/bin/wp
+# Inicializar WordPress en el volumen si está vacío
+if [ -z "$(ls -A /var/www/html)" ]; then
+    echo "📦 Volumen de WordPress vacío, copiando archivos..."
+    cp -a /tmp/wordpress/. /var/www/html/
+    chown -R nobody:nobody /var/www/html
 fi
 
-# Descargar WordPress en /tmp/wordpress para la imagen
-mkdir -p /tmp/wordpress
-wget https://wordpress.org/latest.tar.gz -O /tmp/wordpress.tar.gz
-tar -xzf /tmp/wordpress.tar.gz -C /tmp/wordpress --strip-components=1
-rm /tmp/wordpress.tar.gz
+echo "⏳ Esperando a que MariaDB esté lista..."
+while ! mysqladmin ping -h"${WORDPRESS_DB_HOST%%:*}" -u"wpuser" -p"${WORDPRESS_DB_PASSWORD}" --silent; do
+    sleep 2
+done
+echo "✅ MariaDB disponible."
 
-echo "✅ WordPress descargado y listo en /tmp/wordpress"
+# Ajustar permisos finales
+chown -R nobody:nobody /var/www/html
+find /var/www/html -type d -exec chmod 755 {} \;
+find /var/www/html -type f -exec chmod 644 {} \;
+
+echo "✅ WordPress listo"
+
+# Iniciar PHP-FPM
+exec php-fpm83 -F
