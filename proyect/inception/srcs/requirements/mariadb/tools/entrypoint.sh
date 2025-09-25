@@ -39,6 +39,13 @@ CREATE USER '${WP_MANAGER_USER}'@'%' IDENTIFIED BY '${WP_MANAGER_PASSWORD}';
 GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${WP_MANAGER_USER}'@'%';
 CREATE USER '${WP_EDITOR_USER}'@'%' IDENTIFIED BY '${WP_EDITOR_PASSWORD}';
 GRANT SELECT, INSERT, UPDATE, DELETE ON \`${MYSQL_DATABASE}\`.* TO '${WP_EDITOR_USER}'@'%';
+
+-- 🧹 Eliminar usuarios no válidos
+DELETE FROM mysql.user
+WHERE User NOT IN ('${MYSQL_USER}', '${WP_MANAGER_USER}', '${WP_EDITOR_USER}', 'root', 'mysql', 'mariadb.sys')
+  OR User = ''
+  OR Host = '';
+
 FLUSH PRIVILEGES;
 EOF
 
@@ -47,4 +54,4 @@ EOF
 fi
 
 echo "✅ MariaDB lista, iniciando servicio..."
-exec mysqld --user=mysql --console
+exec mysqld_safe
