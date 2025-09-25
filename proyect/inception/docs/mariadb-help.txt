@@ -1,7 +1,33 @@
-COMANDOS MARIADB:
-
-- Conectar: docker exec -it mariadb mysql -u root -p
-- Ver bases: docker exec mariadb mysql -u root -p"password" -e "SHOW DATABASES;"
-- Ver usuarios: docker exec mariadb mysql -u root -p"password" -e "SELECT User FROM mysql.user;"
-- Logs: docker logs mariadb
-- Reiniciar: docker restart mariadb
++----------------------------+-----------------------------------------------------------------------+
+|         ACCIÓN             |                                COMANDO                                |
++----------------------------+-----------------------------------------------------------------------+
+| Conectar al monitor        | docker exec -it mariadb mysql -u root -p                              |
++----------------------------+-----------------------------------------------------------------------+
+| Ver bases de datos         | docker exec mariadb mysql -u root -p"password" -e "SHOW DATABASES;"   |
++----------------------------+-----------------------------------------------------------------------+
+| Ver usuarios registrados   | docker exec mariadb mysql -u root -p"password" -e "SELECT User, Host FROM mysql.user;" |
++----------------------------+-----------------------------------------------------------------------+
+| Ver logs del contenedor    | docker logs mariadb                                                   |
++----------------------------+-----------------------------------------------------------------------+
+| Reiniciar el contenedor    | docker restart mariadb                                                |
++----------------------------+-----------------------------------------------------------------------+
+| Mostrar bases de datos     | SHOW DATABASES;                                                       |
++----------------------------+-----------------------------------------------------------------------+
+| Seleccionar base de datos  | USE nombre_de_base;                                                   |
++----------------------------+-----------------------------------------------------------------------+
+| Mostrar tablas             | SHOW TABLES;                                                          |
++----------------------------+-----------------------------------------------------------------------+
+| Ver usuarios y hosts       | SELECT User, Host FROM mysql.user;                                    |
++----------------------------+-----------------------------------------------------------------------+
+| Crear usuario              | CREATE USER 'usuario'@'%' IDENTIFIED BY 'contraseña';                 |
++----------------------------+-----------------------------------------------------------------------+
+| Dar permisos totales       | GRANT ALL PRIVILEGES ON basedatos.* TO 'usuario'@'%';                 |
++----------------------------+-----------------------------------------------------------------------+
+| Dar permisos limitados     | GRANT SELECT, INSERT, UPDATE, DELETE ON basedatos.* TO 'usuario'@'%'; |
++----------------------------+-----------------------------------------------------------------------+
+| Eliminar usuario           | DROP USER 'usuario'@'%';                                              |
++----------------------------+-----------------------------------------------------------------------+
+| Aplicar cambios            | FLUSH PRIVILEGES;                                                     |
++----------------------------+-----------------------------------------------------------------------+
+| Ver permisos de usuario    | SHOW GRANTS FOR 'usuario'@'%';                                        |
++----------------------------+-----------------------------------------------------------------------+
