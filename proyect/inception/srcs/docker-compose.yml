@@ -5,14 +5,10 @@ services:
     restart: always
     environment:
       MYSQL_DATABASE: ${WORDPRESS_DB_NAME}
-      MYSQL_USER: wpuser
+      MYSQL_USER: wp_to_db_user
     secrets:
       - mariadb_root_password
-      - wpuser_db_password
-      - wp_manager_user
-      - wp_manager_password
-      - wp_editor_user
-      - wp_editor_password
+      - wp_to_db_user_password
     volumes:
       - ${VOLUMES_ROOT}/db:/var/lib/mysql
     networks:
@@ -27,14 +23,14 @@ services:
     environment:
       WORDPRESS_DB_HOST: mariadb:3306
       WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
-      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_DB_USER: wp_to_db_user
       DOMAIN_NAME: ${DOMAIN_NAME}
       WP_ADMIN_USER: wp_manager_user
       WP_ADMIN_EMAIL: manager@42.fr
       WP_REGULAR_USER: wp_editor_user
       WP_REGULAR_EMAIL: editor@42.fr
     secrets:
-      - wpuser_db_password
+      - wp_to_db_user_password
       - wp_manager_password
       - wp_editor_password
     volumes:
@@ -53,8 +49,8 @@ networks:
 secrets:
   mariadb_root_password:
     file: ${PROJECT_ROOT}/secrets/mariadb_root_password.txt
-  wpuser_db_password:
-    file: ${PROJECT_ROOT}/secrets/wpuser_db_password.txt
+  wp_to_db_user_password:
+    file: ${PROJECT_ROOT}/secrets/wp_to_db_user_password.txt
   wp_manager_password:
     file: ${PROJECT_ROOT}/secrets/wp_manager_password.txt
   wp_editor_password:

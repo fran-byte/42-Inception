@@ -5,14 +5,9 @@ echo "🔧 Inicializando MariaDB..."
 
 # Leer secrets desde el volumen montado
 MYSQL_ROOT_PASSWORD=$(cat /run/secrets/mariadb_root_password)
-MYSQL_PASSWORD=$(cat /run/secrets/wpuser_db_password)
-WP_MANAGER_USER=$(cat /run/secrets/wp_manager_user)
-WP_MANAGER_PASSWORD=$(cat /run/secrets/wp_manager_password)
-WP_EDITOR_USER=$(cat /run/secrets/wp_editor_user)
-WP_EDITOR_PASSWORD=$(cat /run/secrets/wp_editor_password)
-
+MYSQL_PASSWORD=$(cat /run/secrets/wp_to_db_user_password)
 MYSQL_DATABASE=${MYSQL_DATABASE:-wordpress}
-MYSQL_USER=${MYSQL_USER:-wpuser}
+MYSQL_USER=${MYSQL_USER:-wp_to_db_user}
 
 # Crear directorios y permisos
 mkdir -p /var/lib/mysql /run/mysqld
@@ -35,14 +30,10 @@ ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
 CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
 CREATE USER '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
 GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';
-CREATE USER '${WP_MANAGER_USER}'@'%' IDENTIFIED BY '${WP_MANAGER_PASSWORD}';
-GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${WP_MANAGER_USER}'@'%';
-CREATE USER '${WP_EDITOR_USER}'@'%' IDENTIFIED BY '${WP_EDITOR_PASSWORD}';
-GRANT SELECT, INSERT, UPDATE, DELETE ON \`${MYSQL_DATABASE}\`.* TO '${WP_EDITOR_USER}'@'%';
 
 -- 🧹 Eliminar usuarios no válidos
 DELETE FROM mysql.user
-WHERE User NOT IN ('${MYSQL_USER}', '${WP_MANAGER_USER}', '${WP_EDITOR_USER}', 'root', 'mysql', 'mariadb.sys')
+WHERE User NOT IN ('${MYSQL_USER}', 'root', 'mysql', 'mariadb.sys')
   OR User = ''
   OR Host = '';
 
