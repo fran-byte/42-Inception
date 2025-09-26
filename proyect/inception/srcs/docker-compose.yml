@@ -38,6 +38,23 @@ services:
     networks:
       - inception_net
 
+  nginx:
+    build: ./requirements/nginx
+    container_name: nginx
+    restart: always
+    depends_on:
+      - wordpress
+    ports:
+      - "443:443"
+    volumes:
+      - ${VOLUMES_ROOT}/wp:/var/www/html
+      - ${CERTS_ROOT}/ssl:/etc/ssl/certs
+      - ${CERTS_ROOT}/private:/etc/ssl/private
+      - ./requirements/nginx/conf:/etc/nginx/conf.d
+    networks:
+      - inception_net
+
+
 volumes:
   db:
   wp:
