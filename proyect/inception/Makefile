@@ -9,13 +9,15 @@ DC = docker compose --env-file srcs/.env
 DC_FILE = ./srcs/docker-compose.yml   # Path to docker-compose file
 
 # Phony targets declaration
-.PHONY: up stop rm status clean purge restart logs fix-perms \
+.PHONY: up stop rm ps clean purge restart logs fix-perms \
         logs-mariadb logs-wordpress logs-nginx \
         restart-mariadb restart-wordpress restart-nginx \
         rebuild-mariadb rebuild-wordpress rebuild-nginx \
-        help-mariadb help-wordpress help-nginx
+        help-mariadb help-wordpress help-nginx stop-mariadb \
+	stop-wordpress stop-nginx rm-mariadb rm-wordpress \
+	rm-ngninx 
 
-# Start services
+# Start services 
 up:
 	@mkdir -p ./data/db ./data/wp                        # Create persistent folders for database and WordPress
 	@sudo chown -R 999:999 ./data/db ./data/wp           # Set correct permissions
@@ -23,12 +25,32 @@ up:
 	@$(DC) -f $(DC_FILE) up --build -d                   # Build and start containers in background
 
 # Estado de los contenedores
-status:
+ps:
 	@$(DC) -f $(DC_FILE) ps
 
 # Stop containers without removing them
 stop:
 	@$(DC) -f $(DC_FILE) stop
+
+# Stop individual services
+stop-mariadb:
+	@$(DC) -f $(DC_FILE) stop mariadb
+
+stop-wordpress:
+	@$(DC) -f $(DC_FILE) stop wordpress
+
+stop-nginx:
+	@$(DC) -f $(DC_FILE) stop nginx
+
+# Remove individual services
+rm-mariadb:
+	@$(DC) -f $(DC_FILE) rm -f mariadb
+
+rm-wordpress:
+	@$(DC) -f $(DC_FILE) rm -f wordpress
+
+rm-nginx:
+	@$(DC) -f $(DC_FILE) rm -f nginx
 
 # Remove containers (but keep volumes and data)
 rm:
