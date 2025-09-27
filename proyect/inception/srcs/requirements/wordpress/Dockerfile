@@ -1,6 +1,6 @@
 FROM alpine:3.19
 
-# Instalar paquetes necesarios
+# Instalar paquetes necesarios del sistema
 RUN apk update && apk add \
     php83 \
     php83-fpm \
@@ -22,7 +22,8 @@ RUN apk update && apk add \
     unzip \
     mariadb-client \
     bash \
-    shadow
+    shadow \
+    git
 
 # Crear symlink para que 'php' apunte a 'php83'
 RUN ln -s /usr/bin/php83 /usr/bin/php
@@ -50,6 +51,9 @@ COPY conf/www.conf /etc/php83/php-fpm.d/www.conf
 COPY tools/install.sh /usr/local/bin/install.sh
 COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/install.sh /usr/local/bin/entrypoint.sh
+
+# EJECUTAR install.sh durante el build para instalar WP-CLI
+RUN /usr/local/bin/install.sh
 
 WORKDIR /var/www/html
 
