@@ -321,11 +321,16 @@ clean:
 
 # Limpieza completa (incluye datos locales)
 purge: clean
-	@echo "$(RED)🔥 Eliminando datos locales...$(NC)"
-	@rm -rf ./data
+	@echo "$(RED)🔥 Eliminando todos los datos excepto docs/, secrets/, srcs/ y Makefile...$(NC)"
+	@find . -maxdepth 1 -mindepth 1 \
+		! -name 'docs' \
+		! -name 'secrets' \
+		! -name 'srcs' \
+		! -name 'Makefile' \
+		-exec rm -rf {} +
 	@docker volume rm srcs_db_data srcs_wp_data 2>/dev/null || true
 	@docker system prune -a -f
-	@echo "$(YELLOW)⚠️  Todos los datos han sido eliminados. Ejecuta 'make up' para reiniciar.$(NC)"
+	@echo "$(YELLOW)⚠ Todos los datos generados han sido eliminados. Ejecuta 'make up' para reiniciar.$(NC)"
 
 # ==============================================================================
 # DEPENDENCIAS ENTRE TARGETS
