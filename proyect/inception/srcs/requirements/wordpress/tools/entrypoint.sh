@@ -49,7 +49,7 @@ else
             --dbhost=mariadb \
             --dbname=wordpress \
             --dbuser=wp_to_db_user \
-            --dbpass=wordpresspass \
+            --dbpass="$(cat /run/secrets/wp_to_db_user_password)" \
             --allow-root \
             --path=/var/www/html
         
@@ -58,7 +58,7 @@ else
             --url=https://frromero.42.fr \
             --title="Inception Project" \
             --admin_user=wp_manager_user \
-            --admin_password=adminpass \
+            --admin_password="$(cat /run/secrets/wp_manager_password)" \
             --admin_email=manager@42.fr \
             --skip-email \
             --allow-root \
