@@ -50,6 +50,7 @@ COPY conf/www.conf /etc/php83/php-fpm.d/www.conf
 # Copiar scripts
 COPY tools/install.sh /usr/local/bin/install.sh
 COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY tools/init-users.php /usr/local/bin/init-users.php 
 RUN chmod +x /usr/local/bin/install.sh /usr/local/bin/entrypoint.sh
 
 # EJECUTAR install.sh durante el build para instalar WP-CLI
