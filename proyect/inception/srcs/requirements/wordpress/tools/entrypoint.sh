@@ -1,15 +1,24 @@
 #!/bin/sh
 set -e
 
-# Ajustar permisos del volumen de WordPress
-echo "📦 Ajustando permisos de /var/www/html..."
+# -----------------------------
+# WordPress Entrypoint
+# Main script executed when WordPress container starts
+# -----------------------------
+
+# -----------------------------
+# Adjust permissions for WordPress volume
+# -----------------------------
+echo "---> Adjusting permissions for /var/www/html..."
 chown -R nobody:nobody /var/www/html
 find /var/www/html -type d -exec chmod 755 {} \;
 find /var/www/html -type f -exec chmod 644 {} \;
 
-# Descargar y descomprimir WordPress si el volumen está vacío
+# -----------------------------
+# Download and extract WordPress if volume is empty
+# -----------------------------
 if [ -z "$(ls -A /var/www/html)" ]; then
-    echo "📦 Volumen de WordPress vacío, copiando archivos..."
+    echo "---> Empty WordPress volume, copying files..."
     wget --no-check-certificate https://wordpress.org/latest.tar.gz -O /tmp/wordpress.tar.gz
     tar -xzf /tmp/wordpress.tar.gz -C /tmp/
     cp -a /tmp/wordpress/. /var/www/html/
@@ -20,42 +29,54 @@ if [ -z "$(ls -A /var/www/html)" ]; then
     find /var/www/html -type f -exec chmod 644 {} \;
 fi
 
-echo "✅ WordPress listo en /var/www/html"
-
-# Verificar si wp-config.php existe
+# -----------------------------
+# Check if wp-config.php exists
+# -----------------------------
 if [ -f /var/www/html/wp-config.php ]; then
-    echo "✅ wp-config.php encontrado"
-    
-    # Esperar a que WordPress esté completamente inicializado
-    echo "⏳ Esperando a que WordPress esté listo..."
+    echo "✅ wp-config.php found"
+
+    # -----------------------------
+    # Wait until WordPress is fully initialized
+    # -----------------------------
+    echo "---> Waiting for WordPress to be ready..."
     until wp core is-installed --allow-root --path=/var/www/html 2>/dev/null; do
-        echo "⏳ WordPress no listo, esperando..."
+        echo "---> WordPress not ready, waiting..."
         sleep 3
     done
-    
-    echo "👥 Creando usuarios de WordPress..."
-    php /usr/local/bin/init-users.php || echo "⚠ Fallo al ejecutar init-users.php"
+
+    # -----------------------------
+    # Create WordPress users
+    # -----------------------------
+    echo "---> Creating WordPress users..."
+    php /usr/local/bin/init-users.php || echo "⚠ Failed to run init-users.php"
+
 else
-    echo "⚠ wp-config.php no encontrado"
-    echo "⏳ Esperando a que MariaDB esté disponible..."
-    
-    # Obtener password del secret
+    echo "---> wp-config.php not found"
+    echo "---> Waiting for MariaDB to be available..."
+
+    # -----------------------------
+    # Read database password from secret
+    # -----------------------------
     DB_PASSWORD=$(cat /run/secrets/wp_to_db_user_password)
-    
-    # Esperar máximo 30 segundos a que MariaDB esté lista
+
+    # -----------------------------
+    # Wait up to 30 seconds for MariaDB
+    # -----------------------------
     counter=0
     until mysql -h mariadb -u wp_to_db_user -p"$DB_PASSWORD" -e "SELECT 1;" &> /dev/null; do
         sleep 2
         counter=$((counter + 1))
         if [ $counter -ge 15 ]; then
-            echo "❌ Timeout: MariaDB no está disponible después de 30 segundos"
+            echo "❌ Timeout: MariaDB not available after 30 seconds"
             break
         fi
     done
-    
-    # Si MariaDB está disponible, instalar WordPress
+
+    # -----------------------------
+    # Install WordPress if MariaDB is ready
+    # -----------------------------
     if mysql -h mariadb -u wp_to_db_user -p"$DB_PASSWORD" -e "SELECT 1;" &> /dev/null; then
-        echo "🔧 Creando wp-config.php..."
+        echo "---> Creating wp-config.php..."
         wp config create \
             --dbhost=mariadb \
             --dbname=wordpress \
@@ -63,8 +84,8 @@ else
             --dbpass="$DB_PASSWORD" \
             --allow-root \
             --path=/var/www/html
-        
-        echo "🚀 Instalando WordPress..."
+
+        echo "---> Installing WordPress..."
         wp core install \
             --url="https://${DOMAIN_NAME}" \
             --title="${WORDPRESS_SITE_TITLE}" \
@@ -74,19 +95,23 @@ else
             --skip-email \
             --allow-root \
             --path=/var/www/html
-        
-        echo "✅ WordPress instalado correctamente via CLI"
-        
-        # Crear usuarios adicionales si existe el script
+
+        echo "✅ WordPress installed successfully via CLI"
+
+        # -----------------------------
+        # Create additional users if init-users.php exists
+        # -----------------------------
         if [ -f /usr/local/bin/init-users.php ]; then
-            echo "👥 Creando usuarios adicionales..."
-            php /usr/local/bin/init-users.php || echo "⚠ Fallo al ejecutar init-users.php"
+            echo "---> Creating additional users..."
+            php /usr/local/bin/init-users.php || echo "⚠ Failed to run init-users.php"
         fi
     else
-        echo "⚠ No se pudo instalar WordPress: MariaDB no disponible"
+        echo "---> Could not install WordPress: MariaDB unavailable"
     fi
 fi
 
-# Iniciar PHP-FPM en primer plano
-echo "🌐 Iniciando PHP-FPM..."
+# -----------------------------
+# Start PHP-FPM in foreground
+# -----------------------------
+echo "✅ Starting PHP-FPM..."
 exec php-fpm83 -F

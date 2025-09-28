@@ -1,24 +1,36 @@
 #!/bin/sh
+
+# Entrypoint: main script executed when container starts
+
 set -e
 
-echo "🔧 Inicializando MariaDB..."
+echo "---> Initializing MariaDB..."
 
-# Leer secrets desde el volumen montado
+# -----------------------------
+# Read secrets from mounted volume
+# -----------------------------
 MYSQL_ROOT_PASSWORD=$(cat /run/secrets/mariadb_root_password)
 MYSQL_PASSWORD=$(cat /run/secrets/wp_to_db_user_password)
 MYSQL_DATABASE=${MYSQL_DATABASE:-wordpress}
 MYSQL_USER=${MYSQL_USER:-wp_to_db_user}
 
-# Crear directorios y permisos
+# -----------------------------
+# Create directories and set permissions
+# -----------------------------
 mkdir -p /var/lib/mysql /run/mysqld
 chown -R mysql:mysql /var/lib/mysql /run/mysqld
 
-# Si la DB no existe, inicializamos y configuramos usuarios
+# -----------------------------
+# Initialize database if it does not exist
+# -----------------------------
 if [ ! -d "/var/lib/mysql/mysql" ]; then
-    echo "📦 Creando las tablas del sistema..."
+    echo "---> Creating system tables..."
     mariadb-install-db --user=mysql --datadir=/var/lib/mysql
 
-    echo "🔑 Configurando root y usuarios..."
+    # -----------------------------
+    # Configure root and application users
+    # -----------------------------
+    echo "---> Configuring root and application users..."
     mysqld --user=mysql --skip-networking &
     MYSQL_PID=$!
     until mysqladmin ping --silent; do
@@ -31,7 +43,7 @@ CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
 CREATE USER '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
 GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';
 
--- 🧹 Eliminar usuarios no válidos
+-- 🧹 Remove invalid users
 DELETE FROM mysql.user
 WHERE User NOT IN ('${MYSQL_USER}', 'root', 'mysql', 'mariadb.sys')
   OR User = ''
@@ -44,5 +56,8 @@ EOF
     wait $MYSQL_PID
 fi
 
-echo "✅ MariaDB lista, iniciando servicio..."
+# -----------------------------
+# Start MariaDB service
+# -----------------------------
+echo "✅ MariaDB ready, starting service..."
 exec mysqld_safe

@@ -1,13 +1,20 @@
 #!/bin/bash
+
+# Install script: sets up MariaDB directories and initializes the database
+
 set -e
 
-echo "🔧 Inicializando MariaDB durante el build..."
+echo "---> Inicializing MariaDB during build..."
 
-# Crear directorios y permisos
+# -----------------------------
+# Create directories and set permissions
+# -----------------------------
 mkdir -p /var/lib/mysql
 chown -R mysql:mysql /var/lib/mysql
 
-# Inicializar la base de datos (sin usuarios ni contraseñas)
+# -----------------------------
+# Initialize database
+# -----------------------------
 mysql_install_db --user=mysql --datadir=/var/lib/mysql
 
-echo "✅ MariaDB listo durante el build."
+echo "✅ MariaDB ready during build."

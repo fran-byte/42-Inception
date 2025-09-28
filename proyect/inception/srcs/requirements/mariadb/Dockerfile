@@ -1,25 +1,41 @@
-# srcs/requirements/mariadb/Dockerfile
+# MariaDB Dockerfile
+# -----------------------------
+# Base image
+# From Docker Hub
+# -----------------------------
 FROM alpine:3.19
 
-# Instalar MariaDB
+# -----------------------------
+# Install MariaDB and Client
+# -----------------------------
 RUN apk update && apk add --no-cache mariadb mariadb-client
 
-# Crear directorios necesarios
+# -----------------------------
+# Create necessary directories
+# -----------------------------
 RUN mkdir -p /run/mysqld /var/lib/mysql \
     && chown -R mysql:mysql /run/mysqld /var/lib/mysql
 
-# Copiar archivos de configuración y scripts
+# -----------------------------
+# Copy configuration files and scripts
+# -----------------------------
 COPY conf/my.cnf /etc/my.cnf
 COPY tools/entrypoint.sh /usr/local/bin/
 COPY tools/install.sh /usr/local/bin/
 
-# Dar permisos de ejecución
+# -----------------------------
+# Set executable permissions
+# -----------------------------
 RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/install.sh
 
-# Puerto expuesto y volumen
+# -----------------------------
+# Expose MariaDB port and define data volume
+# -----------------------------
 EXPOSE 3306
 VOLUME /var/lib/mysql
 
-# Entrypoint
+# -----------------------------
+# Entrypoint and default command
+# -----------------------------
 ENTRYPOINT ["entrypoint.sh"]
 CMD ["mysqld", "--user=mysql"]

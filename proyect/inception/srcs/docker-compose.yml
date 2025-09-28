@@ -1,4 +1,7 @@
 services:
+  # -----------------------------
+  #      MariaDB Database SERVICE
+  # -----------------------------
   mariadb:
     build: ./requirements/mariadb
     container_name: mariadb
@@ -14,6 +17,9 @@ services:
     networks:
       - inception_net
 
+  # -----------------------------
+  #             WordPress SERVICE
+  # -----------------------------
   wordpress:
     build: ./requirements/wordpress
     container_name: wordpress
@@ -38,6 +44,9 @@ services:
     networks:
       - inception_net
 
+  # -----------------------------
+  #      Nginx Web Server SERVICE
+  # -----------------------------
   nginx:
     build: ./requirements/nginx
     container_name: nginx
@@ -48,23 +57,32 @@ services:
       - "443:443"
     volumes:
       - ${VOLUMES_ROOT}/wp:/var/www/html
-      # Certificados SSL
+      # SSL Certificates
       - ./certs/frromero.42.fr.crt:/etc/ssl/certs/frromero.42.fr.crt:ro
       - ./certs/frromero.42.fr.key:/etc/ssl/private/frromero.42.fr.key:ro
-      # Configuración de Nginx
+      # Nginx Configuration
       - ./requirements/nginx/conf/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./requirements/nginx/conf/default.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - inception_net
 
+# -----------------------------
+# Docker Volumes
+# -----------------------------
 volumes:
   db:
   wp:
 
+# -----------------------------
+# Docker Networks
+# -----------------------------
 networks:
   inception_net:
     driver: bridge
 
+# -----------------------------
+# Docker Secrets
+# -----------------------------
 secrets:
   mariadb_root_password:
     file: ${PROJECT_ROOT}/secrets/mariadb_root_password.txt
