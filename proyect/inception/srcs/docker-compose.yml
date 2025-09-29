@@ -29,12 +29,13 @@ services:
     environment:
       WORDPRESS_DB_HOST: mariadb:3306
       WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
-      WORDPRESS_DB_USER: wp_to_db_user
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
       DOMAIN_NAME: ${DOMAIN_NAME}
-      WP_ADMIN_USER: wp_manager_user
-      WP_ADMIN_EMAIL: manager@42.fr
-      WP_REGULAR_USER: wp_editor_user
-      WP_REGULAR_EMAIL: editor@42.fr
+      WORDPRESS_ADMIN_USER: ${WORDPRESS_ADMIN_USER}
+      WORDPRESS_ADMIN_EMAIL: ${WORDPRESS_ADMIN_EMAIL}
+      WORDPRESS_REGULAR_USER: ${WORDPRESS_REGULAR_USER}
+      WORDPRESS_REGULAR_EMAIL: ${WORDPRESS_REGULAR_EMAIL}
+
     secrets:
       - wp_to_db_user_password
       - wp_manager_password
