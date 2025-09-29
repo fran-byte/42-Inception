@@ -64,8 +64,25 @@ services:
       # Nginx Configuration
       - ./requirements/nginx/conf/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./requirements/nginx/conf/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./requirements/nginx/conf/bonus.conf:/etc/nginx/conf.d/bonus.conf:ro
     networks:
       - inception_net
+
+  #-----------------------------
+  #    Bonus: Static Web SERVICE
+  #-----------------------------
+  static-web:
+    build: ./requirements/bonus/static-web
+    container_name: static-web
+    restart: always
+    profiles: ["bonus"]  # ✅ Activated with --profile bonus
+    ports:
+      - "8080:80"
+    networks:
+      - inception_net
+
+
+
 
 # -----------------------------
 # Docker Volumes

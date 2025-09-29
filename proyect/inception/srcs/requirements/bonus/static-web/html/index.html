@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bonus Inception</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            border-bottom: 2px solid #00ff00;
+            padding-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            padding: 1rem 2rem;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-btn:hover {
+            background: #00ff00;
+            color: #000000;
+            box-shadow: 0 0 20px #00ff00;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background: #00ff00;
+            color: #000000;
+            box-shadow: 0 0 15px #00ff00;
+        }
+
+        .content {
+            min-height: 400px;
+            padding: 2rem;
+            border: 1px solid #00ff00;
+            border-radius: 10px;
+            background: rgba(0, 255, 0, 0.05);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.1);
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .welcome-title {
+            font-size: 4rem;
+            text-align: center;
+            margin: 3rem 0;
+            text-shadow: 0 0 15px #00ff00;
+            animation: pulse 3s infinite;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 4rem;
+            opacity: 0.8;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature {
+            border: 1px solid #00ff00;
+            padding: 1.5rem;
+            border-radius: 5px;
+            background: rgba(0, 255, 0, 0.02);
+        }
+
+        .feature h3 {
+            color: #00ff00;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #00ff00;
+            padding-bottom: 0.5rem;
+        }
+
+        .tech-stack {
+            margin-top: 3rem;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .tech-item {
+            background: rgba(0, 255, 0, 0.1);
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+        }
+
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
+            }
+            to {
+                text-shadow: 0 0 15px #00ff00, 0 0 30px #00ff00, 0 0 40px #00ff00;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .matrix-char {
+            position: absolute;
+            color: #00ff00;
+            font-size: 1.2rem;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #00ff00;
+            opacity: 0.7;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .welcome-title {
+                font-size: 2.5rem;
+            }
+            
+            .nav-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .nav-btn {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="matrix-bg" id="matrixBg"></div>
+    
+    <div class="container">
+        <header>
+            <h1>Bonus Inception</h1>
+            <p>Proyecto de Infraestructura Docker - Servicio Web Estático</p>
+        </header>
+
+        <div class="nav-buttons">
+            <button class="nav-btn active" onclick="showPage('inicio')">Inicio</button>
+            <button class="nav-btn" onclick="showPage('about')">About</button>
+        </div>
+
+        <div class="content">
+            <!-- Página de Inicio -->
+            <div id="inicio" class="page active">
+                <div class="welcome-title">
+                    🚀 BIENVENIDO
+                </div>
+                <div class="welcome-subtitle">
+                    Al servicio web estático del proyecto Bonus Inception
+                </div>
+                
+                <div class="features">
+                    <div class="feature">
+                        <h3>🎯 Propósito</h3>
+                        <p>Demostrar la implementación de un sitio web estático como parte del bonus del proyecto Inception, sirviendo contenido HTML/CSS/JS a través de Docker y Nginx.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <h3>⚡ Tecnología</h3>
+                        <p>Contenedor Docker independiente con servidor Nginx, accesible únicamente a través del proxy reverso del contenedor principal.</p>
+                    </div>
+                    
+                    <div class="feature">
+                        <h3>🔧 Arquitectura</h3>
+                        <p>Infraestructura modular con servicios separados, volúmenes persistentes y red Docker personalizada para comunicación entre contenedores.</p>
+                    </div>
+                </div>
+
+                <div class="tech-stack">
+                    <h3>Tecnologías Implementadas:</h3>
+                    <div class="tech-grid">
+                        <div class="tech-item">Docker</div>
+                        <div class="tech-item">Docker Compose</div>
+                        <div class="tech-item">Nginx</div>
+                        <div class="tech-item">HTML5/CSS3/JS</div>
+                        <div class="tech-item">Makefile</div>
+                        <div class="tech-item">TLS/SSL</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Página About -->
+            <div id="about" class="page">
+                <h2 style="text-align: center; margin-bottom: 2rem; font-size: 2.5rem;">📋 SOBRE EL BONUS</h2>
+                
+                <div style="margin-bottom: 2rem;">
+                    <h3>🎯 Objetivo del Bonus</h3>
+                    <p>El bonus del proyecto Inception consiste en implementar servicios adicionales a la infraestructura base requerida, demostrando habilidades avanzadas en administración de sistemas y containerización.</p>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <h3>🚀 Servicio Web Estático</h3>
+                    <p>Este sitio web representa uno de los posibles servicios bonus que se pueden implementar:</p>
+                    <ul style="margin-left: 2rem; margin-top: 1rem;">
+                        <li>Contenedor Docker independiente con Nginx</li>
+                        <li>Servicio de solo lectura con contenido estático</li>
+                        <li>Acceso exclusivo a través del proxy reverso principal</li>
+                        <li>Certificados TLS/SSL para conexiones seguras</li>
+                        <li>Integración con la red Docker personalizada</li>
+                    </ul>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <h3>🔧 Implementación Técnica</h3>
+                    <p>El servicio está configurado para:</p>
+                    <ul style="margin-left: 2rem; margin-top: 1rem;">
+                        <li>Utilizar la versión estable de Alpine Linux</li>
+                        <li>Servir contenido en el puerto 80 interno</li>
+                        <li>Ser accesible mediante subdominio específico</li>
+                        <li>Mantener separación de responsabilidades</li>
+                        <li>Implementar mejores prácticas de seguridad</li>
+                    </ul>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <h3>🎨 Características del Sitio</h3>
+                    <p>Este sitio web demuestra:</p>
+                    <ul style="margin-left: 2rem; margin-top: 1rem;">
+                        <li>Diseño responsive con temática Matrix</li>
+                        <li>Navegación entre páginas sin recargas</li>
+                        <li>Animaciones CSS personalizadas</li>
+                        <li>Efectos visuales con JavaScript</li>
+                        <li>Optimización para diferentes dispositivos</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(0, 255, 0, 0.1); padding: 1.5rem; border-radius: 5px; border: 1px solid #00ff00;">
+    			<h3>💻 Desarrollado por</h3>
+    			<p>frromero para el proyecto Inception de 42 Madrid</p>
+		</div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Proyecto Inception - Bonus Service | Docker & Nginx Implementation</p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">Servido desde contenedor Docker con configuración TLS</p>
+        </footer>
+    </div>
+
+    <script>
+        // Efecto Matrix para el fondoo
+        function createMatrix() {
+            const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+            const bg = document.getElementById('matrixBg');
+            
+            for (let i = 0; i < 50; i++) {
+                const char = document.createElement('div');
+                char.className = 'matrix-char';
+                char.textContent = chars[Math.floor(Math.random() * chars.length)];
+                char.style.left = Math.random() * 100 + 'vw';
+                char.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                char.style.animationDelay = Math.random() * 5 + 's';
+                char.style.opacity = Math.random() * 0.5 + 0.1;
+                bg.appendChild(char);
+            }
+        }
+
+        // Navegación entre pag.
+        function showPage(pageId) {
+            // Ocultar todas las páginas
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Mostrar la página seleccionada
+            document.getElementById(pageId).classList.add('active');
+            
+            // Actualizar botones activos
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Efecto de escritura para el título
+        function typeWriter(element, text, speed = 100) {
+            let i = 0;
+            element.innerHTML = '';
+            
+            function type() {
+                if (i < text.length) {
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+            type();
+        }
+
+        // Inicializar efectos cuando la pag. cargue
+        document.addEventListener('DOMContentLoaded', function() {
+            createMatrix();
+            
+            // Efecto de escritura opcional para el título de bienvenida
+            const welcomeTitle = document.querySelector('.welcome-title');
+            const originalText = welcomeTitle.textContent;
+            // typeWriter(welcomeTitle, originalText, 150);
+        });
+    </script>
+</body>
+</html>
