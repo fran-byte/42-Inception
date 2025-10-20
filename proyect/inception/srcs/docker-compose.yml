@@ -77,7 +77,7 @@ services:
     restart: always
     profiles: ["bonus"]  # ✅ Activated with --profile bonus
     ports:
-      - "8080:80"
+      - "8080:8080"
     networks:
       - inception_net
 
