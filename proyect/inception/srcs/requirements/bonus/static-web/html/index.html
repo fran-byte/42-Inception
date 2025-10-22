@@ -40,39 +40,6 @@
             color: #00ff00;
         }
 
-        .nav-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .nav-btn {
-            background: transparent;
-            border: 1px solid #00ff00;
-            color: #00ff00;
-            padding: 0.8rem 1.5rem;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Courier New', monospace;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .nav-btn:hover {
-            background: #00ff00;
-            color: #000000;
-        }
-
-        .page {
-            display: none;
-        }
-
-        .page:target {
-            display: block;
-        }
-
         .content {
             min-height: 400px;
             padding: 2rem;
@@ -107,6 +74,12 @@
             padding: 1.5rem;
             border-radius: 5px;
             background: rgba(0, 255, 0, 0.02);
+            transition: transform 0.3s ease;
+        }
+
+        .feature:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 255, 0, 0.1);
         }
 
         .feature h3 {
@@ -117,7 +90,9 @@
         }
 
         .tech-stack {
-            margin-top: 2rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px dashed #00ff00;
         }
 
         .tech-grid {
@@ -134,6 +109,49 @@
             border: 1px solid #00ff00;
             border-radius: 3px;
             font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .tech-item:hover {
+            background: rgba(0, 255, 0, 0.2);
+            transform: scale(1.05);
+        }
+
+        .section {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px dashed #00ff00;
+        }
+
+        .section h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #00ff00;
+        }
+
+        .info-box {
+            background: rgba(0, 255, 0, 0.1);
+            padding: 1.5rem;
+            border-radius: 5px;
+            border: 1px solid #00ff00;
+            margin-top: 2rem;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        code {
+            background: rgba(0, 255, 0, 0.1);
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
         }
 
         footer {
@@ -143,6 +161,23 @@
             border-top: 1px solid #00ff00;
             opacity: 0.7;
             font-size: 0.9rem;
+        }
+
+        /* Indicador de sección */
+        .section-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: #00ff00;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
         }
 
         /* Responsive */
@@ -155,17 +190,12 @@
                 font-size: 1.5rem;
             }
             
-            .nav-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .nav-btn {
-                width: 200px;
-            }
-            
             .container {
                 padding: 1rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -177,14 +207,9 @@
             <p>Proyecto de Infraestructura Docker - Servicio Web Estático</p>
         </header>
 
-        <div class="nav-buttons">
-            <a href="#inicio" class="nav-btn">Inicio</a>
-            <a href="#about" class="nav-btn">About</a>
-        </div>
-
         <div class="content">
-            <!-- Página de Inicio -->
-            <div id="inicio" class="page" style="display: block;">
+            <!-- Sección Inicio -->
+            <div>
                 <div class="welcome-title">
                     🚀 BIENVENIDO
                 </div>
@@ -194,17 +219,17 @@
                 
                 <div class="features">
                     <div class="feature">
-                        <h3>🎯 Propósito</h3>
+                        <h3>Propósito</h3>
                         <p>Demostrar la implementación de un sitio web estático como parte del bonus del proyecto Inception, sirviendo contenido HTML/CSS a través de Docker y Nginx.</p>
                     </div>
                     
                     <div class="feature">
-                        <h3>⚡ Tecnología</h3>
+                        <h3>Tecnología</h3>
                         <p>Contenedor Docker independiente con servidor Nginx, accesible únicamente a través del proxy reverso del contenedor principal.</p>
                     </div>
                     
                     <div class="feature">
-                        <h3>🔧 Arquitectura</h3>
+                        <h3>Arquitectura</h3>
                         <p>Infraestructura modular con servicios separados, volúmenes persistentes y red Docker personalizada para comunicación entre contenedores.</p>
                     </div>
                 </div>
@@ -222,19 +247,19 @@
                 </div>
             </div>
 
-            <!-- Página About -->
-            <div id="about" class="page">
-                <br>
-                <h2 style="text-align: center; margin-bottom: 2rem;">📋 SOBRE EL BONUS</h2>
+            <!-- Sección About -->
+            <div class="section">
+                <h2><span class="section-indicator"></span> SOBRE EL BONUS</h2>
                 
                 <div style="margin-bottom: 2rem;">
-                    <h3>🎯 Objetivo del Bonus</h3>
-                    <p>El bonus del proyecto Inception consiste en implementar servicios adicionales a la infraestructura base requerida, pero al no al no indicar como si hace con la parte mantatory sobre el uso de SSL, comunicaremos simplemmente por por HTTP.</p>                </div>
+                    <h3>Objetivo del Bonus</h3>
+                    <p>El bonus del proyecto Inception consiste en implementar servicios adicionales a la infraestructura base requerida, pero al no indicar cómo se hace con la parte mandatory sobre el uso de SSL, comunicaremos simplemente por HTTP.</p>
+                </div>
 
                 <div style="margin-bottom: 2rem;">
-                    <h3>🚀 Servicio Web Estático</h3>
+                    <h3>Servicio Web Estático</h3>
                     <p>Este sitio web representa uno de los posibles servicios bonus que se pueden implementar:</p>
-                    <ul style="margin-left: 2rem; margin-top: 1rem;">
+                    <ul>
                         <li>Contenedor Docker independiente con Nginx</li>
                         <li>Servicio de solo lectura con contenido estático</li>
                         <li>Acceso exclusivo a través del proxy reverso principal</li>
@@ -242,9 +267,65 @@
                     </ul>
                 </div>
 
-                <div style="background: rgba(0, 255, 0, 0.1); padding: 1.5rem; border-radius: 5px; border: 1px solid #00ff00;">
-                    <h3>💻 Desarrollado por</h3>
+                <div class="info-box">
+                    <h3>Desarrollado por</h3>
                     <p>frromero para el proyecto Inception de 42 Madrid</p>
+                </div>
+            </div>
+
+            <!-- Sección Detalles Técnicos -->
+            <div class="section">
+                <h2><span class="section-indicator"></span> DETALLES TÉCNICOS</h2>
+                
+                <div style="margin-bottom: 2rem;">
+                    <h3>Configuración Docker</h3>
+                    <p>El servicio está configurado como un contenedor independiente con las siguientes características:</p>
+                    <ul>
+                        <li>Imagen base: nginx:alpine</li>
+                        <li>Puerto interno: 80</li>
+                        <li>Volumen para contenido estático</li>
+                        <li>Configuración personalizada de Nginx</li>
+                        <li>Integración con red Docker personalizada</li>
+                    </ul>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <h3>Estructura del Proyecto</h3>
+                    <p>El proyecto sigue una estructura organizada para facilitar el mantenimiento:</p>
+                    <ul>
+                        <li>src/ - Código fuente de la aplicación</li>
+                        <li>conf/ - Archivos de configuración</li>
+                        <li>docker/ - Configuración de contenedores</li>
+                        <li>Makefile - Automatización de tareas</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Sección Implementación -->
+            <div class="section">
+                <h2><span class="section-indicator"></span> IMPLEMENTACIÓN</h2>
+                
+                <div style="margin-bottom: 2rem;">
+                    <h3>Pasos de Despliegue</h3>
+                    <p>El despliegue del servicio sigue estos pasos:</p>
+                    <ol>
+                        <li>Construcción de la imagen Docker</li>
+                        <li>Configuración de volúmenes persistentes</li>
+                        <li>Despliegue con Docker Compose</li>
+                        <li>Configuración del proxy reverso</li>
+                        <li>Verificación del servicio</li>
+                    </ol>
+                </div>
+
+                <div style="margin-bottom: 2rem;">
+                    <h3>Comandos Principales</h3>
+                    <p>Los comandos más utilizados en el proyecto:</p>
+                    <ul>
+                        <li><code>make build</code> - Construir contenedores</li>
+                        <li><code>make up</code> - Iniciar servicios</li>
+                        <li><code>make down</code> - Detener servicios</li>
+                        <li><code>make logs</code> - Ver logs</li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -255,4 +336,3 @@
     </div>
 </body>
 </html>
-
