@@ -71,7 +71,7 @@ services:
 
 
   #-----------------------------
-  #    Bonus: Static Web SERVICE
+  #    Bonus: Static Web SERVICE 
   #-----------------------------
   static-web:
     build: ./requirements/bonus/static-web
