@@ -1,338 +1,148 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bonus Inception</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bonus Inception</title>
+  <style>
+    body {
+      background-color: #0a0a0a;
+      color: #00ff00;
+      font-family: 'Courier New', monospace;
+      padding: 2rem;
+      line-height: 1.6;
+    }
 
-        body {
-            background-color: #0a0a0a;
-            color: #00ff00;
-            font-family: 'Courier New', monospace;
-            min-height: 100vh;
-            line-height: 1.6;
-        }
+    h1, h2 {
+      text-align: center;
+      color: #00ff00;
+      margin-bottom: 1rem;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
+    .section {
+      border-top: 1px dashed #00ff00;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+    }
 
-        header {
-            text-align: center;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid #00ff00;
-            padding-bottom: 1rem;
-        }
+    .highlight {
+      background-color: #1aff1a;
+      color: #000;
+      border: 2px solid #00ff00;
+      border-radius: 8px;
+      padding: 1.2rem;
+      margin: 1.5rem 0;
+      box-shadow: 0 0 10px #00ff00;
+    }
 
-        h1 {
-            font-size: 2.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.2rem;
-            margin-bottom: 0.5rem;
-            color: #00ff00;
-        }
+    .highlight h3 {
+      margin-top: 0;
+      color: #003300;
+      font-size: 1.2rem;
+      text-transform: uppercase;
+    }
 
-        .content {
-            min-height: 400px;
-            padding: 2rem;
-            border: 1px solid #00ff00;
-            border-radius: 5px;
-            background: rgba(0, 255, 0, 0.02);
-        }
+    ul, ol {
+      margin-left: 2rem;
+    }
 
-        .welcome-title {
-            font-size: 2rem;
-            text-align: center;
-            margin: 2rem 0;
-            color: #00ff00;
-        }
+    code {
+      background: rgba(0, 255, 0, 0.2);
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
+    }
 
-        .welcome-subtitle {
-            font-size: 1.2rem;
-            text-align: center;
-            margin-bottom: 3rem;
-            opacity: 0.8;
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
-        }
-
-        .feature {
-            border: 1px solid #00ff00;
-            padding: 1.5rem;
-            border-radius: 5px;
-            background: rgba(0, 255, 0, 0.02);
-            transition: transform 0.3s ease;
-        }
-
-        .feature:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 255, 0, 0.1);
-        }
-
-        .feature h3 {
-            color: #00ff00;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid #00ff00;
-            padding-bottom: 0.5rem;
-        }
-
-        .tech-stack {
-            margin-top: 3rem;
-            padding-top: 2rem;
-            border-top: 1px dashed #00ff00;
-        }
-
-        .tech-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .tech-item {
-            background: rgba(0, 255, 0, 0.1);
-            padding: 1rem;
-            text-align: center;
-            border: 1px solid #00ff00;
-            border-radius: 3px;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-
-        .tech-item:hover {
-            background: rgba(0, 255, 0, 0.2);
-            transform: scale(1.05);
-        }
-
-        .section {
-            margin-top: 3rem;
-            padding-top: 2rem;
-            border-top: 1px dashed #00ff00;
-        }
-
-        .section h2 {
-            text-align: center;
-            margin-bottom: 2rem;
-            color: #00ff00;
-        }
-
-        .info-box {
-            background: rgba(0, 255, 0, 0.1);
-            padding: 1.5rem;
-            border-radius: 5px;
-            border: 1px solid #00ff00;
-            margin-top: 2rem;
-        }
-
-        ul, ol {
-            margin-left: 2rem;
-            margin-top: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        li {
-            margin-bottom: 0.5rem;
-        }
-
-        code {
-            background: rgba(0, 255, 0, 0.1);
-            padding: 0.2rem 0.4rem;
-            border-radius: 3px;
-            font-family: 'Courier New', monospace;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid #00ff00;
-            opacity: 0.7;
-            font-size: 0.9rem;
-        }
-
-        /* Indicador de sección */
-        .section-indicator {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            background-color: #00ff00;
-            border-radius: 50%;
-            margin-right: 8px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { opacity: 0.5; }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2rem;
-            }
-            
-            .welcome-title {
-                font-size: 1.5rem;
-            }
-            
-            .container {
-                padding: 1rem;
-            }
-            
-            .features {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    footer {
+      text-align: center;
+      margin-top: 3rem;
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Bonus Inception</h1>
-            <p>Proyecto de Infraestructura Docker - Servicio Web Estático</p>
-        </header>
 
-        <div class="content">
-            <!-- Sección Inicio -->
-            <div>
-                <div class="welcome-title">
-                    🚀 BIENVENIDO
-                </div>
-                <div class="welcome-subtitle">
-                    Al servicio web estático del proyecto Bonus Inception
-                </div>
-                
-                <div class="features">
-                    <div class="feature">
-                        <h3>Propósito</h3>
-                        <p>Demostrar la implementación de un sitio web estático como parte del bonus del proyecto Inception, sirviendo contenido HTML/CSS a través de Docker y Nginx.</p>
-                    </div>
-                    
-                    <div class="feature">
-                        <h3>Tecnología</h3>
-                        <p>Contenedor Docker independiente con servidor Nginx, accesible únicamente a través del proxy reverso del contenedor principal.</p>
-                    </div>
-                    
-                    <div class="feature">
-                        <h3>Arquitectura</h3>
-                        <p>Infraestructura modular con servicios separados, volúmenes persistentes y red Docker personalizada para comunicación entre contenedores.</p>
-                    </div>
-                </div>
+  <h1>Bonus Inception</h1>
+  <p style="text-align:center;">Servicio web estático como bonus del proyecto Inception (42 Madrid)</p>
 
-                <div class="tech-stack">
-                    <h3>Tecnologías Implementadas:</h3>
-                    <div class="tech-grid">
-                        <div class="tech-item">Docker</div>
-                        <div class="tech-item">Docker Compose</div>
-                        <div class="tech-item">Nginx</div>
-                        <div class="tech-item">HTML5/CSS3</div>
-                        <div class="tech-item">Makefile</div>
-                        <div class="tech-item">HTTP</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sección About -->
-            <div class="section">
-                <h2><span class="section-indicator"></span> SOBRE EL BONUS</h2>
-                
-                <div style="margin-bottom: 2rem;">
-                    <h3>Objetivo del Bonus</h3>
-                    <p>El bonus del proyecto Inception consiste en implementar servicios adicionales a la infraestructura base requerida, pero al no indicar cómo se hace con la parte mandatory sobre el uso de SSL, comunicaremos simplemente por HTTP.</p>
-                </div>
-
-                <div style="margin-bottom: 2rem;">
-                    <h3>Servicio Web Estático</h3>
-                    <p>Este sitio web representa uno de los posibles servicios bonus que se pueden implementar:</p>
-                    <ul>
-                        <li>Contenedor Docker independiente con Nginx</li>
-                        <li>Servicio de solo lectura con contenido estático</li>
-                        <li>Acceso exclusivo a través del proxy reverso principal</li>
-                        <li>Integración con la red Docker personalizada</li>
-                    </ul>
-                </div>
-
-                <div class="info-box">
-                    <h3>Desarrollado por</h3>
-                    <p>frromero para el proyecto Inception de 42 Madrid</p>
-                </div>
-            </div>
-
-            <!-- Sección Detalles Técnicos -->
-            <div class="section">
-                <h2><span class="section-indicator"></span> DETALLES TÉCNICOS</h2>
-                
-                <div style="margin-bottom: 2rem;">
-                    <h3>Configuración Docker</h3>
-                    <p>El servicio está configurado como un contenedor independiente con las siguientes características:</p>
-                    <ul>
-                        <li>Imagen base: nginx:alpine</li>
-                        <li>Puerto interno: 80</li>
-                        <li>Volumen para contenido estático</li>
-                        <li>Configuración personalizada de Nginx</li>
-                        <li>Integración con red Docker personalizada</li>
-                    </ul>
-                </div>
-
-                <div style="margin-bottom: 2rem;">
-                    <h3>Estructura del Proyecto</h3>
-                    <p>El proyecto sigue una estructura organizada para facilitar el mantenimiento:</p>
-                    <ul>
-                        <li>src/ - Código fuente de la aplicación</li>
-                        <li>conf/ - Archivos de configuración</li>
-                        <li>docker/ - Configuración de contenedores</li>
-                        <li>Makefile - Automatización de tareas</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Sección Implementación -->
-            <div class="section">
-                <h2><span class="section-indicator"></span> IMPLEMENTACIÓN</h2>
-                
-                <div style="margin-bottom: 2rem;">
-                    <h3>Pasos de Despliegue</h3>
-                    <p>El despliegue del servicio sigue estos pasos:</p>
-                    <ol>
-                        <li>Construcción de la imagen Docker</li>
-                        <li>Configuración de volúmenes persistentes</li>
-                        <li>Despliegue con Docker Compose</li>
-                        <li>Configuración del proxy reverso</li>
-                        <li>Verificación del servicio</li>
-                    </ol>
-                </div>
-
-                <div style="margin-bottom: 2rem;">
-                    <h3>Comandos Principales</h3>
-                    <p>Los comandos más utilizados en el proyecto:</p>
-                    <ul>
-                        <li><code>make build</code> - Construir contenedores</li>
-                        <li><code>make up</code> - Iniciar servicios</li>
-                        <li><code>make down</code> - Detener servicios</li>
-                        <li><code>make logs</code> - Ver logs</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <footer>
-            <p>Proyecto Inception - Bonus Service | Docker & Nginx Implementation</p>
-        </footer>
+  <div class="section">
+    <h2>Resumen</h2>
+    <div class="highlight">
+      <h3>¿Qué es esto?</h3>
+      <p>Un sitio HTML/CSS servido desde un contenedor Docker con Nginx, accesible solo por proxy reverso.</p>
     </div>
+  </div>
+
+  <div class="section">
+    <h2>Características</h2>
+    <div class="highlight">
+      <h3>Lo que incluye</h3>
+      <ul>
+        <li>Contenedor Docker con Nginx</li>
+        <li>Contenido estático y de solo lectura</li>
+        <li>Acceso mediante proxy reverso</li>
+        <li>Red Docker personalizada</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Tecnologías</h2>
+    <div class="highlight">
+      <h3>Herramientas usadas</h3>
+      <ul>
+        <li>Docker & Docker Compose</li>
+        <li>Nginx</li>
+        <li>HTML5 / CSS3</li>
+        <li>Makefile</li>
+        <li>HTTP</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Configuración Técnica</h2>
+    <div class="highlight">
+      <h3>Contenedor</h3>
+      <p>Basado en <code>nginx:alpine</code>, puerto <code>80</code>, con volumen para archivos estáticos y configuración personalizada.</p>
+    </div>
+    <div class="highlight">
+      <h3>Estructura del proyecto</h3>
+      <ul>
+        <li><code>src/</code> – Código fuente</li>
+        <li><code>conf/</code> – Configuración</li>
+        <li><code>docker/</code> – Contenedores</li>
+        <li><code>Makefile</code> – Automatización</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Despliegue</h2>
+    <div class="highlight">
+      <h3>Pasos</h3>
+      <ol>
+        <li>Construir imagen Docker</li>
+        <li>Configurar volúmenes</li>
+        <li>Desplegar con Docker Compose</li>
+        <li>Configurar proxy reverso</li>
+        <li>Verificar servicio</li>
+      </ol>
+    </div>
+    <div class="highlight">
+      <h3>Comandos útiles</h3>
+      <ul>
+        <li><code>make build</code> – Construir</li>
+        <li><code>make up</code> – Iniciar</li>
+        <li><code>make down</code> – Detener</li>
+        <li><code>make logs</code> – Ver logs</li>
+      </ul>
+    </div>
+  </div>
+
+  <footer>
+    Desarrollado por frromero | Proyecto Inception – 42 Madrid
+  </footer>
+
 </body>
 </html>
