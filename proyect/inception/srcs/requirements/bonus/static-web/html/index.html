@@ -19,12 +19,6 @@
       margin-bottom: 1rem;
     }
 
-    .section {
-      border-top: 1px dashed #00ff00;
-      margin-top: 2rem;
-      padding-top: 1.5rem;
-    }
-
     .highlight {
       background-color: #085e24;
       color: #eaffea;
@@ -87,69 +81,63 @@
   <h1>Bonus Inception</h1>
   <p style="text-align:center;">Sitio web estático en Docker para el proyecto Inception</p>
 
-  <div class="section">
-    <h2>Resumen</h2>
-    <div class="highlight wide-box">
-      <h3>Descripción</h3>
-      <p>Web HTML/CSS servida por Nginx en Docker. Acceso solo por proxy reverso.</p>
+  <h2>Resumen</h2>
+  <div class="highlight wide-box">
+    <h3>Descripción</h3>
+    <p>Web HTML/CSS servida por Nginx en Docker. Acceso solo por proxy reverso.</p>
+  </div>
+
+  <h2>Características y Tecnologías</h2>
+  <div class="flex-row">
+    <div class="highlight small-box">
+      <h3>Características</h3>
+      <ul>
+        <li>Contenedor con Nginx</li>
+        <li>Contenido estático</li>
+        <li>Solo lectura</li>
+        <li>Red Docker privada</li>
+      </ul>
+    </div>
+    <div class="highlight small-box">
+      <h3>Tecnologías</h3>
+      <ul>
+        <li>Docker</li>
+        <li>Docker Compose</li>
+        <li>Nginx</li>
+        <li>HTML/CSS</li>
+        <li>Makefile</li>
+      </ul>
     </div>
   </div>
 
-  <div class="section">
-    <h2>Características y Tecnologías</h2>
-    <div class="flex-row">
-      <div class="highlight small-box">
-        <h3>Características</h3>
-        <ul>
-          <li>Contenedor con Nginx</li>
-          <li>Contenido estático</li>
-          <li>Solo lectura</li>
-          <li>Red Docker privada</li>
-        </ul>
-      </div>
-      <div class="highlight small-box">
-        <h3>Tecnologías</h3>
-        <ul>
-          <li>Docker</li>
-          <li>Docker Compose</li>
-          <li>Nginx</li>
-          <li>HTML/CSS</li>
-          <li>Makefile</li>
-        </ul>
-      </div>
+  <h2>Configuración y Despliegue</h2>
+  <div class="flex-row">
+    <div class="highlight small-box">
+      <h3>Configuración</h3>
+      <p>Imagen: <code>nginx:alpine</code> | Puerto: <code>80</code></p>
+      <p>Volumen para archivos y config Nginx personalizada.</p>
+      <ul>
+        <li><code>src/</code> – Código</li>
+        <li><code>conf/</code> – Configuración</li>
+        <li><code>docker/</code> – Contenedores</li>
+        <li><code>Makefile</code> – Tareas</li>
+      </ul>
     </div>
-  </div>
-
-  <div class="section">
-    <h2>Configuración y Despliegue</h2>
-    <div class="flex-row">
-      <div class="highlight small-box">
-        <h3>Configuración</h3>
-        <p>Imagen: <code>nginx:alpine</code> | Puerto: <code>80</code></p>
-        <p>Volumen para archivos y config Nginx personalizada.</p>
-        <ul>
-          <li><code>src/</code> – Código</li>
-          <li><code>conf/</code> – Configuración</li>
-          <li><code>docker/</code> – Contenedores</li>
-          <li><code>Makefile</code> – Tareas</li>
-        </ul>
-      </div>
-      <div class="highlight small-box">
-        <h3>Despliegue</h3>
-        <ol>
-          <li>Build imagen</li>
-          <li>Configurar volúmenes</li>
-          <li>Levantar con Compose</li>
-          <li>Activar proxy</li>
-          <li>Testear servicio</li>
-        </ol>
-        <ul>
-          <li><code>make build</code> – Construir</li>
-          <li><code>make up</code> – Iniciar</li>
-          <li><code>make down</code> – Detener</li>
-          <li><code>make logs</code> – Logs</li>
-        </ul>
-      </div>
+    <div class="highlight small-box">
+      <h3>Despliegue</h3>
+      <ol>
+        <li>Build imagen</li>
+        <li>Configurar volúmenes</li>
+        <li>Levantar con Compose</li>
+        <li>Activar proxy</li>
+        <li>Testear servicio</li>
+      </ol>
+      <ul>
+        <li><code>make build</code> – Construir</li>
+        <li><code>make up</code> – Iniciar</li>
+        <li><code>make down</code> – Detener</li>
+        <li><code>make logs</code> – Logs</li>
+      </ul>
     </div>
   </div>
 
