@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Install script: sets up MariaDB directories and initializes the database
 
