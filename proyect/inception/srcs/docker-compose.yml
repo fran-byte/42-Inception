@@ -84,6 +84,23 @@ services:
     networks:
       - inception_net
 
+  #-----------------------------
+  #    Bonus: redis SERVICE 
+  #-----------------------------
+  redis:
+    build: ./requirements/bonus/redis
+    image: redis
+    container_name: redis
+    restart: always
+    profiles: ["bonus"]
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./certs/frromero.42.fr.crt:/etc/ssl/certs/frromero.42.fr.crt:ro
+      - ./certs/frromero.42.fr.key:/etc/ssl/private/frromero.42.fr.key:ro
+    networks:
+      - inception_net     
+
 # -----------------------------
 # Docker Volumes
 # -----------------------------
