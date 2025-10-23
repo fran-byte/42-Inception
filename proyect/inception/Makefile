@@ -61,7 +61,8 @@ rebuild:
 # LIMPIEZA
 # =======================================================================
 clean:
-	@cd $(DC_DIR) && $(DC) down -v
+	@cd $(DC_DIR) && $(DC) --profile bonus down -v
+
 
 purge: clean
 	@docker system prune -a -f
