@@ -1,3 +1,5 @@
+version: '3.9'
+
 services:
   # -----------------------------
   #      MariaDB Database SERVICE
@@ -37,7 +39,6 @@ services:
       WORDPRESS_ADMIN_EMAIL: ${WORDPRESS_ADMIN_EMAIL}
       WORDPRESS_REGULAR_USER: ${WORDPRESS_REGULAR_USER}
       WORDPRESS_REGULAR_EMAIL: ${WORDPRESS_REGULAR_EMAIL}
-
     secrets:
       - wp_to_db_user_password
       - wp_manager_password
@@ -61,15 +62,13 @@ services:
       - "443:443"
     volumes:
       - ${VOLUMES_ROOT}/wp:/var/www/html
-      # SSL Certificates
       - ./certs/frromero.42.fr.crt:/etc/ssl/certs/frromero.42.fr.crt:ro
       - ./certs/frromero.42.fr.key:/etc/ssl/private/frromero.42.fr.key:ro
-      # Nginx Configuration
       - ./requirements/nginx/conf/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./requirements/nginx/conf/default.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./requirements/nginx/conf/bonus.conf:/etc/nginx/conf.d/bonus.conf:ro
     networks:
       - inception_net
+
 
   #-----------------------------
   #    Bonus: Static Web SERVICE
@@ -84,9 +83,6 @@ services:
       - "8080:8080"
     networks:
       - inception_net
-
-
-
 
 # -----------------------------
 # Docker Volumes
