@@ -79,7 +79,6 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      # Montar los mismos certificados SSL que usa nginx
       - ./certs/frromero.42.fr.crt:/etc/ssl/certs/frromero.42.fr.crt:ro
       - ./certs/frromero.42.fr.key:/etc/ssl/private/frromero.42.fr.key:ro
     networks:

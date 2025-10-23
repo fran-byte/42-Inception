@@ -5,7 +5,7 @@
 DC = docker compose
 DC_DIR = ./srcs
 
-.PHONY: help up up-bonus bonus-only stop restart logs build rebuild clean purge rel-purge
+.PHONY: help up mandatory-bonus-up bonus-up stop restart logs build rebuild clean purge rel-purge
 
 # =======================================================================
 # HELP
@@ -32,11 +32,11 @@ up:
 	@cd $(DC_DIR) && $(DC) up --build -d
 
 # Mandatory + Bonus
-up-bonus:
+mandatory-bonus-up:
 	@cd $(DC_DIR) && $(DC) --profile bonus up --build -d
 
 # Solo bonus (asumiendo que mandatory está corriendo)
-bonus-only:
+bonus-up:
 	@cd $(DC_DIR) && $(DC) --profile bonus up --build -d static-web
 
 stop:
