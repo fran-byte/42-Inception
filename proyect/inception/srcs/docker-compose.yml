@@ -4,6 +4,7 @@ services:
   # -----------------------------
   mariadb:
     build: ./requirements/mariadb
+    image: mariadb
     container_name: mariadb
     restart: always
     environment:
@@ -22,6 +23,7 @@ services:
   # -----------------------------
   wordpress:
     build: ./requirements/wordpress
+    image: wordpress
     container_name: wordpress
     restart: always
     depends_on:
@@ -50,6 +52,7 @@ services:
   # -----------------------------
   nginx:
     build: ./requirements/nginx
+    image: nginx
     container_name: nginx
     restart: always
     depends_on:
@@ -73,6 +76,7 @@ services:
   #-----------------------------
   static-web:
     build: ./requirements/bonus/static-web
+    image: static-web
     container_name: static-web
     restart: always
     profiles: ["bonus"]  # ✅ Activated with --profile bonus
