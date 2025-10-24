@@ -1,33 +1,33 @@
 # ==============================================================================
-# MAKEFILE ULTRA-MÍNIMO CON REL-PURGE - INCEPTION
+# ULTRA-MINIMAL MAKEFILE WITH PURGE-ALL - INCEPTION
 # ==============================================================================
 
 DC = docker compose
 DC_DIR = ./srcs
 
-.PHONY: help mandatory-up mandatory-bonus-up bonus-up redis-test redis-config stop restart logs build rebuild clean purge rel-purge
+.PHONY: help mandatory-up mandatory-bonus-up bonus-up redis-test redis-config stop restart logs build rebuild clean purge purge-all
 
 # =======================================================================
 # HELP
 # =======================================================================
 help:
-	@echo "Comandos disponibles:"
-	@echo "  make mandatory-up        # Levantar solo servicios MANDATORY"
-	@echo "  make mandatory-bonus-up  # Levantar MANDATORY + BONUS"
-	@echo "  make bonus-up            # Levantar solo BONUS (si mandatory está corriendo)"
-	@echo "  make redis-test          # Test de performance con/sin Redis"
-	@echo "  make redis-config        # Añadir configuración Redis a WordPress"
-	@echo "  make stop                # Detener todos los servicios"
-	@echo "  make restart             # Reiniciar todos los servicios"
-	@echo "  make logs                # Ver logs de todos los servicios"
-	@echo "  make build               # Construir imágenes"
-	@echo "  make rebuild             # Reconstruir imágenes sin cache"
-	@echo "  make clean               # Limpiar contenedores y volúmenes"
-	@echo "  make purge               # Limpieza completa, incluye datos"
-	@echo "  make rel-purge           # Limpieza avanzada pero conserva docs/, secrets/, srcs/ y Makefile"
+	@echo "Available commands:"
+	@echo "  make mandatory-up        # Start MANDATORY services only"
+	@echo "  make mandatory-bonus-up  # Start MANDATORY + BONUS services"
+	@echo "  make bonus-up            # Start BONUS only (if mandatory is running)"
+	@echo "  make redis-test          # Performance test with/without Redis"
+	@echo "  make redis-config        # Add Redis configuration to WordPress"
+	@echo "  make stop                # Stop all services"
+	@echo "  make restart             # Restart all services"
+	@echo "  make logs                # View all service logs"
+	@echo "  make build               # Build images"
+	@echo "  make rebuild             # Rebuild images without cache"
+	@echo "  make clean               # Clean containers only (keep volumes)"
+	@echo "  make purge               # Clean containers + images (keep volumes)"
+	@echo "  make purge-all           # Nuclear cleanup (containers + images + volumes + files)"
 
 # =======================================================================
-# SERVICIOS
+# SERVICES
 # =======================================================================
 mandatory-up:
 	@cd $(DC_DIR) && $(DC) up --build -d
@@ -50,52 +50,53 @@ logs:
 # REDIS CONFIGURATION
 # =======================================================================
 redis-config:
-	@echo "⚙️  CONFIGURANDO REDIS CON WP-CLI..."
+	@echo "⚙️  CONFIGURING REDIS WITH WP-CLI..."
 	@cd $(DC_DIR) && docker compose exec wordpress wp config set WP_REDIS_HOST redis --add=true --type=constant
 	@cd $(DC_DIR) && docker compose exec wordpress wp config set WP_REDIS_PORT 6379 --add=true --type=constant
 	@cd $(DC_DIR) && docker compose exec wordpress wp config set WP_REDIS_TIMEOUT 1 --add=true --type=constant
 	@cd $(DC_DIR) && docker compose exec wordpress wp config set WP_REDIS_READ_TIMEOUT 1 --add=true --type=constant
-	@echo "✅ Configuración Redis añadida con WP-CLI"
-	@echo "🎯 Instala el plugin desde WordPress Admin"
+	@echo "✅ Redis configuration added with WP-CLI"
+	@echo "🎯 Install the plugin from WordPress Admin"
+
 # =======================================================================
 # TESTING
 # =======================================================================
 redis-test:
-	@echo "🔍 INICIANDO TEST DE PERFORMANCE REDIS"
+	@echo "🔍 STARTING REDIS PERFORMANCE TEST"
 	@echo "========================================"
 	@cd $(DC_DIR) && bash -c '\
-		echo -e "\n✅ ESTADO ACTUAL - Redis CONECTADO"; \
+		echo -e "\n✅ CURRENT STATUS - Redis CONNECTED"; \
 		docker compose ps | grep redis; \
-		echo -e "\n  MEDICIÓN CON Redis:"; \
+		echo -e "\n  MEASUREMENT WITH Redis:"; \
 		for i in 1 2 3; do \
 			tiempo=$$(curl -k -w "%{time_total}" -o /dev/null -s https://frromero.42.fr/); \
-			echo "  Petición $$i: $${tiempo}s"; \
+			echo "  Request $$i: $${tiempo}s"; \
 		done; \
-		echo -e "\n  DETENIENDO Redis..."; \
+		echo -e "\n  STOPPING Redis..."; \
 		docker compose stop redis; \
 		sleep 2; \
-		echo -e "\n  MEDICIÓN SIN Redis:"; \
+		echo -e "\n  MEASUREMENT WITHOUT Redis:"; \
 		for i in 1 2 3; do \
 			tiempo=$$(curl -k -w "%{time_total}" -o /dev/null -s https://frromero.42.fr/); \
-			echo "  Petición $$i: $${tiempo}s"; \
+			echo "  Request $$i: $${tiempo}s"; \
 		done; \
-		echo -e "\n  LEVANTANDO Redis..."; \
+		echo -e "\n  STARTING Redis..."; \
 		docker compose --profile bonus up -d redis; \
 		sleep 5; \
 		until docker compose exec redis redis-cli ping 2>/dev/null | grep -q "PONG"; do \
-			echo "Esperando que Redis esté listo..."; \
+			echo "Waiting for Redis to be ready..."; \
 			sleep 2; \
 		done; \
-		echo "✅ Redis reconectado: PONG"; \
-		echo -e "\n  MEDICIÓN CON Redis (reactivado):"; \
+		echo "✅ Redis reconnected: PONG"; \
+		echo -e "\n  MEASUREMENT WITH Redis (reactivated):"; \
 		for i in 1 2 3; do \
 			tiempo=$$(curl -k -w "%{time_total}" -o /dev/null -s https://frromero.42.fr/); \
-			echo "  Petición $$i: $${tiempo}s"; \
+			echo "  Request $$i: $${tiempo}s"; \
 		done; \
 	'
 
 # =======================================================================
-# CONSTRUCCIÓN
+# BUILD
 # =======================================================================
 build:
 	@cd $(DC_DIR) && $(DC) build
@@ -105,16 +106,16 @@ rebuild:
 	@$(MAKE) mandatory-up
 
 # =======================================================================
-# LIMPIEZA
+# CLEANUP
 # =======================================================================
 clean:
-	@cd $(DC_DIR) && $(DC) --profile bonus down -v
+	@cd $(DC_DIR) && $(DC) --profile bonus down
 
 purge: clean
 	@docker system prune -a -f
 
-rel-purge: clean
-	@echo "🔥 Eliminando todo excepto secrets/, srcs/ y Makefile..."
+purge-all: clean
+	@echo "🔥 NUCLEAR CLEANUP - Removing everything except secrets/, srcs/ and Makefile..."
 	@find . -maxdepth 1 -mindepth 1 \
 		! -name 'secrets' \
 		! -name 'srcs' \
