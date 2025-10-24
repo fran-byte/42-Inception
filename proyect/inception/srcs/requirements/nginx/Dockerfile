@@ -3,7 +3,7 @@
 # Image Base From Docker Hub
 # -----------------------------
 
-FROM alpine:3.19
+FROM alpine:3.21
 
 # -----------------------------
 # Install required packages

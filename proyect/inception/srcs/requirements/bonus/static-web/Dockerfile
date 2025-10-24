@@ -1,4 +1,4 @@
-FROM alpine:3.19
+FROM alpine:3.21
 
 RUN apk update && apk add nginx
 RUN mkdir -p /run/nginx /var/log/nginx /usr/share/nginx/html
