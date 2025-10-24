@@ -68,7 +68,7 @@ services:
       - inception_net
 
   #-----------------------------
-  #    Bonus: Static Web SERVICE 
+  #    1 - Bonus: Static Web SERVICE 
   #-----------------------------
   static-web:
     build: ./requirements/bonus/static-web
@@ -85,7 +85,7 @@ services:
       - inception_net
 
   #-----------------------------
-  #    Bonus: redis SERVICE 
+  #    2 - Bonus: redis SERVICE 
   #-----------------------------
   redis:
     build: ./requirements/bonus/redis
@@ -94,7 +94,7 @@ services:
     restart: always
     profiles: ["bonus"]
     networks:
-      - inception_net     
+      - inception_net 
 
 # -----------------------------
 # Docker Volumes
