@@ -33,11 +33,6 @@ RUN apk update && apk add \
     git
 
 # -----------------------------
-# Create symlink for php executable
-# -----------------------------
-RUN ln -s /usr/bin/php83 /usr/bin/php
-
-# -----------------------------
 # Create necessary directories and set permissions
 # -----------------------------
 RUN mkdir -p /var/www/html /run/php \
