@@ -73,7 +73,7 @@ else
     done
 
     # -----------------------------
-    # Install WordPress if MariaDB is ready
+    # Install WordPress TABLES if MariaDB is ready
     # -----------------------------
     if mysql -h mariadb -u wp_to_db_user -p"$DB_PASSWORD" -e "SELECT 1;" &> /dev/null; then
         echo "---> Creating wp-config.php..."
@@ -85,7 +85,7 @@ else
             --allow-root \
             --path=/var/www/html
 
-        echo "---> Installing WordPress..."
+        echo "---> Installing TABLES in WordPress..."
         wp core install \
             --url="https://${DOMAIN_NAME}" \
             --title="${WORDPRESS_SITE_TITLE}" \
@@ -96,8 +96,8 @@ else
             --allow-root \
             --path=/var/www/html
 
-        echo "✅ WordPress installed successfully via CLI"
-
+        echo "✅ WordPress TABLES installed successfully via CLI"
+        
         # -----------------------------
         # Create additional users if init-users.php exists
         # -----------------------------
