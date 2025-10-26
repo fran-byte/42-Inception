@@ -15,8 +15,8 @@ function create_user_if_not_exists($username, $email, $password, $role) {
         if (!is_wp_error($user_id)) {
             $user = new WP_User($user_id);
             $user->set_role($role);
-            error_log("✅ User '$username' created with role '$role'");
-            echo "✅ User '$username' created with role '$role'\n";
+            error_log(" User '$username' created with role '$role'");
+            echo " User '$username' created with role '$role'\n";
         } else {
             $error_msg = $user_id->get_error_message();
             error_log("❌ Error creating user '$username': $error_msg");
@@ -42,7 +42,7 @@ $editor_email = getenv('WORDPRESS_REGULAR_EMAIL') ?: 'editor@42.fr';
 # -----------------------------
 # Display info about users to be created
 # -----------------------------
-echo "🎯 Creating WordPress users...\n";
+echo " Creating WordPress users...\n";
 echo "Admin: $admin_user ($admin_email)\n";
 echo "Editor: $editor_user ($editor_email)\n";
 
@@ -55,5 +55,5 @@ create_user_if_not_exists($editor_user, $editor_email, $editor_pass, 'editor');
 # -----------------------------
 # Completion message
 # -----------------------------
-echo "✅ User initialization script completed\n";
+echo " User initialization script completed\n";
 ?>

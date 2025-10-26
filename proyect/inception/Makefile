@@ -1,11 +1,19 @@
-# ==============================================================================
-# ULTRA-MINIMAL MAKEFILE WITH PURGE-ALL - INCEPTION
-# ==============================================================================
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: frromero <frromero@student.42madrid.com>   +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2025/07/10 20:12:48 by frromero          #+#    #+#              #
+#    Updated: 2025/10/26 18:50:00 by frromero         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
 DC = docker compose
 DC_DIR = ./srcs
 
-.PHONY: help mandatory-up mandatory-bonus-up bonus-up redis-test redis-config stop restart logs build rebuild clean purge purge-all
+.PHONY: help mandatory-up mandatory-bonus-up bonus-up redis-test redis-config stop restart logs build rebuild purge purge-all
 
 # =======================================================================
 # HELP
@@ -22,9 +30,8 @@ help:
 	@echo "  make logs                # View all service logs"
 	@echo "  make build               # Build images"
 	@echo "  make rebuild             # Rebuild images without cache"
-	@echo "  make clean               # Clean containers only (keep volumes)"
-	@echo "  make purge               # Clean containers + images (keep volumes)"
-	@echo "  make purge-all           # Nuclear cleanup (containers + images + volumes + files)"
+	@echo "  make purge               # Clean all containers (mandatory + bonus) and images"
+	@echo "  make purge-all           # Full cleanup: containers, images, volumes, and extra files"
 
 # =======================================================================
 # SERVICES
@@ -108,18 +115,16 @@ rebuild:
 # =======================================================================
 # CLEANUP
 # =======================================================================
-clean:
-	@cd $(DC_DIR) && $(DC) --profile bonus down
-
-purge: clean
+purge:
+	@cd $(DC_DIR) && $(DC) down
 	@docker system prune -a -f
 
-purge-all: clean
-	@echo "🔥 NUCLEAR CLEANUP - Removing everything except secrets/, srcs/ and Makefile..."
+
+purge-all: purge
+	@echo "☢️ NUCLEAR CLEANUP - Removing volumes and extra files..."
 	@find . -maxdepth 1 -mindepth 1 \
 		! -name 'secrets' \
 		! -name 'srcs' \
 		! -name 'Makefile' \
 		-exec rm -rf {} +
 	@docker volume rm srcs_db_data srcs_wp_data 2>/dev/null || true
-	@docker system prune -a -f

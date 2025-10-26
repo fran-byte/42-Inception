@@ -17,4 +17,4 @@ chown -R mysql:mysql /var/lib/mysql
 # -----------------------------
 mysql_install_db --user=mysql --datadir=/var/lib/mysql
 
-echo "✅ MariaDB ready during build."
+echo " MariaDB ready during build."

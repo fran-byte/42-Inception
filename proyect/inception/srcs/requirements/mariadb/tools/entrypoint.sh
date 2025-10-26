@@ -59,5 +59,5 @@ fi
 # -----------------------------
 # Start MariaDB service
 # -----------------------------
-echo "✅ MariaDB ready, starting service..."
+echo " MariaDB ready, starting service..."
 exec mysqld_safe

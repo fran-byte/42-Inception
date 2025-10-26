@@ -33,7 +33,7 @@ fi
 # Check if wp-config.php exists
 # -----------------------------
 if [ -f /var/www/html/wp-config.php ]; then
-    echo "✅ wp-config.php found"
+    echo " wp-config.php found"
 
     # -----------------------------
     # Wait until WordPress is fully initialized
@@ -96,7 +96,7 @@ else
             --allow-root \
             --path=/var/www/html
 
-        echo "✅ WordPress TABLES installed successfully via CLI"
+        echo " WordPress TABLES installed successfully via CLI"
         
         # -----------------------------
         # Create additional users if init-users.php exists
@@ -113,5 +113,5 @@ fi
 # -----------------------------
 # Start PHP-FPM in foreground
 # -----------------------------
-echo "✅ Starting PHP-FPM..."
+echo " Starting PHP-FPM..."
 exec php-fpm83 -F
