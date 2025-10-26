@@ -6,7 +6,7 @@
 #    By: frromero <frromero@student.42madrid.com>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/07/10 20:12:48 by frromero          #+#    #+#              #
-#    Updated: 2025/10/26 18:50:00 by frromero         ###   ########.fr        #
+#    Updated: 2025/10/26 19:20:00 by frromero         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,7 +30,7 @@ help:
 	@echo "  make logs                # View all service logs"
 	@echo "  make build               # Build images"
 	@echo "  make rebuild             # Rebuild images without cache"
-	@echo "  make purge               # Clean all containers (mandatory + bonus) and images"
+	@echo "  make purge               # Clean all containers, images and volumes (mandatory + bonus)"
 	@echo "  make purge-all           # Full cleanup: containers, images, volumes, and extra files"
 
 # =======================================================================
@@ -116,15 +116,13 @@ rebuild:
 # CLEANUP
 # =======================================================================
 purge:
-	@cd $(DC_DIR) && $(DC) down
+	@cd $(DC_DIR) && $(DC) --profile bonus down -v --remove-orphans
 	@docker system prune -a -f
 
-
 purge-all: purge
-	@echo "☢️ NUCLEAR CLEANUP - Removing volumes and extra files..."
+	@echo "☢️  NUCLEAR CLEANUP - Removing extra files..."
 	@find . -maxdepth 1 -mindepth 1 \
 		! -name 'secrets' \
 		! -name 'srcs' \
 		! -name 'Makefile' \
 		-exec rm -rf {} +
-	@docker volume rm srcs_db_data srcs_wp_data 2>/dev/null || true
