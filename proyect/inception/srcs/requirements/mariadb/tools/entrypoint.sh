@@ -1,8 +1,10 @@
 #!/bin/sh
-
-# Entrypoint: main script executed when container starts
-
 set -e
+
+# -----------------------------
+# MariaDB Entrypoint
+# Main script executed when MariaDB container starts
+# -----------------------------
 
 echo "---> Initializing MariaDB..."
 
@@ -28,36 +30,47 @@ if [ ! -d "/var/lib/mysql/mysql" ]; then
     mariadb-install-db --user=mysql --datadir=/var/lib/mysql
 
     # -----------------------------
-    # Configure root and application users
+    # Create initialization file for database setup
     # -----------------------------
-    echo "---> Configuring root and application users..."
-    mysqld --user=mysql --skip-networking &
-    MYSQL_PID=$!
-    until mysqladmin ping --silent; do
-        sleep 2
-    done
-
-    mysql -u root <<EOF
+    cat > /tmp/mariadb_init.sql << EOF
+-- Secure root user
 ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
+
+-- Create application database
 CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
+
+-- Create application user
 CREATE USER '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
+
+-- Grant privileges
 GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';
 
--- 🧹 Remove invalid users
-DELETE FROM mysql.user
-WHERE User NOT IN ('${MYSQL_USER}', 'root', 'mysql', 'mariadb.sys')
-  OR User = ''
+-- Clean up invalid users
+DELETE FROM mysql.user 
+WHERE User NOT IN ('${MYSQL_USER}', 'root', 'mysql', 'mariadb.sys') 
+  OR User = '' 
   OR Host = '';
 
+-- Apply changes
 FLUSH PRIVILEGES;
 EOF
 
-    kill $MYSQL_PID
-    wait $MYSQL_PID
+    echo "---> Initializing database with users and permissions..."
+    # Start MariaDB temporarily with init file
+    mysqld --user=mysql --init-file=/tmp/mariadb_init.sql &
+    MYSQL_PID=$!
+    
+    # Wait for MariaDB to complete initialization
+    sleep 10
+    
+    # Stop the temporary instance
+    kill -TERM $MYSQL_PID 2>/dev/null
+    wait $MYSQL_PID 2>/dev/null || true
+    
+    # Clean up
+    rm -f /tmp/mariadb_init.sql
+    echo "---> Database initialization complete"
 fi
 
-# -----------------------------
-# Start MariaDB service
-# -----------------------------
-echo " MariaDB ready, starting service..."
-exec mysqld_safe
+echo "---> Starting MariaDB service..."
+exec mysqld --user=mysql
