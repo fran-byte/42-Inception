@@ -1,4 +1,3 @@
-name="Debian_VM"
 encryption="disabled"
 groups="/"
 ostype="Debian (64-bit)"
@@ -119,7 +118,7 @@ ehci="on"
 xhci="off"
 recording_enabled="off"
 recording_screens=2
- rec_screen0
+rec_screen0:
 rec_screen_enabled="on"
 rec_screen_id=0
 rec_screen_video_enabled="on"
@@ -129,7 +128,7 @@ rec_screen_opts="vc_enabled=true,ac_enabled=false,ac_profile=med"
 rec_screen_video_res_xy="1024x768"
 rec_screen_video_rate_kbps=512
 rec_screen_video_fps=25
- rec_screen1
+rec_screen1:
 rec_screen_enabled="off"
 rec_screen_id=1
 rec_screen_video_enabled="on"
