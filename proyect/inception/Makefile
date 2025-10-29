@@ -12,8 +12,20 @@
 
 DC = docker compose
 DC_DIR = ./srcs
+VOLUMES_ROOT := $(PROJECT_ROOT)/data
 
-.PHONY: help mandatory-up mandatory-bonus-up bonus-up redis-test redis-config stop restart logs build rebuild purge purge-all
+
+.PHONY: help setup-data mandatory-up bonus-up redis-test redis-config stop restart logs build rebuild purge purge-all
+
+# -----------------------------
+# CREATE DATA FOLDERS WITH CORRECT PERMISSIONS
+# -----------------------------
+setup-data:
+	@echo "📁 Creating data directories with correct permissions..."
+	@mkdir -p data/db data/wp
+	@chown -R $$(id -u):$$(id -g) data/db data/wp
+	@chmod -R 755 data/db data/wp
+	@echo "✅ Data directories ready!"
 
 # =======================================================================
 # HELP
@@ -21,7 +33,7 @@ DC_DIR = ./srcs
 help:
 	@echo "Available commands:"
 	@echo "  make mandatory-up        # Start MANDATORY services only"
-	@echo "  make mandatory-bonus-up  # Start MANDATORY + BONUS services"
+# 	@echo "  make mandatory-bonus-up  # Start MANDATORY + BONUS services"
 	@echo "  make bonus-up            # Start BONUS only (if mandatory is running)"
 	@echo "  make redis-test          # Performance test with/without Redis"
 	@echo "  make redis-config        # Add Redis configuration to WordPress"
@@ -39,8 +51,8 @@ help:
 mandatory-up:
 	@cd $(DC_DIR) && $(DC) up --build -d
 
-mandatory-bonus-up:
-	@cd $(DC_DIR) && $(DC) --profile bonus up --build -d
+# mandatory-bonus-up:
+# 	@cd $(DC_DIR) && $(DC) --profile bonus up --build -d
 
 bonus-up:
 	@cd $(DC_DIR) && $(DC) --profile bonus up --build -d
@@ -116,13 +128,19 @@ rebuild:
 # CLEANUP
 # =======================================================================
 purge:
-	@cd $(DC_DIR) && $(DC) --profile bonus down -v --remove-orphans
+	@cd $(DC_DIR) && $(DC) --profile bonus down --remove-orphans
 	@docker system prune -a -f
+	@docker builder prune -af
+	@docker volume prune -f
 
 purge-all: purge
-	@echo "☢️  NUCLEAR CLEANUP - Removing extra files..."
-	@find . -maxdepth 1 -mindepth 1 \
-		! -name 'secrets' \
-		! -name 'srcs' \
-		! -name 'Makefile' \
-		-exec rm -rf {} +
+	@echo "☢️ NUCLEAR CLEANUP - Removing extra files..."
+	@docker volume prune -f
+	@docker builder prune -af
+	@rm -rf data/db/* data/wp/*
+# 	@find . -maxdepth 1 -mindepth 1 \
+# 		! -name 'secrets' \
+# 		! -name 'srcs' \
+# 		! -name 'Makefile' \
+# 		-exec rm -rf {} +
+

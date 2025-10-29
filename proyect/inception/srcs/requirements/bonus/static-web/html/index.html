@@ -2,76 +2,48 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bonus Inception</title>
+  <title>Bonus: WEB ESTATICA</title>
   <style>
     body {
-      background-color: #0a0a0a;
-      color: #00ff00;
+      background-color: #121212;
+      color: #a8d5ba;
       font-family: 'Courier New', monospace;
       padding: 2rem;
-      line-height: 1.6;
-    }
-
-    h1, h2 {
+      line-height: 1.5;
       text-align: center;
-      color: #00ff00;
-      margin-bottom: 1rem;
     }
-
-    .highlight {
-      background-color: #085e24;
-      color: #eaffea;
-      border: 2px solid #00ff00;
+    h1 {
+      margin-bottom: 1rem;
+      color: #c0e0c9;
+    }
+    h2 {
+      margin: 1.5rem 0 0.5rem 0;
+      color: #c0e0c9;
+    }
+    .box {
+      background-color: #1e2a1f;
+      color: #d0f0d8;
       border-radius: 6px;
       padding: 1rem;
-      box-shadow: 0 0 8px #00ff00;
-    }
-
-    .highlight h3 {
-      margin-top: 0;
-      color: #ccffcc;
-      font-size: 1rem;
-      text-transform: uppercase;
-      margin-bottom: 0.5rem;
-    }
-
-    .flex-row {
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      flex-wrap: wrap;
-    }
-
-    .small-box {
-      width: 260px;
-      margin: 1rem 0;
-    }
-
-    .wide-box {
-      width: 560px;
       margin: 1rem auto;
+      max-width: 500px;
+      text-align: left;
     }
-
     ul, ol {
-      margin-left: 1.2rem;
+      margin-left: 1rem;
       padding-left: 0.5rem;
     }
-
     li {
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.3rem;
     }
-
-    code {
-      background: rgba(0, 255, 0, 0.2);
-      padding: 0.2rem 0.4rem;
-      border-radius: 3px;
+    img.logo {
+      max-width: 180px;
+      margin: 0.5rem auto 1rem auto;
+      display: block;
     }
-
     footer {
-      text-align: center;
-      margin-top: 3rem;
-      font-size: 0.9rem;
+      margin-top: 2rem;
+      font-size: 0.85rem;
       opacity: 0.7;
     }
   </style>
@@ -79,71 +51,41 @@
 <body>
 
   <h1>Bonus Inception</h1>
-  <p style="text-align:center;">Sitio web estático en Docker para el proyecto Inception</p>
+  <img src="logo2.png" alt="Logo" class="logo">
+  <p>Web estática en Docker para el proyecto Inception</p>
 
-  <h2>Resumen</h2>
-  <div class="highlight wide-box">
-    <h3>Descripción</h3>
-    <p>Web HTML/CSS servida por Nginx en Docker. Acceso solo por proxy reverso.</p>
+  <div class="box">
+    <h2>Características</h2>
+    <ul>
+      <li>Contenedor con Nginx</li>
+      <li>Contenido estático</li>
+      <li>Red Docker privada</li>
+      <li>Solo lectura</li>
+    </ul>
   </div>
 
-  <h2>Características y Tecnologías</h2>
-  <div class="flex-row">
-    <div class="highlight small-box">
-      <h3>Características</h3>
-      <ul>
-        <li>Contenedor con Nginx</li>
-        <li>Contenido estático</li>
-        <li>Solo lectura</li>
-        <li>Red Docker privada</li>
-      </ul>
-    </div>
-    <div class="highlight small-box">
-      <h3>Tecnologías</h3>
-      <ul>
-        <li>Docker</li>
-        <li>Docker Compose</li>
-        <li>Nginx</li>
-        <li>HTML/CSS</li>
-        <li>Makefile</li>
-      </ul>
-    </div>
+  <div class="box">
+    <h2>Tecnologías</h2>
+    <ul>
+      <li>Docker / Docker Compose</li>
+      <li>Nginx</li>
+      <li>HTML/CSS</li>
+    </ul>
   </div>
 
-  <h2>Configuración y Despliegue</h2>
-  <div class="flex-row">
-    <div class="highlight small-box">
-      <h3>Configuración</h3>
-      <p>Imagen: <code>alpine:3.19</code> | Puerto: <code>8080</code></p>
-      <p>Volumen para archivos y config Nginx personalizada.</p>
-      <ul>
-        <li><code>src/</code> – Código</li>
-        <li><code>conf/</code> – Configuración</li>
-        <li><code>docker/</code> – Contenedores</li>
-        <li><code>Makefile</code> – Tareas</li>
-      </ul>
-    </div>
-    <div class="highlight small-box">
-      <h3>Despliegue</h3>
-      <ol>
-        <li>Build imagen</li>
-        <li>Configurar volúmenes</li>
-        <li>Levantar con Compose</li>
-        <li>Activar proxy</li>
-        <li>Testear servicio</li>
-      </ol>
-      <ul>
-        <li><code>make build</code> – Construir</li>
-        <li><code>make up</code> – Iniciar</li>
-        <li><code>make down</code> – Detener</li>
-        <li><code>make logs</code> – Logs</li>
-      </ul>
-    </div>
+  <div class="box">
+    <h2>Despliegue</h2>
+    <ol>
+      <li>Build imagen</li>
+      <li>Configurar volúmenes</li>
+      <li>Levantar con Compose</li>
+      <li>Activar proxy</li>
+      <li>Probar servicio</li>
+    </ol>
   </div>
 
-  <footer>
-    frromero | Bonus Inception – 42 Madrid
-  </footer>
+  <img src="logo.png" alt="Logo1" class="logo">
 
+  <footer>frromero | Bonus Inception – 42 Madrid</footer>
 </body>
 </html>

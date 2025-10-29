@@ -1,22 +1,21 @@
 #!/bin/sh
 set -e
 
-# -----------------------------
-# MariaDB Install Script
-# Runs during Docker image build
-# -----------------------------
+# --------------------------------------------------
+# MariaDB Install Script: Running during Docker image build
+# --------------------------------------------------
 
-echo "---> Setting up MariaDB directories..."
-
-# -----------------------------
-# Create directories and set permissions
-# -----------------------------
+# --------------------------------------------------
+# Setting up MariaDB directories
+# --------------------------------------------------
 mkdir -p /var/lib/mysql /run/mysqld
 chown -R mysql:mysql /var/lib/mysql /run/mysqld
 
-# -----------------------------
-# Initialize database (build-time only)
-# -----------------------------
+# --------------------------------------------------
+# Initializing MariaDB database (build-time only)
+# --------------------------------------------------
 mariadb-install-db --user=mysql --datadir=/var/lib/mysql
 
-echo "---> MariaDB setup completed during build."
+# --------------------------------------------------
+# MariaDB setup completed during build
+# --------------------------------------------------

@@ -1,31 +1,30 @@
-# Ngnix Docker file
-# -----------------------------
-# Image Base From Docker Hub
-# -----------------------------
-
 FROM alpine:3.21
 
-# -----------------------------
-# Install required packages
-# -----------------------------
+# --------------------------------------------------
+# Base Image: Alpine 3.21 (from Docker Hub)
+# --------------------------------------------------
+
+# --------------------------------------------------
+# Installing required packages (nginx, openssl)
+# --------------------------------------------------
 RUN apk update && apk add --no-cache nginx openssl
 
-# -----------------------------
-# Copy global Nginx configuration
-# -----------------------------
+# --------------------------------------------------
+# Copying global Nginx configuration
+# --------------------------------------------------
 COPY conf/nginx.conf /etc/nginx/nginx.conf
 
-# -----------------------------
-# Copy server block configuration
-# -----------------------------
+# --------------------------------------------------
+# Copying server block configuration
+# --------------------------------------------------
 COPY conf/default.conf /etc/nginx/conf.d/default.conf
 
-# -----------------------------
-# Expose HTTPS port
-# -----------------------------
+# --------------------------------------------------
+# Exposing HTTPS port (443)
+# --------------------------------------------------
 EXPOSE 443
 
-# -----------------------------
-# Start Nginx in foreground
-# -----------------------------
+# --------------------------------------------------
+# Starting Nginx in foreground mode
+# --------------------------------------------------
 CMD ["nginx", "-g", "daemon off;"]

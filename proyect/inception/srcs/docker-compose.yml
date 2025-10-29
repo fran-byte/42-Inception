@@ -60,8 +60,8 @@ services:
       - "443:443"
     volumes:
       - ${VOLUMES_ROOT}/wp:/var/www/html
-      - ./certs/frromero.42.fr.crt:/etc/ssl/certs/frromero.42.fr.crt:ro
-      - ./certs/frromero.42.fr.key:/etc/ssl/private/frromero.42.fr.key:ro
+      - ../secrets/certs/frromero.42.fr.crt:/etc/ssl/certs/frromero.42.fr.crt:ro
+      - ../secrets/certs/frromero.42.fr.key:/etc/ssl/private/frromero.42.fr.key:ro
       - ./requirements/nginx/conf/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./requirements/nginx/conf/default.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
@@ -79,8 +79,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./certs/frromero.42.fr.crt:/etc/ssl/certs/frromero.42.fr.crt:ro
-      - ./certs/frromero.42.fr.key:/etc/ssl/private/frromero.42.fr.key:ro
+      - ../secrets/certs/frromero.42.fr.crt:/etc/ssl/certs/frromero.42.fr.crt:ro
+      - ../secrets/certs/frromero.42.fr.key:/etc/ssl/private/frromero.42.fr.key:ro
     networks:
       - inception_net
 
@@ -122,7 +122,7 @@ secrets:
     file: ${PROJECT_ROOT}/secrets/wp_manager_password.txt
   wp_editor_password:
     file: ${PROJECT_ROOT}/secrets/wp_editor_password.txt
-  wp_manager_user:
-    file: ${PROJECT_ROOT}/secrets/wp_manager_user.txt
-  wp_editor_user:
-    file: ${PROJECT_ROOT}/secrets/wp_editor_user.txt
+  # wp_manager_user:
+  #   file: ${PROJECT_ROOT}/secrets/wp_manager_user.txt
+  # wp_editor_user:
+  #   file: ${PROJECT_ROOT}/secrets/wp_editor_user.txt
