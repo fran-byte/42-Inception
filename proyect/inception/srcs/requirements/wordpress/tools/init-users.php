@@ -1,15 +1,11 @@
 <?php
-// --------------------------------------------------
 // WordPress User Initialization Script
 // Starting
-// --------------------------------------------------
 
 require_once('/var/www/html/wp-load.php');
 
-// --------------------------------------------------
 // Function: create_user_if_not_exists
 // Creates a user only if it does not exist
-// --------------------------------------------------
 function create_user_if_not_exists($username, $email, $password, $role) {
     if (!username_exists($username) && !email_exists($email)) {
         $user_id = wp_create_user($username, $password, $email);
@@ -26,9 +22,7 @@ function create_user_if_not_exists($username, $email, $password, $role) {
     }
 }
 
-// --------------------------------------------------
 // Read environment variables and secrets
-// --------------------------------------------------
 $admin_user = getenv('WORDPRESS_ADMIN_USER') ?: 'wp_manager_user';
 $admin_pass = trim(file_get_contents('/run/secrets/wp_manager_password'));
 $admin_email = getenv('WORDPRESS_ADMIN_EMAIL') ?: 'manager@42.fr';
@@ -37,13 +31,9 @@ $editor_user = getenv('WORDPRESS_REGULAR_USER') ?: 'wp_editor_user';
 $editor_pass = trim(file_get_contents('/run/secrets/wp_editor_password'));
 $editor_email = getenv('WORDPRESS_REGULAR_EMAIL') ?: 'editor@42.fr';
 
-// --------------------------------------------------
+
 // Create users if they do not exist
-// --------------------------------------------------
 create_user_if_not_exists($admin_user, $admin_email, $admin_pass, 'administrator');
 create_user_if_not_exists($editor_user, $editor_email, $editor_pass, 'editor');
 
-// --------------------------------------------------
-// User initialization script completed
-// --------------------------------------------------
 ?>

@@ -1,87 +1,50 @@
 FROM alpine:3.21
 
-# --------------------------------------------------
-# Base Image: Alpine 3.21 (from Docker Hub)
-# --------------------------------------------------
+RUN apk update && apk add --no-cache \
+    php83 \
+    php83-fpm \
+    php83-mysqli \
+    php83-curl \
+    php83-dom \
+    php83-json \
+    php83-mbstring \
+    php83-xml \
+    php83-zip \
+    php83-phar \
+    php83-session \
+    php83-openssl \
+    wget \
+    curl \
+    php83-tokenizer \
+    mariadb-client
 
-# --------------------------------------------------
-# Installing required system packages and PHP extensions
-# --------------------------------------------------
-RUN apk update && apk add \
-        php83 \
-        php83-fpm \
-        php83-mysqli \
-        php83-json \
-        php83-curl \
-        php83-dom \
-        php83-exif \
-        php83-fileinfo \
-        php83-mbstring \
-        php83-openssl \
-        php83-xml \
-        php83-zip \
-        php83-phar \
-        php83-session \
-        php83-tokenizer \
-        wget \
-        curl \
-        unzip \
-        mariadb-client \
-        bash \
-        shadow \
-        git
-
-# --------------------------------------------------
-# Creating necessary directories and setting permissions
-# --------------------------------------------------
 RUN mkdir -p /var/www/html /run/php \
     && chown -R nobody:nobody /var/www/html /run/php \
     && chmod -R 755 /var/www/html
 
-# --------------------------------------------------
-# Downloading and extracting WordPress
-# --------------------------------------------------
 RUN wget https://wordpress.org/latest.tar.gz -O /tmp/wordpress.tar.gz \
     && tar -xzf /tmp/wordpress.tar.gz -C /tmp/ \
     && cp -a /tmp/wordpress/. /var/www/html/ \
     && rm -rf /tmp/wordpress /tmp/wordpress.tar.gz
 
-# --------------------------------------------------
-# Setting final permissions for WordPress files
-# --------------------------------------------------
 RUN chown -R nobody:nobody /var/www/html \
     && find /var/www/html -type d -exec chmod 755 {} \; \
     && find /var/www/html -type f -exec chmod 644 {} \;
 
-# --------------------------------------------------
 # Configuring PHP-FPM
-# --------------------------------------------------
 COPY conf/www.conf /etc/php83/php-fpm.d/www.conf
 
-# --------------------------------------------------
 # Copying custom scripts
-# --------------------------------------------------
 COPY tools/install.sh /usr/local/bin/install.sh
 COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY tools/init-users.php /usr/local/bin/init-users.php
 RUN chmod +x /usr/local/bin/install.sh /usr/local/bin/entrypoint.sh
 
-# --------------------------------------------------
-# Run install.sh during build (e.g., installing WP-CLI)
-# --------------------------------------------------
 RUN /usr/local/bin/install.sh
 
-# --------------------------------------------------
 # Set working directory
-# --------------------------------------------------
 WORKDIR /var/www/html
 
-# --------------------------------------------------
-# Expose PHP-FPM port
-# --------------------------------------------------
 EXPOSE 9000
 
-# --------------------------------------------------
-# Set entrypoint script
-# --------------------------------------------------
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

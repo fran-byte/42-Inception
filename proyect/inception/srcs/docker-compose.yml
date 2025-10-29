@@ -7,12 +7,11 @@ services:
     image: mariadb
     container_name: mariadb
     restart: always
-    environment:
-      MYSQL_DATABASE: ${WORDPRESS_DB_NAME}
-      MYSQL_USER: wp_to_db_user
+    env_file:
+      - .env
     secrets:
       - mariadb_root_password
-      - wp_to_db_user_password
+      - mariadb_user_password
     volumes:
       - ${VOLUMES_ROOT}/db:/var/lib/mysql
     networks:
@@ -38,7 +37,7 @@ services:
       WORDPRESS_REGULAR_USER: ${WORDPRESS_REGULAR_USER}
       WORDPRESS_REGULAR_EMAIL: ${WORDPRESS_REGULAR_EMAIL}
     secrets:
-      - wp_to_db_user_password
+      - mariadb_user_password
       - wp_manager_password
       - wp_editor_password
     volumes:
@@ -96,6 +95,17 @@ services:
     networks:
       - inception_net 
 
+  #-----------------------------
+  #    3 - Bonus: adminer SERVICE 
+  #-----------------------------
+  adminer:
+    build: ./requirements/bonus/adminer
+    container_name: adminer
+    restart: always
+    profiles: ["bonus"]
+    networks:
+      - inception_net
+
 # -----------------------------
 # Docker Volumes
 # -----------------------------
@@ -116,13 +126,9 @@ networks:
 secrets:
   mariadb_root_password:
     file: ${PROJECT_ROOT}/secrets/mariadb_root_password.txt
-  wp_to_db_user_password:
-    file: ${PROJECT_ROOT}/secrets/wp_to_db_user_password.txt
+  mariadb_user_password:
+    file: ${PROJECT_ROOT}/secrets/mariadb_user_password.txt
   wp_manager_password:
     file: ${PROJECT_ROOT}/secrets/wp_manager_password.txt
   wp_editor_password:
     file: ${PROJECT_ROOT}/secrets/wp_editor_password.txt
-  # wp_manager_user:
-  #   file: ${PROJECT_ROOT}/secrets/wp_manager_user.txt
-  # wp_editor_user:
-  #   file: ${PROJECT_ROOT}/secrets/wp_editor_user.txt

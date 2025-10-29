@@ -1,71 +1,48 @@
 #!/bin/sh
 set -e
 
-# --------------------------------------------------
-# MariaDB Entrypoint: Starting container initialization
-# --------------------------------------------------
-
-# --------------------------------------------------
-# Reading secrets from mounted volume
-# --------------------------------------------------
+# Secrets and database configuration
 MYSQL_ROOT_PASSWORD=$(cat /run/secrets/mariadb_root_password)
-MYSQL_PASSWORD=$(cat /run/secrets/wp_to_db_user_password)
+MYSQL_PASSWORD=$(cat /run/secrets/mariadb_user_password)
 MYSQL_DATABASE=${MYSQL_DATABASE:-wordpress}
-MYSQL_USER=${MYSQL_USER:-wp_to_db_user}
+MYSQL_USER=${MYSQL_USER:-db_user}
 
-# --------------------------------------------------
-# Creating necessary directories and setting permissions
-# --------------------------------------------------
+# Create directories and set permissions
 mkdir -p /var/lib/mysql /run/mysqld
 chown -R mysql:mysql /var/lib/mysql /run/mysqld
 
-# --------------------------------------------------
-# Initializing database if it does not exist
-# --------------------------------------------------
+# Initialize database if first run
 if [ ! -d "/var/lib/mysql/mysql" ]; then
-    # Creating system tables
+    # Install system tables
     mariadb-install-db --user=mysql --datadir=/var/lib/mysql
 
-    # Creating initialization SQL script
+    # Create initialization script
     cat > /tmp/mariadb_init.sql << EOF
--- Secure root user
 ALTER USER 'root'@'localhost' IDENTIFIED BY '${MYSQL_ROOT_PASSWORD}';
-
--- Create application database
 CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\`;
-
--- Create application user
 CREATE USER '${MYSQL_USER}'@'%' IDENTIFIED BY '${MYSQL_PASSWORD}';
-
--- Grant privileges
 GRANT ALL PRIVILEGES ON \`${MYSQL_DATABASE}\`.* TO '${MYSQL_USER}'@'%';
-
--- Clean up invalid users
-DELETE FROM mysql.user 
-WHERE User NOT IN ('${MYSQL_USER}', 'root', 'mysql', 'mariadb.sys') 
-  OR User = '' 
-  OR Host = '';
-
--- Apply changes
+DELETE FROM mysql.user WHERE User NOT IN ('${MYSQL_USER}', 'root', 'mysql', 'mariadb.sys') OR User = '' OR Host = '';
 FLUSH PRIVILEGES;
 EOF
 
-    # Start MariaDB temporarily with init script
+    # Start temporary instance for initialization
     mysqld --user=mysql --init-file=/tmp/mariadb_init.sql &
     MYSQL_PID=$!
 
-    # Wait for MariaDB to complete initialization
-    sleep 10
+    # Wait for MySQL to be ready
+    for i in $(seq 1 30); do
+        if echo 'SELECT 1;' | mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" 2>/dev/null; then
+            break
+        fi
+        sleep 2
+    done
 
-    # Stop the temporary instance
+    # Cleanup temporary instance
     kill -TERM $MYSQL_PID 2>/dev/null
     wait $MYSQL_PID 2>/dev/null || true
-
-    # Clean up
     rm -f /tmp/mariadb_init.sql
 fi
 
-# --------------------------------------------------
-# Starting MariaDB service
-# --------------------------------------------------
+# Start MariaDB in foreground
 exec mysqld --user=mysql
