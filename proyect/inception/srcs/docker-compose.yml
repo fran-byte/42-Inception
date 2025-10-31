@@ -69,7 +69,7 @@ services:
     image: static-web
     container_name: static-web
     restart: always
-    profiles: ["bonus"]
+    profiles: [bonus]
     ports:
       - "8080:8080"
     volumes:
@@ -79,25 +79,13 @@ services:
       - inception_net
 
   #-----------------------------
-  #    2 - Bonus: redis SERVICE
-  #-----------------------------
-  redis:
-    build: ./requirements/bonus/redis
-    image: redis
-    container_name: redis
-    restart: always
-    profiles: ["bonus"]
-    networks:
-      - inception_net
-
-  #-----------------------------
-  #    3 - Bonus: adminer SERVICE
+  #    2 - Bonus: adminer SERVICE
   #-----------------------------
   adminer:
     build: ./requirements/bonus/adminer
     container_name: adminer
     restart: always
-    profiles: ["bonus"]
+    profiles: [bonus]
     networks:
       - inception_net
 
