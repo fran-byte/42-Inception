@@ -107,7 +107,6 @@ services:
 volumes:
   db:
   wp:
-  portainer_data:
 
 # Docker Networks
 # -----------------------------
@@ -126,5 +125,3 @@ secrets:
     file: ${PROJECT_ROOT}/secrets/wp_manager_password.txt
   wp_editor_password:
     file: ${PROJECT_ROOT}/secrets/wp_editor_password.txt
-  portainer_password:
-    file: ${PROJECT_ROOT}/secrets/portainer_password.txt
