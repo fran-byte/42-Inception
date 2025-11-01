@@ -16,6 +16,12 @@ services:
       - ${VOLUMES_ROOT}/db:/var/lib/mysql
     networks:
       - inception_net
+    healthcheck:
+      test: ["CMD-SHELL", "mysql -u root -p$$MARIADB_ROOT_PASSWORD -e 'SELECT 1;' || exit 1"]
+      start_period: 30s
+      interval: 15s
+      timeout: 10s
+      retries: 3
 
   # -----------------------------
   #             WordPress SERVICE
@@ -39,6 +45,12 @@ services:
       - ${VOLUMES_ROOT}/wp:/var/www/html
     networks:
       - inception_net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   # -----------------------------
   #      Nginx Web Server SERVICE
@@ -54,12 +66,18 @@ services:
       - "443:443"
     volumes:
       - ${VOLUMES_ROOT}/wp:/var/www/html
-      - ../secrets/certs/frromero.42.fr.crt:/etc/ssl/certs/frromero.42.fr.crt:ro
-      - ../secrets/certs/frromero.42.fr.key:/etc/ssl/private/frromero.42.fr.key:ro
+      - ${SECRETS_ROOT}/certs/frromero.42.fr.crt:/etc/ssl/certs/frromero.42.fr.crt:ro
+      - ${SECRETS_ROOT}/certs/frromero.42.fr.key:/etc/ssl/private/frromero.42.fr.key:ro
       - ./requirements/nginx/conf/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./requirements/nginx/conf/default.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - inception_net
+    healthcheck:
+      test: ["CMD-SHELL", "curl -k -f https://localhost/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   #-----------------------------
   #    1 - Bonus: Static Web SERVICE
@@ -73,8 +91,8 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ../secrets/certs/frromero.42.fr.crt:/etc/ssl/certs/frromero.42.fr.crt:ro
-      - ../secrets/certs/frromero.42.fr.key:/etc/ssl/private/frromero.42.fr.key:ro
+      - ${SECRETS_ROOT}/certs/frromero.42.fr.crt:/etc/ssl/certs/frromero.42.fr.crt:ro
+      - ${SECRETS_ROOT}/certs/frromero.42.fr.key:/etc/ssl/private/frromero.42.fr.key:ro
     networks:
       - inception_net
 
@@ -95,6 +113,7 @@ services:
 volumes:
   db:
   wp:
+  portainer_data:
 
 # -----------------------------
 # Docker Networks
@@ -115,3 +134,5 @@ secrets:
     file: ${PROJECT_ROOT}/secrets/wp_manager_password.txt
   wp_editor_password:
     file: ${PROJECT_ROOT}/secrets/wp_editor_password.txt
+  portainer_password:
+    file: ${PROJECT_ROOT}/secrets/portainer_password.txt
