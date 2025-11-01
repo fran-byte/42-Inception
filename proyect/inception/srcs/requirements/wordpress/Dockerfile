@@ -39,7 +39,6 @@ COPY tools/install.sh /usr/local/bin/install.sh
 COPY tools/entrypoint.sh /usr/local/bin/entrypoint.sh
 COPY tools/init-users.php /usr/local/bin/init-users.php
 RUN chmod +x /usr/local/bin/install.sh /usr/local/bin/entrypoint.sh
-
 RUN /usr/local/bin/install.sh
 
 # Set working directory

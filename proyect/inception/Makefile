@@ -3,10 +3,9 @@ DC = docker compose
 DC_DIR = ./srcs
 VOLUMES_ROOT := $(PROJECT_ROOT)/data
 
-.PHONY: help setup-data mandatory-up bonus-up  stop restart logs build rebuild purge purge-all 
+.PHONY: setup-data mandatory-up bonus-up  stop restart logs build rebuild purge purge-all 
 
 # CREATE DATA FOLDERS WITH CORRECT PERMISSIONS
-# =======================================================================
 setup-data:
 	@echo "Creating data directories with correct permissions"
 	@mkdir -p data/db data/wp
@@ -14,22 +13,7 @@ setup-data:
 	@chmod -R 755 data/db data/wp
 	@echo "Data directories ready"
 
-# HELP
-# =======================================================================
-help:
-	@echo "Available commands:"
-	@echo "  make mandatory-up        # Start MANDATORY services only"
-	@echo "  make bonus-up            # Start BONUS only (if mandatory is running)"	
-	@echo "  make stop                # Stop all services"
-	@echo "  make restart             # Restart all services"
-	@echo "  make logs                # View all service logs"
-	@echo "  make build               # Build images"
-	@echo "  make rebuild             # Rebuild images without cache"
-	@echo "  make purge               # Clean all containers, images (mandatory + bonus)"
-	@echo "  make purge-all           # Full cleanup: containers, images, volumes, and extra files"
-
 # SERVICES
-# =======================================================================
 mandatory-up:
 	@cd $(DC_DIR) && $(DC) up --build -d
 
@@ -45,7 +29,6 @@ logs:
 	@cd $(DC_DIR) && $(DC) logs --follow
 
 # BUILD
-# =======================================================================
 build:
 	@cd $(DC_DIR) && $(DC) build
 
@@ -54,8 +37,6 @@ rebuild:
 	@$(MAKE) mandatory-up
 
 # CLEANUP
-# =======================================================================
-
 purge:
 	@cd $(DC_DIR) && $(DC) --profile bonus down --remove-orphans
 	@docker system prune -a -f

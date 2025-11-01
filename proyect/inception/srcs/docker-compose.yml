@@ -1,5 +1,4 @@
 services:
-  # -----------------------------
   #      MariaDB Database SERVICE
   # -----------------------------
   mariadb:
@@ -22,8 +21,7 @@ services:
       interval: 15s
       timeout: 10s
       retries: 3
-
-  # -----------------------------
+      
   #             WordPress SERVICE
   # -----------------------------
   wordpress:
@@ -52,7 +50,6 @@ services:
       retries: 3
       start_period: 60s
 
-  # -----------------------------
   #      Nginx Web Server SERVICE
   # -----------------------------
   nginx:
@@ -79,7 +76,6 @@ services:
       retries: 3
       start_period: 40s
 
-  #-----------------------------
   #    1 - Bonus: Static Web SERVICE
   #-----------------------------
   static-web:
@@ -96,7 +92,6 @@ services:
     networks:
       - inception_net
 
-  #-----------------------------
   #    2 - Bonus: adminer SERVICE
   #-----------------------------
   adminer:
@@ -107,7 +102,6 @@ services:
     networks:
       - inception_net
 
-# -----------------------------
 # Docker Volumes
 # -----------------------------
 volumes:
@@ -115,14 +109,12 @@ volumes:
   wp:
   portainer_data:
 
-# -----------------------------
 # Docker Networks
 # -----------------------------
 networks:
   inception_net:
     driver: bridge
 
-# -----------------------------
 # Docker Secrets
 # -----------------------------
 secrets:
