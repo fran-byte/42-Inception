@@ -1,9 +1,8 @@
-
 DC = docker compose
 DC_DIR = ./srcs
 VOLUMES_ROOT := $(PROJECT_ROOT)/data
 
-.PHONY: setup-data mandatory-up bonus-up  stop restart logs build rebuild purge purge-all 
+.PHONY: setup-data mandatory-up bonus-up full-up stop restart logs build rebuild purge purge-all 
 
 # CREATE DATA FOLDERS WITH CORRECT PERMISSIONS
 setup-data:
@@ -15,9 +14,12 @@ setup-data:
 
 # SERVICES
 mandatory-up:
-	@cd $(DC_DIR) && $(DC) up --build -d
+	@cd $(DC_DIR) && $(DC) up --build -d mariadb wordpress nginx
 
 bonus-up:
+	@cd $(DC_DIR) && $(DC) --profile bonus up --build -d
+
+full-up:
 	@cd $(DC_DIR) && $(DC) --profile bonus up --build -d
 
 stop:
@@ -38,14 +40,16 @@ rebuild:
 
 # CLEANUP
 purge:
+	@echo "🧹 Basic cleanup - stopping containers and pruning"
+	@cd $(DC_DIR) && $(DC) --profile bonus down --remove-orphans
+	@docker system prune -f
+	@docker volume prune -f
+
+purge-all:
+	@echo "☢️ NUCLEAR CLEANUP - Removing everything..."
 	@cd $(DC_DIR) && $(DC) --profile bonus down --remove-orphans
 	@docker system prune -a -f
 	@docker builder prune -af
 	@docker volume prune -f
-
-purge-all: purge
-	@echo "☢️ NUCLEAR CLEANUP - Removing extra files..."
-	@docker volume prune -f
-	@docker builder prune -af
 	@rm -rf data/db/* data/wp/*
-
+	@echo "All containers, images, volumes and data removed"
