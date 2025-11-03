@@ -57,6 +57,7 @@ services:
   # BONUS SERVICES
   web:
     build: ./requirements/bonus/web
+    image: web
     container_name: web
     restart: always
     profiles: [bonus]
@@ -64,6 +65,7 @@ services:
       - inception_net
   adminer:
     build: ./requirements/bonus/adminer
+    image: adminer
     container_name: adminer
     restart: always
     profiles: [bonus]
