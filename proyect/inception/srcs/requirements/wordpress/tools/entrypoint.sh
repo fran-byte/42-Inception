@@ -16,31 +16,32 @@ if [ -z "$(ls -A /var/www/html)" ]; then
 fi
 
 # Wait for MariaDB
-DB_PASSWORD=$(cat /run/secrets/mariadb_user_password)
+MYSQL_USER_PASSWORD=$(cat /run/secrets/mariadb_user_password)
 
 for i in $(seq 1 15); do
-    if mysql -h mariadb -u db_user -p"$DB_PASSWORD" -e "SELECT 1;" &> /dev/null; then
+    if mysql -h"$MARIADB_HOST" -u"$MYSQL_USER" -p"$MYSQL_USER_PASSWORD" -e "SELECT 1;" &> /dev/null; then
         break
     fi
     sleep 2
     [ $i -eq 15 ] && echo "MariaDB connection failed" && exit 1
 done
 
+WORDPRESS_ADMIN_PASSWORD=$(cat /run/secrets/wp_manager_password)
 # WordPress setup
 if ! wp core is-installed --allow-root --path=/var/www/html 2>/dev/null; then
     [ ! -f /var/www/html/wp-config.php ] && wp config create \
-        --dbhost=mariadb \
-        --dbname=wordpress \
-        --dbuser=db_user \
-        --dbpass="$DB_PASSWORD" \
+        --dbhost="$MARIADB_HOST" \
+        --dbname="$MYSQL_DATABASE" \
+        --dbuser="$MYSQL_USER" \
+        --dbpass="$MYSQL_USER_PASSWORD" \
         --allow-root \
         --path=/var/www/html
 
     wp core install \
         --url="https://${DOMAIN_NAME}" \
-        --title="frromero WordPress" \
-        --admin_user="${WORDPRESS_ADMIN_USER}" \
-        --admin_password="$(cat /run/secrets/wp_manager_password)" \
+        --title="$WORDPRESS_SITE_TITLE" \
+        --admin_user="$WORDPRESS_ADMIN_USER" \
+        --admin_password="$WORDPRESS_ADMIN_PASSWORD" \
         --admin_email="${WORDPRESS_ADMIN_EMAIL}" \
         --skip-email \
         --allow-root \

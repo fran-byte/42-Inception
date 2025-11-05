@@ -24,8 +24,6 @@ services:
       - mariadb
     env_file:
       - .env
-    environment:
-      WORDPRESS_DB_HOST: mariadb:3306
     secrets:
       - mariadb_user_password
       - wp_manager_password

@@ -4,8 +4,8 @@ set -e
 # Secrets and database configuration
 MYSQL_ROOT_PASSWORD=$(cat /run/secrets/mariadb_root_password)
 MYSQL_PASSWORD=$(cat /run/secrets/mariadb_user_password)
-MYSQL_DATABASE=${MYSQL_DATABASE:-wordpress}
-MYSQL_USER=${MYSQL_USER:-db_user}
+# MYSQL_DATABASE=${MYSQL_DATABASE:-wordpress}
+# MYSQL_USER=${MYSQL_USER:-db_user}
 
 # Create directories and set permissions
 mkdir -p /var/lib/mysql /run/mysqld
